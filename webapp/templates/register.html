@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}Regístrate{% endblock %}
+
+{% block body %}
+<div class="container">
+    <div class="row d-flex justify-content-center">
+        <div class="col-xxl-4 col-xl-5 col-lg-7 col-md-8 col-sm-10">
+            <div class="card p-3">
+                <h4 class="text-center">Registrar cuenta</h4>
+                <form action="{% url 'webapp_registro' %}" method="post" novalidate>
+                    {% csrf_token %}
+                    {% for field in form %}
+                    <div class="mb-3">
+                        {{ field.label }}
+                        {{ field }}
+                        {% include "macro_form_error.html" with field='{{field.name}}' %}
+                    </div>
+                    {% endfor %}
+                    <div class="mb-3">
+                        {{ mensaje }}
+                    </div>
+                    
+                    <input class="btn btn-primary w-100" type="submit" name="submit" id="submit">
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
