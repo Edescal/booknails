@@ -3,7 +3,7 @@ import time
 
 # Create your models here.
 class Usuario(models.Model):
-    id = models.IntegerField(primary_key=True, null=False, auto_created=True)
+    id = models.IntegerField(primary_key=True, auto_created=True)
     username = models.CharField(max_length=32, unique=True, null=False)
     password = models.CharField(max_length=255, null= False, default='password')
     email = models.EmailField(unique=True, null=False)
@@ -15,10 +15,13 @@ class Usuario(models.Model):
     class Meta:
         db_table = 'usuarios'
 
-    def __str__(self):
-        return (f"Usuario(id={self.id}, username='{self.username}', email='{self.email}', "
-                f"telefono='{self.telefono}', nombre='{self.nombre}', apellidos='{self.apellidos}', "
-                f"fecha_creacion='{self.fecha_creacion}')")
+    def get_full_name(self) -> str:
+        return f'{self.nombre} {self.apellidos}'
+
+    def __str__(self) -> str:
+        return (f"Usuario(\n\tid={self.id},\n\tusername='{self.username}',\n\temail='{self.email}',\n\t"
+                f"telefono='{self.telefono}',\n\tnombre='{self.nombre}',\n\tapellidos='{self.apellidos}',\n\t"
+                f"fecha_creacion='{self.fecha_creacion}'\n)")
 
 
 class Servicio(models.Model):
@@ -39,6 +42,7 @@ class Cita(models.Model):
     fecha_cita = models.DateTimeField(null=False, unique=True)
     id_cliente = models.ForeignKey(Usuario, on_delete=models.CASCADE, null=False)
     id_servicio = models.ForeignKey(Servicio, on_delete=models.CASCADE, null=False)
+    fecha_creacion = models.DateTimeField(auto_now=True)
 
     class Meta:
         db_table = 'citas'
@@ -66,4 +70,16 @@ class Notificacion:
 
     def enviar_recordatorio(self):
         pass
+
+
+class FechaBloqueada:
+    id = models.AutoField(primary_key=True)
+    fecha = models.DateField(null=False, unique=True)
+    fecha_creacion = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'fechas_bloqueadas'
+
+    def __str__(self) -> str:
+        return f'Fecha bloqueada: {self.fecha.isoformat()}'
 

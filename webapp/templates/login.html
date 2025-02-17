@@ -3,32 +3,48 @@
 {% block title %}Iniciar sesión{% endblock %}
 
 {% block body %}
-<div class="container">
-    <div class="row d-flex justify-content-center">
-        <div class="col-xxl-4 col-xl-5 col-lg-7 col-md-8 col-sm-10">
-            <div class="card p-3">
-                <h4 class="text-center">Iniciar sesión</h4>
 
-                <form action="{% url 'webapp_login' %}" method="post" novalidate>
-                    {% csrf_token %}
-                    <div class="mb-3">
+<div class="container p-[30px]">
+    <div class="bg-red-100 rounded-xl w-1/4">
+        <div class="p-5">
+
+            <form action="{% url 'webapp_login' %}" method="post" class="bg-white shadow-md rounded-xl px-8 pt-6 pb-8 mb-4" novalidate>
+                <h4 class="mb-8 text-center text-2xl font-bold tracking-tight text-gray-800">Iniciar sesión</h4>
+                
+                {% csrf_token %}
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold" for="{{ form.credential.id_for_label }}">
                         {{ form.credential.label }}
+                    </label>
+                    <div class="flex items-center py-2">
                         {{ form.credential }}
-                        {% include "macro_form_error.html" with field='credencial' %}
                     </div>
-                    <div class="mb-3">
+                    {% include "macro_form_error.html" with field='credencial' %}
+                </div>
+
+
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold" for="{{ form.password.id_for_label }}">
                         {{ form.password.label }}
+                    </label>
+                    <div class="flex items-center py-2">
                         {{ form.password }}
-                        {% include "macro_form_error.html" with field='credencial' %}
                     </div>
-                    <div class="mb-3">
-                        {{ mensaje }}
-                    </div>
-                    
-                    <input class="btn btn-primary w-100" type="submit" name="submit" id="submit" value="Iniciar sesión">
-                </form>
-            </div>
+                    {% include "macro_form_error.html" with field='credencial' %}
+                </div>
+
+                <div class="my-3">
+                    <input class="w-full bg-pink-500 hover:bg-pink-400 rounded-full font-semibold text-white px-10 py-1" type="submit" name="submit" id="submit" value="Iniciar sesión">
+                </div>
+        
+            </form>
         </div>
     </div>
+</div>
+
+
+
+<div class="mb-3">
+    {{ mensaje }}
 </div>
 {% endblock %}

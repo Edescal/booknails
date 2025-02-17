@@ -14,7 +14,7 @@
                     <div class="mb-3">
                         {{ field.label }}
                         {{ field }}
-                        {% include "macro_form_error.html" with field='{{field.name}}' %}
+                        {% include "macro_form_error.html" with field=field.name %}
                     </div>
                     {% endfor %}
                     <div class="mb-3">

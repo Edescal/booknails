@@ -2,9 +2,8 @@ from django.core.handlers.wsgi import WSGIRequest
 from django.shortcuts import render
 from django.http import HttpResponse
 
-import json
 def index(request : WSGIRequest):
-    mensaje = f"""
+    mensaje = rf"""
     <h1>Página de inicio</h1>
     <p>Si acabas de descargar este proyecto asegúrate de migrar la base de datos (MariaDB)</p>    
     <ol>
