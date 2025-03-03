@@ -152,9 +152,11 @@ class LoginForm(FormBase):
         password = self.cleaned_data['password']
         credential = self.cleaned_data.get('credential', None)
         if credential:
-            query = (Q(username__icontains=credential) | Q(email__icontains=credential)) & Q(password__contains=password)
+            query = Q(username__icontains=credential) | Q(email__icontains=credential)
             user = models.Usuario.objects.filter(query).first()
-            if user is None:
+            if not user:            
+                raise ValidationError('No se encontró ningún usuario')  
+            if not user.check_password(password):
                 raise ValidationError('Contraseña equivocada')
         return password
 
@@ -162,7 +164,7 @@ class LoginForm(FormBase):
         credential = self.cleaned_data.get('credential', None)
         password = self.cleaned_data.get('password', None)
         if credential and password:
-            query = (Q(username__icontains=credential) | Q(email__icontains=credential)) & Q(password__contains=password)
+            query = Q(username__icontains=credential) | Q(email__icontains=credential)
             return models.Usuario.objects.filter(query).first()
         return None
 
@@ -181,7 +183,10 @@ class CitasForm(FormBase):
     hora_cita = forms.TimeField(
         label='Selecciona la hora: ',
         input_formats=['%H:%M'],
-                widget=forms.DateInput(format="%Y-%m-%d", attrs={"type": "time"}),
+        widget=forms.DateInput(
+            format="%Y-%m-%d", 
+            attrs={"type": "time"}
+        ),
     )
 
     def __init__(self, cliente : models.Usuario, *args, **kwargs):

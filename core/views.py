@@ -1,7 +1,7 @@
 from django.core.handlers.wsgi import WSGIRequest
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate, login, get_user_model
 from django.contrib.auth.decorators import login_required
 from . import models
 from . import forms
@@ -16,7 +16,9 @@ def index(request : WSGIRequest):
     return render(request=request, template_name='index.html', context={})
 
 
-def registro(request : WSGIRequest):    
+def registro(request : WSGIRequest):   
+    print('MIERDOTA') 
+
     if request.method == 'POST':
         form = forms.RegistroForm(request.POST)
         if form.is_valid():
@@ -31,41 +33,46 @@ def registro(request : WSGIRequest):
             )
             usuario.save()
             messages.success(request, 'Registro exitoso', 'registro')
+            return redirect('auth_success_view')
         else:
             form.show_errors(request)
-        return redirect('success_view')
     elif request.method == 'GET':
         form : forms.RegistroForm = forms.RegistroForm()
     context = { 'form': form }
     return render(request=request, template_name='register.html', context=context)
 
 
-def login(request : WSGIRequest):
+def login_view(request : WSGIRequest):
+    print("ID de sesión:", request.session.session_key)
     mensaje = ''
     if request.method == 'POST':
         form : forms.LoginForm = forms.LoginForm(request.POST)
         if form.is_valid():
             user = form.get_user()
-            mensaje = str(user)
+            # mensaje = str(user)
 
-            user = authenticate(request, username=user.username, password=user.password)
+            # llama al authentication_backend para validar el usuario        
+            user = authenticate(
+                request, 
+                username=user.username, 
+                email = user.email, 
+                password=form.cleaned_data['password']
+            )
             if user:
-                print('QUE')
-                print(user)
-            else:
-                print('puta')
-
-            """
-            TODO: INICIO DE SESION EXITOSO
-            """
-            print('BUENOO')
+                
+                login(request, user)
+                print('Inicio de sesión exitoso')
+                print(request.user.is_authenticated)
+                request.session.save()
+                return redirect('auth_cita')
         else:
-            mensaje = 'Error de validacion'
+            # mensaje = 'Error de validacion'
             form.show_errors(request)
 
     elif request.method == 'GET':
         form : forms.LoginForm = forms.LoginForm()
 
+    mensaje = str(request.user.is_authenticated)
     context = {
         'form': form,
         'mensaje': mensaje
@@ -82,14 +89,16 @@ def success(request : WSGIRequest):
 @login_required
 def agendar_cita(request : WSGIRequest):
 
+    cliente = models.Usuario.objects.first()
     if request.method == 'POST':
-        form = forms.CitasForm(request.POST)
+        form = forms.CitasForm(cliente, request.POST)
         if form.is_valid():
-            pass
+            print('JEJE')
         else:
+            print('ups')
             form.show_errors(request)
     elif request.method == 'GET':
-        cliente = models.Usuario.objects.first()
+        print(cliente)
         form : forms.CitasForm = forms.CitasForm(cliente=cliente)
 
     return render(request, 'cita.html', { 'form':form })

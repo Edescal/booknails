@@ -27,6 +27,23 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['127.0.0.1']
 
+# Custom model
+AUTH_USER_MODEL = 'core.Usuario'
+
+AUTHENTICATION_BACKENDS = [
+    # "django.contrib.auth.backends.ModelBackend",
+    'core.authentication_backends.UsuarioBackend',
+]
+
+SESSION_ENGINE = "django.contrib.sessions.backends.signed_cookies"
+# SESSION_ENGINE = "django.contrib.sessions.backends.db"  # Usa base de datos para sesiones
+SESSION_COOKIE_SECURE = False  # Debe ser False en desarrollo
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # No cerrar sesión al cerrar el navegador
+SESSION_ENGINE = "django.contrib.sessions.backends.db"  # Usar base de datos para sesiones
+SESSION_COOKIE_AGE = 1209600  # 2 semanas en segundos
+SESSION_SAVE_EVERY_REQUEST = True  # Forzar que Django guarde la sesión en cada request
+
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -36,7 +53,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'webapp',
+    'core',
     'tailwind',
     'theme',
     'django_browser_reload',
@@ -63,8 +80,8 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'booknails.urls'
 
-LOGIN_URL = 'webapp_login'
-LOGIN_REDIRECT_URL = 'webbapp_success'
+LOGIN_URL = 'auth_login'
+LOGIN_REDIRECT_URL = 'auth_success'
 
 TEMPLATES = [
     {
@@ -101,7 +118,8 @@ DATABASES = {
         'HOST': 'localhost',                   # Host de la base de datos
         'PORT': '3306',                        # Puerto de MariaDB (por defecto es 3306)
         'OPTIONS': {
-            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",  # Modo SQL estricto
+            # 'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",  # Modo SQL estricto
+            'init_command': "SET default_storage_engine=INNODB;"  # Modo SQL estricto
         },
     }
 }
@@ -153,7 +171,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 STATIC_ROOT  = os.path.join(BASE_DIR, 'staticfiles')
 
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'webapp/static'), 
+    os.path.join(BASE_DIR, 'booknails/static'), 
 ]
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field

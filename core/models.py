@@ -1,8 +1,12 @@
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.db import models
 import time
 
+class UsuarioManager(BaseUserManager):
+    pass
+
 # Create your models here.
-class Usuario(models.Model):
+class Usuario(AbstractBaseUser, PermissionsMixin):
     id = models.IntegerField(primary_key=True, auto_created=True)
     username = models.CharField(max_length=32, unique=True, null=False)
     password = models.CharField(max_length=255, null= False, default='password')
@@ -11,6 +15,9 @@ class Usuario(models.Model):
     nombre = models.CharField(max_length=64)
     apellidos = models.CharField(max_length=64)
     fecha_creacion = models.DateTimeField(auto_now=True)
+
+    USERNAME_FIELD = 'username'  # Campo utilizado para el login
+    REQUIRED_FIELDS = ['email', 'password']  # Campos requeridos al crear un usuario
 
     class Meta:
         db_table = 'usuarios'
@@ -60,19 +67,7 @@ class Cita(models.Model):
         return int(time.mktime(self.fecha.timetuple())) * 1000
 
 
-class Notificacion:
-    def __init__(self, email, telefono):
-        self.email = email
-        self.telefono = telefono
-
-    def enviar_confirmacion(self):
-        pass
-
-    def enviar_recordatorio(self):
-        pass
-
-
-class FechaBloqueada:
+class FechaBloqueada(models.Model):
     id = models.AutoField(primary_key=True)
     fecha = models.DateField(null=False, unique=True)
     fecha_creacion = models.DateTimeField(auto_now=True)
@@ -83,3 +78,14 @@ class FechaBloqueada:
     def __str__(self) -> str:
         return f'Fecha bloqueada: {self.fecha.isoformat()}'
 
+
+class Notificacion:
+    def __init__(self, email, telefono):
+        self.email = email
+        self.telefono = telefono
+
+    def enviar_confirmacion(self):
+        pass
+
+    def enviar_recordatorio(self):
+        pass

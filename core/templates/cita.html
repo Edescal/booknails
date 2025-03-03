@@ -1,29 +1,29 @@
 {% extends "base.html" %}
 
-{% block title %}Regístrate{% endblock %}
+{% block title %}VISTA PROTEGIDA{% endblock %}
 
 {% block body %}
 <div class="container">
     <div class="row d-flex justify-content-center">
         <div class="col-xxl-4 col-xl-5 col-lg-7 col-md-8 col-sm-10">
             <div class="card p-3">
-                <h4 class="text-center">Registrar cuenta</h4>
-                <form action="{% url 'webapp_cita' %}" method="post" novalidate>
+                <h4 class="text-center">¿Por qué carajo ves esto?</h4>
+                <form action="{% url 'auth_cita' %}" method="post" novalidate>
                     {% csrf_token %}
 
                     <div class="input-group mb-3">
                         <label for="for_person" class="input-group-text">Nombre: </label>
-                        <input id="for_person" type="text" class="form-control" disabled value="{{ form.el_cliente.nombre }} {{ form.el_cliente.apellidos }}">
+                        <input id="for_person" type="text" class="form-control" disabled value="{{ form.cliente.get_full_name }}">
                         <span class="input-group-text">@</span>
                     </div>
                     <div class="input-group mb-3">
                         <label for="for_person" class="input-group-text">Teléfono: </label>
-                        <input id="for_person" type="text" class="form-control" disabled value="{{ form.el_cliente.telefono }}">
+                        <input id="for_person" type="text" class="form-control" disabled value="{{ form.cliente.telefono }}">
                         <span class="input-group-text">@</span>
                     </div>
                     <div class="input-group mb-3">
                         <label for="for_person" class="input-group-text">Correo: </label>
-                        <input id="for_person" type="text" class="form-control" disabled value="{{ form.el_cliente.email }}">
+                        <input id="for_person" type="text" class="form-control" disabled value="{{ form.cliente.email }}">
                         <span class="input-group-text">@</span>
                     </div>
 

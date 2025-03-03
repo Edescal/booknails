@@ -21,8 +21,8 @@ from . import views
 
 urlpatterns = [
     path('', views.index),
-    path('login/', auth_views.LoginView.as_view(template_name='webapp_login'), name='login'),
+    path('login/', auth_views.LoginView.as_view(template_name='auth_login'), name='login'),
     
     path('admin/', admin.site.urls),
-    path('webapp/', include('webapp.urls')),
+    path('auth/', include('core.urls')),
 ]

@@ -8,7 +8,7 @@
         <div class="col-xxl-4 col-xl-5 col-lg-7 col-md-8 col-sm-10">
             <div class="card p-3">
                 <h4 class="text-center">Registrar cuenta</h4>
-                <form action="{% url 'webapp_registro' %}" method="post" novalidate>
+                <form action="{% url 'auth_registro' %}" method="post" novalidate>
                     {% csrf_token %}
                     {% for field in form %}
                     <div class="mb-3">

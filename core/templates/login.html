@@ -8,7 +8,7 @@
     <div class="bg-red-100 rounded-xl w-1/4">
         <div class="p-5">
 
-            <form action="{% url 'webapp_login' %}" method="post" class="bg-white shadow-md rounded-xl px-8 pt-6 pb-8 mb-4" novalidate>
+            <form action="{% url 'auth_login' %}" method="post" class="bg-white shadow-md rounded-xl px-8 pt-6 pb-8 mb-4" novalidate>
                 <h4 class="mb-8 text-center text-2xl font-bold tracking-tight text-gray-800">Iniciar sesión</h4>
                 
                 {% csrf_token %}
