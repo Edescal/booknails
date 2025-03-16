@@ -16,3 +16,6 @@ def index(request : WSGIRequest):
     { "\n".join([f'<li>{key}: {item}</li>' for key, item in request.META.items()]) }
     """
     return  HttpResponse(mensaje)
+
+def menu(request : WSGIRequest):
+    return render(request, 'index.html')

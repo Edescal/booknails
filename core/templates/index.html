@@ -1,18 +1,24 @@
+{% extends "base.html" %}
 {% load static %}
+{% block title %}Nails by Marin{% endblock %}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+{% block nav %}
+<ul class="nav nav-pills" id="navIndex">
+  <li>
+  <a class="btnNav" href="{% url 'auth_login' %}">
+    Iniciar Sesion
+  </a>
+  </li>
+</ul>
+{% endblock %}
 
-    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
-</head>
-<body>
-
-    <h2 class="line-through">sSDSDSDs</h2>
-
-    
-</body>
-</html>
+{% block body %}
+<div id="contentIndex">
+  <img src="{% static 'img/logoAlt.png' %}" alt="Logo" class="logoAlt">
+</div>
+;<div id="btnMainContent">
+  <a class="btnAindex" href="{% url 'auth_cita' %}">
+    Registrar Cita
+  </a>
+</div>
+{% endblock %}

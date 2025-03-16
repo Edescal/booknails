@@ -5,6 +5,7 @@ from django.contrib import messages
 from django.db.models import Q
 
 from . import models
+import datetime
 
 class FormBase(forms.Form):
     def __init__(self, *args, **kwargs):
@@ -29,7 +30,7 @@ class RegistroForm(FormBase):
         max_length=20,
         required=True, 
         widget=forms.TextInput(attrs={
-            'class': "form-control shadow",
+            'class': "labelReg",
             'placeholder': 'Introduce tu contraseña'
         }),
     )
@@ -38,7 +39,7 @@ class RegistroForm(FormBase):
         max_length=20,
         required=True, 
         widget=forms.TextInput(attrs={
-            'class': "form-control shadow",
+            'class': "labelReg",
             'placeholder': 'Introduce tu contraseña'
         }),
     )
@@ -47,7 +48,7 @@ class RegistroForm(FormBase):
         max_length=20,
         required=False, 
         widget=forms.TextInput(attrs={
-            'class': "form-control shadow",
+            'class': "labelReg",
             'placeholder': 'Introduce tu contraseña'
         }),
     )
@@ -56,7 +57,7 @@ class RegistroForm(FormBase):
         max_length=20, 
         required=True, 
         widget=forms.TextInput(attrs={
-            'class': "form-control shadow",
+            'class': "labelReg shadow",
             'placeholder': 'Introduce tu contraseña'
         }),
     )
@@ -64,7 +65,7 @@ class RegistroForm(FormBase):
         label='Correo electrónico', 
         max_length=256,
         widget=forms.TextInput(attrs={
-            'class': "form-control shadow",
+            'class': "labelReg",
             'placeholder': 'Introduce tu contraseña'
         }),
     )
@@ -72,7 +73,7 @@ class RegistroForm(FormBase):
         label='Telefono', 
         max_length=10,
         widget=forms.TextInput(attrs={
-            'class': "form-control shadow",
+            'class': "labelReg",
             'placeholder': 'Introduce tu contraseña'
         }),
     )
@@ -80,7 +81,7 @@ class RegistroForm(FormBase):
         label='Contraseña', 
         max_length=256, 
         widget=forms.PasswordInput(attrs={
-            'class': "form-control shadow",
+            'class': "labelReg",
             'placeholder': 'Introduce tu contraseña'
         }),
     )
@@ -88,7 +89,7 @@ class RegistroForm(FormBase):
         label='Confirmar contraseña', 
         max_length=255, 
         widget=forms.PasswordInput(attrs={
-            'class': "form-control shadow",
+            'class': "labelReg",
             'placeholder': 'Introduce tu contraseña'
         }),
     )
@@ -127,7 +128,7 @@ class LoginForm(FormBase):
         label='Usuario o correo', 
         max_length=256,
         widget=forms.TextInput(attrs={
-            'class': "block w-full rounded-xl bg-white px-3 py-2 text-base text-gray-900 outline outline-2 -outline-offset-2 outline-gray-200 placeholder:text-gray-600 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/4",
+            'class': "labelLogin",
             'placeholder': 'Introduce tu usuario'
         }),
     )
@@ -135,7 +136,7 @@ class LoginForm(FormBase):
         label='Contraseña', 
         max_length=256, 
         widget=forms.PasswordInput(attrs={
-            'class': "block w-full rounded-xl bg-white px-3 py-2 text-base text-gray-900 outline outline-2 -outline-offset-2 outline-gray-200 placeholder:text-gray-600 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/4",
+            'class': "labelLogin",
             'placeholder': 'Introduce tu contraseña'
         }),
     )
@@ -173,7 +174,8 @@ class CitasForm(FormBase):
     cliente : models.Usuario = None
     fecha_cita = forms.DateField(
         label='Selecciona el día: ',
-        input_formats=['%d/%d/%y'],
+        input_formats=['%Y-%m-%d'],
+
         widget=forms.DateInput(format="%Y-%m-%d", attrs={
             'class': "form-control shadow",
             'placeholder': 'Introduce tu contraseña',
@@ -188,6 +190,23 @@ class CitasForm(FormBase):
             attrs={"type": "time"}
         ),
     )
+
+    def clean_fecha_cita(self):
+        fecha = self.cleaned_data.get('fecha_cita')
+        return fecha
+    
+    def clean_hora_cita(self):
+        hora = self.cleaned_data.get('hora_cita')
+        return hora
+    
+    def to_cita(self):
+        fulldate = f'{self.cleaned_data['fecha_cita']} {self.cleaned_data['hora_cita']}'
+        cita = models.Cita()
+        cita.fecha_cita = datetime.datetime.strptime(fulldate, '%Y-%m-%d %H:%M:%S')
+        cita.id_cliente = self.cliente
+        cita.id_servicio = models.Servicio.objects.get(id=1)
+        cita.fecha_creacion = datetime.datetime.now()
+        return cita
 
     def __init__(self, cliente : models.Usuario, *args, **kwargs):
         super().__init__(*args, **kwargs)

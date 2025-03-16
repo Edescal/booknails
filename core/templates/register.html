@@ -2,26 +2,38 @@
 
 {% block title %}Regístrate{% endblock %}
 
+{% block nav %}
+<ul class="nav nav-pills" id="navIndex">
+    <li>
+    <a class="btnNav" href="{% url 'auth_index' %}">
+      Regresar a Inicio
+    </a>
+    </li>
+  </ul>
+{% endblock %}
+
 {% block body %}
 <div class="container">
     <div class="row d-flex justify-content-center">
         <div class="col-xxl-4 col-xl-5 col-lg-7 col-md-8 col-sm-10">
-            <div class="card p-3">
-                <h4 class="text-center">Registrar cuenta</h4>
+            <div class="card p-3 containerReg">
+                <h4 class="singUpTxth4">REGISTRAR CUENTA</h4>
                 <form action="{% url 'auth_registro' %}" method="post" novalidate>
                     {% csrf_token %}
-                    {% for field in form %}
-                    <div class="mb-3">
-                        {{ field.label }}
-                        {{ field }}
-                        {% include "macro_form_error.html" with field=field.name %}
+                    <div class="form-container"> <!-- Contenedor para los campos -->
+                        {% for field in form %}
+                        <div class="form-field"> <!-- Cada campo se envuelve en un div -->
+                            {{ field.label }}
+                            {{ field }}
+                            {% include "macro_form_error.html" with field=field.name %}
+                        </div>
+                        {% endfor %}
                     </div>
-                    {% endfor %}
                     <div class="mb-3">
                         {{ mensaje }}
                     </div>
                     
-                    <input class="btn btn-primary w-100" type="submit" name="submit" id="submit">
+                    <input class="btnReg" type="submit" name="submit" id="submit" value="Enviar">
                 </form>
             </div>
         </div>

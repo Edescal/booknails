@@ -7,10 +7,10 @@ class UsuarioManager(BaseUserManager):
 
 # Create your models here.
 class Usuario(AbstractBaseUser, PermissionsMixin):
-    id = models.IntegerField(primary_key=True, auto_created=True)
-    username = models.CharField(max_length=32, unique=True, null=False)
-    password = models.CharField(max_length=255, null= False, default='password')
-    email = models.EmailField(unique=True, null=False)
+    id = models.AutoField(primary_key=True, blank=True)
+    username = models.CharField(max_length=32, unique=True, null=False, blank=False)
+    password = models.CharField(max_length=255, null= False, default='password', blank=False)
+    email = models.EmailField(unique=True, null=False, blank=False)
     telefono = models.CharField(max_length=10, unique=False, null=False)
     nombre = models.CharField(max_length=64)
     apellidos = models.CharField(max_length=64)
@@ -22,19 +22,36 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
     class Meta:
         db_table = 'usuarios'
 
+    @staticmethod
+    def build(**kwargs) -> 'Usuario':
+        user = Usuario()
+        if kwargs.get('username'):
+            user.username = kwargs.get('username')
+        elif kwargs.get('password'):
+            user.set_password(kwargs.get('password'))
+        elif kwargs.get('email'):
+            user.username = kwargs.get('email')
+        elif kwargs.get('telefono'):
+            user.username = kwargs.get('telefono')
+        elif kwargs.get('nombre'):
+            user.username = kwargs.get('nombre')
+        elif kwargs.get('apellidos'):
+            user.username = kwargs.get('apellidos')
+        return user
+
     def get_full_name(self) -> str:
         return f'{self.nombre} {self.apellidos}'
 
     def __str__(self) -> str:
         return (f"Usuario(\n\tid={self.id},\n\tusername='{self.username}',\n\temail='{self.email}',\n\t"
                 f"telefono='{self.telefono}',\n\tnombre='{self.nombre}',\n\tapellidos='{self.apellidos}',\n\t"
-                f"fecha_creacion='{self.fecha_creacion}'\n)")
+                f"password='{self.password}',\n\tfecha_creacion='{self.fecha_creacion}'\n)")
 
 
 class Servicio(models.Model):
-    id = models.IntegerField(primary_key=True, null=False)
+    id = models.AutoField(primary_key=True, blank=True)
     nombre = models.CharField(max_length=64, null=False, unique=True)
-    precio = models.DecimalField(null=True, decimal_places=2, max_digits=2)
+    precio = models.DecimalField(null=True, decimal_places=2, max_digits=6)
 
     class Meta:
         db_table = 'servicios'
@@ -43,9 +60,8 @@ class Servicio(models.Model):
         return (f"Servicio(id={self.id}, nombre='{self.nombre}', precio='{self.precio}')")
 
 
-
 class Cita(models.Model):
-    id = models.IntegerField(primary_key=True, null=False)
+    id = models.AutoField(primary_key=True, blank=True)
     fecha_cita = models.DateTimeField(null=False, unique=True)
     id_cliente = models.ForeignKey(Usuario, on_delete=models.CASCADE, null=False)
     id_servicio = models.ForeignKey(Servicio, on_delete=models.CASCADE, null=False)
@@ -56,7 +72,7 @@ class Cita(models.Model):
 
     @property
     def fecha(self):
-        return self.fecha_cita.date()
+        return self.fecha_cita.date().isoformat()
     
     @property
     def hora(self):
@@ -64,11 +80,20 @@ class Cita(models.Model):
     
     @property
     def UNIX_timestamp(self):
-        return int(time.mktime(self.fecha.timetuple())) * 1000
+        '''
+        DATO ÚTIL PARA CASTEAR A FECHAS DE JAVASCRIPT
+        '''
+        return int(time.mktime(self.fecha_cita.date().timetuple())) * 1000
+    
+    def __str__(self) -> str:
+        try:
+            return f'Cita para {self.id_cliente.get_full_name()} el {self.fecha_cita} para {self.id_servicio}'
+        except Exception as e:
+            return 'Cita incompleta'
 
 
 class FechaBloqueada(models.Model):
-    id = models.AutoField(primary_key=True)
+    id = models.AutoField(primary_key=True, blank=True)
     fecha = models.DateField(null=False, unique=True)
     fecha_creacion = models.DateTimeField(auto_now=True)
 
