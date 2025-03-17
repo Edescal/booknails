@@ -3,8 +3,8 @@ from django.core.validators import MaxLengthValidator, MinLengthValidator
 from django.core.exceptions import ValidationError
 from django.contrib import messages
 from django.db.models import Q
-
 from . import models
+from .models import Usuario
 import datetime
 
 class FormBase(forms.Form):
@@ -122,6 +122,29 @@ class RegistroForm(FormBase):
             raise ValidationError('Las contraseñas no coinciden. Vuelve a intentarlo.')
         return confirmation
 
+class EditarUsuarioForm(forms.ModelForm):
+    class Meta:
+        model = Usuario
+        fields = ['nombre', 'apellidos', 'email', 'telefono']  # Campos que quieres permitir editar
+
+    password = forms.CharField(
+        label='Nueva Contraseña', 
+        max_length=256, 
+        required=False,  # Solo lo pedimos si el usuario desea cambiar la contraseña
+        widget=forms.PasswordInput(attrs={
+            'class': "labelReg",
+            'placeholder': 'Introduce una nueva contraseña (opcional)'
+        }),
+    )
+    confirmar_password = forms.CharField(
+        label='Confirmar nueva contraseña',
+        max_length=256,
+        required=False,  # Solo si se pidió una nueva contraseña
+        widget=forms.PasswordInput(attrs={
+            'class': "labelReg",
+            'placeholder': 'Confirma la nueva contraseña (opcional)'
+        }),
+    )
 
 class LoginForm(FormBase):
     credential = forms.CharField(

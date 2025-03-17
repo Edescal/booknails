@@ -35,7 +35,7 @@ AUTHENTICATION_BACKENDS = [
     'core.authentication_backends.UsuarioBackend',
 ]
 
-SESSION_ENGINE = "django.contrib.sessions.backends.signed_cookies"
+# SESSION_ENGINE = "django.contrib.sessions.backends.signed_cookies"
 # SESSION_ENGINE = "django.contrib.sessions.backends.db"  # Usa base de datos para sesiones
 SESSION_COOKIE_SECURE = False  # Debe ser False en desarrollo
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # No cerrar sesión al cerrar el navegador
@@ -114,7 +114,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',  # Usar el backend de MySQL
         'NAME': 'booknails',  # Nombre de la base de datos
         'USER': 'root',                  # Usuario de MariaDB
-        'PASSWORD': 'admin123',           # Contraseña de MariaDB
+        'PASSWORD': '123',           # Contraseña de MariaDB
         'HOST': 'localhost',                   # Host de la base de datos
         'PORT': '3306',                        # Puerto de MariaDB (por defecto es 3306)
         'OPTIONS': {
