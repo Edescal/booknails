@@ -57,7 +57,16 @@ INSTALLED_APPS = [
     'tailwind',
     'theme',
     'django_browser_reload',
+    'rest_framework',
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.BrowsableAPIRenderer',  # HTML 
+        'rest_framework.renderers.StaticHTMLRenderer',  # HTML 
+        'rest_framework.renderers.JSONRenderer',  # Solo responde en formato JSON
+    ]
+}
 
 TAILWIND_APP_NAME = 'theme'
 

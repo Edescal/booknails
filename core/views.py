@@ -3,8 +3,11 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, get_user_model, logout
 from django.contrib.auth.decorators import login_required
-from . import models
-from . import forms
+
+from rest_framework.response import Response
+from rest_framework.decorators import api_view
+
+from . import models, forms, serializers
 import datetime
 
 def crear_admin():
@@ -20,9 +23,24 @@ def crear_admin():
     user.save()
 
 def index(request : WSGIRequest):
+    today = datetime.datetime.today().date() + datetime.timedelta(days=6)
+    instance, created = models.FechaBloqueada.objects.get_or_create(fecha=today)
+    if created:
+        print(f'Nueva {instance}')
+    else:
+        print(instance)
+
     if models.Usuario.objects.count() == 0:
         crear_admin()
         print('Admin creado')
+
+    if models.Cita.objects.count() == 0:
+        cita = models.Cita()
+        cita.fecha_cita = datetime.datetime.now()
+        cita.fecha_creacion = datetime.datetime.now()
+        cita.id_cliente = models.Usuario.objects.first()
+        cita.id_servicio = models.Servicio.objects.first()
+        cita.save()
 
     citas = models.Cita.objects.all()
     for cita in citas:
@@ -143,3 +161,49 @@ def agendar_cita(request : WSGIRequest):
 
     return render(request, 'cita.html', { 'form':form })
 
+
+"""
+====================================
+MÉTODOS PARA LAS APIS DE LOS MODELOS
+====================================
+"""
+# region APIS
+@api_view(['GET'])
+def api_get_citas(request):
+    citas = models.Cita.objects.all()
+    serializer = serializers.CitaSerializer(citas, many=True)
+    return Response(serializer.data)
+    
+@api_view(['GET'])
+def api_get_usuarios(request):
+    usuarios = models.Usuario.objects.all()
+    serializer = serializers.UsuarioSerializer(usuarios, many=True)
+    return Response(serializer.data)
+
+@api_view(['GET'])
+def api_get_servicios(request):
+    if models.Servicio.objects.count() == 0:
+        return Response({'error':'No se encontraron servicios disponibles.'})
+    servicios = models.Servicio.objects.all()
+    # many = True es para cuando se pasa en forma de lista o queryset iterable
+    serializer = serializers.ServicioSerializer(servicios, many=True)
+    return Response(serializer.data)
+
+@api_view(['GET'])
+def api_get_fechas_bloqueadas(request):
+    if models.FechaBloqueada.objects.count() == 0:
+        return Response({'error':'No se encontraron fechas para ese mes.'})
+    fechas_bloqueadas = models.FechaBloqueada.objects.all()
+    serializer = serializers.FechaBloqueadaSerializer(fechas_bloqueadas, many=True)
+    return Response(serializer.data)
+
+#==================================================================================
+
+@api_view(['GET'])
+def api_get_fechas_mes(request, mes):
+    if models.FechaBloqueada.objects.count() == 0:
+        return Response({'error':'No se encontraron fechas para ese mes.'}) 
+    fechas_bloqueadas = models.FechaBloqueada.objects.filter(fecha__month=mes)
+    serializer = serializers.FechaBloqueadaSerializer(fechas_bloqueadas, many=True)
+    return Response(serializer.data)
+# endregion

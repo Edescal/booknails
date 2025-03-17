@@ -10,5 +10,13 @@ urlpatterns = [
      path('citas/', views.agendar_cita, name='auth_cita'),
      path('success/', views.success, name='auth_success_view'),
 
+
+     path('api/citas/', views.api_get_citas, name='API_get_citas'),
+     path('api/users/', views.api_get_usuarios, name='API_get_usuarios'),
+     path('api/servicios/', views.api_get_servicios, name='API_get_servicios'),
+     path('api/fechas_bloq/', views.api_get_fechas_bloqueadas, name='API_get_fechas_bloq'),
+     path('api/fechas_bloq/<int:mes>/', views.api_get_fechas_mes, name='API_get_fechas_bloq'),
+
+
      path("__reload__/", include("django_browser_reload.urls")),
 ]

@@ -80,9 +80,7 @@ class Cita(models.Model):
     
     @property
     def UNIX_timestamp(self):
-        '''
-        DATO ÚTIL PARA CASTEAR A FECHAS DE JAVASCRIPT
-        '''
+        """ DATO ÚTIL PARA CASTEAR A FECHAS DE JAVASCRIPT """
         return int(time.mktime(self.fecha_cita.date().timetuple())) * 1000
     
     def __str__(self) -> str:
@@ -99,6 +97,11 @@ class FechaBloqueada(models.Model):
 
     class Meta:
         db_table = 'fechas_bloqueadas'
+
+    @property
+    def UNIX_timestamp(self):
+        """ DATO ÚTIL PARA CASTEAR A FECHAS DE JAVASCRIPT """
+        return int(time.mktime(self.fecha.timetuple())) * 1000
 
     def __str__(self) -> str:
         return f'Fecha bloqueada: {self.fecha.isoformat()}'
