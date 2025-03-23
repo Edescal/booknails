@@ -4,7 +4,7 @@ en  automatico las vistas para las API
 al usar @api_view(['GET']) en views.py
 """
 from rest_framework import serializers
-from . import models
+from core import models
 
 class CitaSerializer(serializers.ModelSerializer):
     # fecha en tiempo unix
@@ -29,7 +29,6 @@ class UsuarioSerializer(serializers.ModelSerializer):
         model = models.Usuario
         fields = '__all__'
     
-
 class ServicioSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Servicio
@@ -45,3 +44,6 @@ class FechaBloqueadaSerializer(serializers.ModelSerializer):
 
     def get_unix_timestamp(self, obj : models.FechaBloqueada):
         return obj.UNIX_timestamp
+    
+
+
