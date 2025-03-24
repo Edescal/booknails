@@ -114,9 +114,9 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',  # Usar el backend de MySQL
         'NAME': 'booknails',  # Nombre de la base de datos
         'USER': 'root',                  # Usuario de MariaDB
-        'PASSWORD': 'admin123',           # Contraseña de MariaDB
+        'PASSWORD': '1234',           # Contraseña de MariaDB
         'HOST': 'localhost',                   # Host de la base de datos
-        'PORT': '3306',                        # Puerto de MariaDB (por defecto es 3306)
+        'PORT': '3307',                        # Puerto de MariaDB (por defecto es 3306)
         'OPTIONS': {
             # 'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",  # Modo SQL estricto
             'init_command': "SET default_storage_engine=INNODB;"  # Modo SQL estricto
