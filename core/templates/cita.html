@@ -5,43 +5,171 @@
 {% block body %}
 <div class="container">
     <div class="row d-flex justify-content-center">
-        <div class="col-xxl-4 col-xl-5 col-lg-7 col-md-8 col-sm-10">
-            <div class="card p-3">
-                <h4 class="text-center my-5">Agenda una nueva cita</h4>
+        <div class="col-xxl-8 col-xl-8 col-lg-10 col-md-10 col-sm-12">
+            <div class="card p-3 my-3">
+                <h3 class="text-center my-4">Agenda una nueva cita</h3>
                 <form action="{% url 'auth_cita' %}" method="post" novalidate>
                     {% csrf_token %}
 
-                    <div class="input-group mb-3">
-                        <label for="for_person" class="input-group-text">Nombre: </label>
-                        <input id="for_person" type="text" class="form-control" disabled value="{{ form.cliente.get_full_name }}">
-                        <span class="input-group-text">@</span>
-                    </div>
-                    <div class="input-group mb-3">
-                        <label for="for_person" class="input-group-text">Teléfono: </label>
-                        <input id="for_person" type="text" class="form-control" disabled value="{{ form.cliente.telefono }}">
-                        <span class="input-group-text">@</span>
-                    </div>
-                    <div class="input-group mb-3">
-                        <label for="for_person" class="input-group-text">Correo: </label>
-                        <input id="for_person" type="text" class="form-control" disabled value="{{ form.cliente.email }}">
-                        <span class="input-group-text">@</span>
+                    <div class="card rouded-1 p-3">
+                        <p class="card-text text-center">Estos datos serán compartidos para registrar tu cita:</p>
+                        <div class="px-5">
+                            <table class="table table-auto table-bordered small">
+                                <tr>
+                                    <td class="table-active">Nombre</td>
+                                    <td>{{ form.cliente.get_full_name }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="table-active">Teléfono</td>
+                                    <td>{{ form.cliente.telefono }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="table-active">Correo</td>
+                                    <td>{{ form.cliente.email }}</td>
+                                </tr>
+                            </table>
+                        </div>
                     </div>
 
-                    {% for field in form %}
-                    <div class="mb-3">
-                        {{ field.label }}
-                        {{ field }}
-                        {% include "macro_form_error.html" with field=field.name %}
+                    <div class="row d-flex justify-content-center mb-3">
+                        <div class="col-sm-12 col-md-12 col-lg-6 d-flex mt-3">
+                            <div class="card rounded-1 p-3 flex-fill">
+                                <div id="datepicker" data-date="12/03/2012"></div>
+                            </div>
+                        </div>
+                        <div class="col-sm-12 col-md-12 col-lg-6 d-flex mt-3">
+                            <div class="card rounded-1 p-3 flex-fill">
+                                <h4 class="card-title text-center my-3">Datos de tu cita</h4>
+                                <div class="input-group mb-3">
+                                    <span class="input-group-text">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30"
+                                            fill="currentColor" class="bi bi-key" viewBox="0 0 16 16">
+                                            <path
+                                                d="M11 6.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5z" />
+                                            <path
+                                                d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5M1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4z" />
+                                        </svg>
+                                    </span>
+                                    <div class="form-floating">
+                                        {{ form.fecha_cita }}
+                                        <label for="fecha_cita" class="form-label">{{ form.fecha_cita.label }}</label>
+                                    </div>
+                                </div>
+                                <div class="form-floating mb-3">
+                                    {{ form.hora_cita }}
+                                    <label for="fecha_cita" class="form-label">{{ form.hora_cita.label }}</label>
+                                </div>
+
+                                <div class="form-floating mb-3">
+                                    {{ form.categoria }}
+                                    <label for="fecha_cita" class="form-label">{{ form.categoria.label }}</label>
+                                </div>
+
+                                <div class="form-control mb-3">
+                                    <label for="fecha_cita" class="form-label small text-muted d-flex">{{ form.servicios.label }}</label>
+                                    {{ form.servicios }}
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    {% endfor %}
-                    <div class="mb-3">
-                        {{ mensaje }}
-                    </div>
-                    
+
+
                     <input class="btn btn-primary w-100" type="submit" name="submit" id="submit">
                 </form>
             </div>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+
+<!-- Bootstrap datepicker CSS -->
+<link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css" />
+<!-- Bootstrap datepicker JS-->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+<script defer>
+    $.fn.datepicker.dates['es'] = {
+        days: ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'],
+        daysShort: ['Dom', 'Lun', 'Mar', 'Mié', 'Juv', 'Vie', 'Sáb'],
+        daysMin: ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'],
+        months: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'],
+        monthsShort: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
+        today: 'Hoy',
+        clear: 'Limpiar',
+        format: 'dd/mm/yyyy',
+        titleFormat: "MM yyyy",
+        weekStart: 1
+    };
+
+    const picker = $('#datepicker').datepicker({
+        language: 'es-419',
+        todayHighlight: true,
+        changeMonth: false,
+        changeYear: false,
+        format: 'yyyy-mm-dd',
+        startDate: new Date(),
+        endDate: new Date(new Date().getFullYear(), new Date().getMonth() + 3, 0)
+    });
+
+    picker.on('changeDate', function () {
+        let data = picker.datepicker('getFormattedDate')
+        let input = document.getElementById('id_fecha_cita')
+        if (input) {
+            console.log(data)
+            input.setAttribute('value', data)
+        }
+    });
+    $(document.querySelectorAll('.datepicker')).addClass('w-100')
+    $(document.querySelectorAll('.table-condensed')).addClass('table').removeClass('table-condensed')
+
+    const categoria = document.getElementById('id_categoria')
+    if (categoria) {
+        categoria.addEventListener('input', evt => {
+            del()
+            api(`${evt.target.value}`)
+        })
+    }
+
+    function del() {
+        let element = document.getElementById('id_servicios')
+        if (element) {
+            while(element.firstChild)
+                element.removeChild(element.firstChild)
+        }
+    }
+
+    function insert(name, value) {
+        let element = document.getElementById('id_servicios')
+        if (element) {
+            let template = `
+            <label for="id_servicios_0">
+                <input type="checkbox" name="servicios" value="${value}" class="form-check-inline" id="id_servicios_0">
+                 ${name}
+            </label>`
+            new_ele = document.createElement('div')
+            new_ele.innerHTML = template
+            element.insertAdjacentElement('beforeend', new_ele)
+        }
+    }
+
+    function api(categoria) {
+        fetch(`/api/servicios/${categoria}?format=json`, {
+            method: 'GET', // O 'POST', 'PUT', 'DELETE'
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{csrf_token}}' // Solo si es POST o PUT
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.length > 0) {
+                for(var i = 0; i < data.length; i++)
+                    insert(data[i].nombre, data[i].id)
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    }
+</script>
 {% endblock %}

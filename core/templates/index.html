@@ -2,23 +2,37 @@
 {% load static %}
 {% block title %}Nails by Marin{% endblock %}
 
-{% block nav %}
-<ul class="nav nav-pills" id="navIndex">
-  <li>
-  <a class="btnNav" href="{% url 'auth_login' %}">
-    Iniciar Sesion
-  </a>
-  </li>
-</ul>
-{% endblock %}
-
 {% block body %}
-<div id="contentIndex">
-  <img src="{% static 'img/logoAlt.png' %}" alt="Logo" class="logoAlt">
+<div class="container-fluid py-3" style="background-color: #f79dfd;">
+	<div class="row d-flex justify-content-center">
+		<div class="col-2">
+			<img src="{% static 'img/NAILS.png' %}" alt="Logo" class="img-fluid rounded-circle shadow-lg" style="height: 250px; width: 300px;">
+		</div>
+	</div>
+	<div class="row d-flex justify-content-center mt-3 py-3" style="background-color: #935edd;">
+		<div class="col-12 text-center text-white">
+			<h1 class="card-title my-3">Nails by Marin</h1>
+			<p class="card-text fs-5"> 
+			El mejor cuidado para tus uñas con atención profesional y personalizada.
+			</p>
+		</div>
+	</div>
+	<div class="row d-flex justify-content-center py-3 column-gap-lg-5" style="background-color: #935edd;">
+		<div class="col-2 text-center text-white">
+			<img src="{% static 'img/uña1.jpeg' %}" alt="Logo" class="h-100 img-fluid img-thumbnail shadow-lg">
+		</div>
+		<div class="col-2 text-center text-white">
+			<img src="{% static 'img/uña2.jpeg' %}" alt="Logo" class="h-100 img-fluid img-thumbnail shadow-lg">
+		</div>
+		<div class="col-2 text-center text-white">
+			<img src="{% static 'img/uña3.jpeg' %}" alt="Logo" class="h-100 img-fluid img-thumbnail shadow-lg">
+		</div>
+	</div>
+	<div class="row d-flex justify-content-center my-3">
+		<div class="col-4">
+			<img src="{% static 'img/precios.jpeg' %}" alt="Logo" class="img-fluid img-thumbnail shadow-lg">
+		</div>
+	</div>
 </div>
-;<div id="btnMainContent">
-  <a class="btnAindex" href="{% url 'auth_cita' %}">
-    Registrar Cita
-  </a>
-</div>
+
 {% endblock %}
