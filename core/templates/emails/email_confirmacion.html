@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333333;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+        }
+        .email-container {
+            max-width: 600px;
+            margin: 20px auto;
+            background: #ffffff;
+            border: 1px solid #dddddd;
+            border-radius: 5px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            text-align: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #dddddd;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+            color: #007BFF;
+        }
+        .content {
+            margin: 20px 0;
+        }
+        .footer {
+            text-align: center;
+            font-size: 12px;
+            color: #888888;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="header">
+            <h1>¡Hola, {{ usuario.get_full_name }}!</h1>
+        </div>
+        <div class="content">
+            <h4>Confirma tu correo electrónico</h4>
+
+            <p>Gracias por registrarte en la aplicación de agenda de Nails by Marin. Para completar tu registro y activar tu cuenta, haz clic en el siguiente enlace:</p>
+            <a href="{{ token_url }}"><strong>Verificar cuenta</strong></a>
+            <p>Si no puedes hacer clic en el enlace, copia y pega la siguiente URL en tu navegador:</p>
+            <p>{{ token_url }}</p>
+            <p>Este enlace expirará en 24 horas.</p>
+
+            <p>Si no solicitaste esta verificación, ignora este correo.</p>
+            <p>Saludos,</p>
+            <p>El equipo de Senshi Zen</p>
+        </div>
+        <div class="footer">
+            <p>© 2025 Senshi-Zen Karate Do. Todos los derechos reservados.</p>
+        </div>
+    </div>
+</body>
+</html>

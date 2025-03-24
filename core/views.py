@@ -3,8 +3,10 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, get_user_model, logout
 from django.contrib.auth.decorators import login_required
-from . import models
-from . import forms
+from django.http.response import HttpResponse
+from django.http.request import HttpRequest
+
+from . import models, forms, services, utils
 import datetime
 
 def crear_admin():
@@ -20,25 +22,15 @@ def crear_admin():
     user.save()
 
 def index(request : WSGIRequest):
-    if models.Usuario.objects.count() == 0:
-        crear_admin()
-        print('Admin creado')
 
-    citas = models.Cita.objects.all()
-    for cita in citas:
-        print('=======================')
-        print(cita)
-        print(cita.fecha)
-        print(cita.hora)
-        print(cita.UNIX_timestamp)
-    return render(request=request, template_name='index.html', context={ 'citas':citas })
+    return render(request=request, template_name='index.html')
 
 '''
 =======================================
 VISTAS PARA EL REGISTRO, LOGIN Y LOGOUT
 =======================================
 '''
-def registro(request : WSGIRequest):   
+def registro(request : HttpRequest):   
     if request.method == 'POST':
         form = forms.RegistroForm(request.POST)
         if form.is_valid():
@@ -62,7 +54,7 @@ def registro(request : WSGIRequest):
     return render(request=request, template_name='register.html', context=context)
 
 
-def login_view(request : WSGIRequest):
+def login_view(request : HttpRequest):
     print("ID de sesión:", request.session.session_key)
     mensaje = ''
     if request.method == 'POST':
@@ -99,14 +91,14 @@ def login_view(request : WSGIRequest):
     return render(request=request, template_name='login.html', context=context)
 
 @login_required
-def logout_view(request : WSGIRequest):
+def logout_view(request : HttpRequest):
     if request.user.is_authenticated:
         logout(request)
     return redirect(to='auth_login', permanent=False)
 '''
 =======================================
 '''
-def success(request : WSGIRequest):
+def success(request : HttpRequest):
     previous_url = request.META['HTTP_REFERER']
     print(f'Success from: {previous_url}')
     return render(request=request, template_name='success.html', context={ 'previous_url':previous_url })
@@ -140,7 +132,7 @@ def editar_usuario(request : WSGIRequest):
 
 
 @login_required
-def agendar_cita(request : WSGIRequest):
+def agendar_cita(request : HttpRequest):
 
     cliente = models.Usuario.objects.first()
     if request.method == 'POST':
@@ -154,8 +146,7 @@ def agendar_cita(request : WSGIRequest):
             cita = form.to_cita()
             if cita:
                 print('================')
-                print('Nueva cita registrada')
-                cita.save()
+                print(f'Nueva cita creada: {cita.id}')
                 print('================')
                 return redirect('auth_success_view')
         else:
@@ -167,6 +158,12 @@ def agendar_cita(request : WSGIRequest):
         MOSTRAR FORMULARIO
         """
         form : forms.CitasForm = forms.CitasForm(cliente=cliente)
+        form.fields['servicios'].queryset = models.Servicio.objects.none()
+
 
     return render(request, 'cita.html', { 'form':form })
 
+
+def verificar_token(request):
+
+    return HttpResponse('SSDSDSD')

@@ -1,0 +1,9 @@
+#C49CFC (lila claro)
+
+#F79DFD (rosa pastel)
+
+#FF81E3 (rosa fuerte)
+
+#FF63B1 (rosa intenso)
+
+#FF636E (rojo rosado)

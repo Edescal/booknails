@@ -3,6 +3,7 @@ from django.core.validators import MaxLengthValidator, MinLengthValidator
 from django.core.exceptions import ValidationError
 from django.contrib import messages
 from django.db.models import Q
+from django.db.utils import IntegrityError
 from . import models
 from .models import Usuario
 import datetime
@@ -30,8 +31,8 @@ class RegistroForm(FormBase):
         max_length=20,
         required=True, 
         widget=forms.TextInput(attrs={
-            'class': "labelReg",
-            'placeholder': 'Introduce tu contraseña'
+            'class': "inputLabel",
+            'placeholder': ''
         }),
     )
     primer_apellido = forms.CharField(
@@ -39,8 +40,8 @@ class RegistroForm(FormBase):
         max_length=20,
         required=True, 
         widget=forms.TextInput(attrs={
-            'class': "labelReg",
-            'placeholder': 'Introduce tu contraseña'
+            'class': "inputLabel",
+            'placeholder': ''
         }),
     )
     segundo_apellido = forms.CharField(
@@ -48,8 +49,8 @@ class RegistroForm(FormBase):
         max_length=20,
         required=False, 
         widget=forms.TextInput(attrs={
-            'class': "labelReg",
-            'placeholder': 'Introduce tu contraseña'
+            'class': "inputLabel",
+            'placeholder': ''
         }),
     )
     usuario = forms.CharField(
@@ -57,40 +58,40 @@ class RegistroForm(FormBase):
         max_length=20, 
         required=True, 
         widget=forms.TextInput(attrs={
-            'class': "labelReg shadow",
-            'placeholder': 'Introduce tu contraseña'
+            'class': "inputLabel",
+            'placeholder': ''
         }),
     )
     email = forms.EmailField(
         label='Correo electrónico', 
         max_length=256,
         widget=forms.TextInput(attrs={
-            'class': "labelReg",
-            'placeholder': 'Introduce tu contraseña'
+            'class': "inputLabel",
+            'placeholder': ''
         }),
     )
     telefono = forms.CharField(
         label='Telefono', 
         max_length=10,
         widget=forms.TextInput(attrs={
-            'class': "labelReg",
-            'placeholder': 'Introduce tu contraseña'
+            'class': "inputLabel",
+            'placeholder': ''
         }),
     )
     password = forms.CharField(
         label='Contraseña', 
         max_length=256, 
         widget=forms.PasswordInput(attrs={
-            'class': "labelReg",
-            'placeholder': 'Introduce tu contraseña'
+            'class': "inputLabel",
+            'placeholder': ''
         }),
     )
     confirmar_password = forms.CharField(
         label='Confirmar contraseña', 
         max_length=255, 
         widget=forms.PasswordInput(attrs={
-            'class': "labelReg",
-            'placeholder': 'Introduce tu contraseña'
+            'class': "inputLabel",
+            'placeholder': ''
         }),
     )
 
@@ -148,19 +149,19 @@ class EditarUsuarioForm(forms.ModelForm):
 
 class LoginForm(FormBase):
     credential = forms.CharField(
-        label='Usuario o correo', 
+        label='Usuario/Correo', 
         max_length=256,
         widget=forms.TextInput(attrs={
-            'class': "labelLogin",
-            'placeholder': 'Introduce tu usuario'
+            'class': "inputLabel",
+            'placeholder': ''
         }),
     )
     password = forms.CharField(
         label='Contraseña', 
         max_length=256, 
         widget=forms.PasswordInput(attrs={
-            'class': "labelLogin",
-            'placeholder': 'Introduce tu contraseña'
+            'class': "inputLabel",
+            'placeholder': ''
         }),
     )
 
@@ -197,22 +198,48 @@ class CitasForm(FormBase):
     cliente : models.Usuario = None
     fecha_cita = forms.DateField(
         label='Selecciona el día: ',
-        input_formats=['%Y-%m-%d'],
-
+        input_formats=['%Y-%m-%d', '%d-%m-%Y'],
+        required=True,
         widget=forms.DateInput(format="%Y-%m-%d", attrs={
-            'class': "form-control shadow",
+            'class': "form-control shadow-sm",
             'placeholder': 'Introduce tu contraseña',
-            'type': 'date'
+            'type': 'date',
+            'readonly': True,
         }),
     )
     hora_cita = forms.TimeField(
-        label='Selecciona la hora: ',
+        label='Horarios disponibles: ',
         input_formats=['%H:%M'],
+        required=True,
         widget=forms.DateInput(
             format="%Y-%m-%d", 
-            attrs={"type": "time"}
+            attrs={
+                "type": "time", 
+                'class': "form-control shadow-sm",
+            }
         ),
     )
+    categoria = forms.ChoiceField(
+        label='Categoría',
+        choices=models.Servicio.Categorias.choices,
+        required=True,
+        widget=forms.Select(
+            attrs={'class': "form-control shadow-sm",}
+        )
+    )
+    servicios = forms.ModelMultipleChoiceField(
+        label='Servicios',
+        queryset=models.Servicio.objects.all(),
+        required=True,
+        widget=forms.CheckboxSelectMultiple
+    )
+    # servicios = forms.MultipleChoiceField(
+    #     label='Servicios',
+    #     choices=models.Servicio.objects.none(),
+    #     initial=None,
+    #     required=True,
+    #     widget=forms.CheckboxSelectMultiple
+    # )
 
     def clean_fecha_cita(self):
         fecha = self.cleaned_data.get('fecha_cita')
@@ -222,16 +249,38 @@ class CitasForm(FormBase):
         hora = self.cleaned_data.get('hora_cita')
         return hora
     
+    def clean_servicios(self):
+        servicios = self.cleaned_data.get('servicios')
+
+        """VALIDAR Y CONVERTIR A UNA INSTANCIA VERDADERA"""
+        print(servicios)
+        for s in servicios:
+            print(f'SERVICIO: {s}')
+        
+        """^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"""
+        return servicios
+    
     def to_cita(self):
-        fulldate = f'{self.cleaned_data['fecha_cita']} {self.cleaned_data['hora_cita']}'
-        cita = models.Cita()
-        cita.fecha_cita = datetime.datetime.strptime(fulldate, '%Y-%m-%d %H:%M:%S')
-        cita.id_cliente = self.cliente
-        cita.id_servicio = models.Servicio.objects.get(id=1)
-        cita.fecha_creacion = datetime.datetime.now()
-        return cita
+        try:
+            fulldate = f'{self.cleaned_data['fecha_cita']} {self.cleaned_data['hora_cita']}'
+            dateobj = datetime.datetime.strptime(fulldate, '%Y-%m-%d %H:%M:%S')
+            cita = models.Cita()
+            cita.fecha_cita = dateobj
+            cita.cliente = self.cliente
+            cita.fecha_creacion = datetime.datetime.now()
+            cita.save()
+            for serv in self.cleaned_data['servicios']:
+                cita.servicios.add(serv)
+                print(f'add servicio: {serv}')
+            return cita
+        except IntegrityError as e:
+           return None
+
+
 
     def __init__(self, cliente : models.Usuario, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if cliente:
             self.cliente = cliente
+        # self.fields['servicios'].queryset = models.Servicio.objects.none()
+

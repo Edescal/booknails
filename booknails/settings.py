@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-32yx!$o!cyuvo*wz#ofn3^u*_(2&&uyjpe4iq1!i36vb9!m3=r
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1']
+ALLOWED_HOSTS = ['127.0.0.1', '192.168.0.10']
 
 # Custom model
 AUTH_USER_MODEL = 'core.Usuario'
@@ -43,7 +43,7 @@ SESSION_ENGINE = "django.contrib.sessions.backends.db"  # Usar base de datos par
 SESSION_COOKIE_AGE = 1209600  # 2 semanas en segundos
 SESSION_SAVE_EVERY_REQUEST = True  # Forzar que Django guarde la sesión en cada request
 
-
+TOKEN_SALT='a9z834xz'
 # Application definition
 
 INSTALLED_APPS = [
@@ -54,10 +54,30 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'core',
+    'api',
     'tailwind',
     'theme',
     'django_browser_reload',
+    'rest_framework',
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.BrowsableAPIRenderer',  # HTML 
+        'rest_framework.renderers.StaticHTMLRenderer',  # HTML 
+        'rest_framework.renderers.JSONRenderer',  # Solo responde en formato JSON
+    ]
+}
+
+# Emails
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = "eduardo1582000@gmail.com"
+EMAIL_HOST_PASSWORD = "jzff xmsn ebrc hwnu"  # Usa una contraseña de aplicación en Gmail
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
 
 TAILWIND_APP_NAME = 'theme'
 
@@ -116,7 +136,7 @@ DATABASES = {
         'USER': 'root',                  # Usuario de MariaDB
         'PASSWORD': '123',           # Contraseña de MariaDB
         'HOST': 'localhost',                   # Host de la base de datos
-        'PORT': '3306',                        # Puerto de MariaDB (por defecto es 3306)
+        'PORT': '3307',                        # Puerto de MariaDB (por defecto es 3306)
         'OPTIONS': {
             # 'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",  # Modo SQL estricto
             'init_command': "SET default_storage_engine=INNODB;"  # Modo SQL estricto

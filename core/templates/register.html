@@ -13,16 +13,15 @@
 {% endblock %}
 
 {% block body %}
-<div class="container">
-    <div class="row d-flex justify-content-center">
-        <div class="col-xxl-4 col-xl-5 col-lg-7 col-md-8 col-sm-10">
-            <div class="card p-3 containerReg">
-                <h4 class="singUpTxth4">REGISTRAR CUENTA</h4>
+<div class="background" style="background: url('/static/img/fondo.png') no-repeat center center/cover;">
+    <div class="loginContainerR">
+        <div class="loginBox">
                 <form action="{% url 'auth_registro' %}" method="post" novalidate>
+                    <h2 class="loginT">REGISTRAR CUENTA</h2>
                     {% csrf_token %}
                     <div class="form-container"> <!-- Contenedor para los campos -->
                         {% for field in form %}
-                        <div class="form-field"> <!-- Cada campo se envuelve en un div -->
+                        <div class="inputGroup"> <!-- Cada campo se envuelve en un div -->
                             {{ field.label }}
                             {{ field }}
                             {% include "macro_form_error.html" with field=field.name %}
@@ -33,9 +32,8 @@
                         {{ mensaje }}
                     </div>
                     
-                    <input class="btnReg" type="submit" name="submit" id="submit" value="Enviar">
+                    <input class="loginBTN" type="submit" name="submit" id="submit" value="Enviar" style="width: 30%;">
                 </form>
-            </div>
         </div>
     </div>
 </div>
