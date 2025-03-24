@@ -16,7 +16,7 @@ def api_get_citas(request, año, mes):
         return Response({'error':'No se encontraron citas para ese mes.'})
     serializer = serializers.CitaSerializer(citas, many=True)
     return Response(serializer.data)
-    
+
 @api_view(['GET'])
 @login_required
 def api_get_usuarios(request):

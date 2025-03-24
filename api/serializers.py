@@ -20,7 +20,7 @@ class CitaSerializer(serializers.ModelSerializer):
         return obj.UNIX_timestamp
     
     def get_cliente(self, obj : models.Cita):
-        serializer = UsuarioSerializer(obj.id_cliente)
+        serializer = UsuarioSerializer(obj.cliente)
         return serializer.data
 
 

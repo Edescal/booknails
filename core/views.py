@@ -23,6 +23,14 @@ def crear_admin():
 
 def index(request : WSGIRequest):
 
+    hora_string = "11:00 PM"
+    hora_objeto = datetime.datetime.strptime(hora_string, "%I:%M %p").time()
+
+    # print(f'PUTA MADRE: {hora_objeto}')
+
+    cita = models.Cita.objects.get(id=13)
+    print(cita)
+
     return render(request=request, template_name='index.html')
 
 '''
@@ -106,34 +114,24 @@ def success(request : HttpRequest):
 
 @login_required
 def agendar_cita(request : HttpRequest):
-
     cliente = models.Usuario.objects.first()
     if request.method == 'POST':
         form = forms.CitasForm(cliente, request.POST)
-        '''
-        VALIDAR FORMULARIO
-        '''
-        if form.is_valid():
-            print('JEJE')
 
+        if form.is_valid():
             cita = form.to_cita()
+            # cita = None
             if cita:
                 print('================')
                 print(f'Nueva cita creada: {cita.id}')
                 print('================')
                 return redirect('auth_success_view')
         else:
-            print('ups')
             form.show_errors(request)
-
     elif request.method == 'GET':
-        """
-        MOSTRAR FORMULARIO
-        """
         form : forms.CitasForm = forms.CitasForm(cliente=cliente)
         form.fields['servicios'].queryset = models.Servicio.objects.none()
-
-
+        
     return render(request, 'cita.html', { 'form':form })
 
 

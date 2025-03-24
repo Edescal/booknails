@@ -40,7 +40,7 @@ SESSION_ENGINE = "django.contrib.sessions.backends.signed_cookies"
 SESSION_COOKIE_SECURE = False  # Debe ser False en desarrollo
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # No cerrar sesión al cerrar el navegador
 SESSION_ENGINE = "django.contrib.sessions.backends.db"  # Usar base de datos para sesiones
-SESSION_COOKIE_AGE = 1209600  # 2 semanas en segundos
+SESSION_COOKIE_AGE = 43200  # 12 horas en segundos
 SESSION_SAVE_EVERY_REQUEST = True  # Forzar que Django guarde la sesión en cada request
 
 TOKEN_SALT='a9z834xz'

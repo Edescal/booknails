@@ -172,6 +172,8 @@ class LoginForm(FormBase):
 
 
 class CitasForm(FormBase):
+
+
     cliente : models.Usuario = None
     fecha_cita = forms.DateField(
         label='Selecciona el día: ',
@@ -210,13 +212,6 @@ class CitasForm(FormBase):
         required=True,
         widget=forms.CheckboxSelectMultiple
     )
-    # servicios = forms.MultipleChoiceField(
-    #     label='Servicios',
-    #     choices=models.Servicio.objects.none(),
-    #     initial=None,
-    #     required=True,
-    #     widget=forms.CheckboxSelectMultiple
-    # )
 
     def clean_fecha_cita(self):
         fecha = self.cleaned_data.get('fecha_cita')
