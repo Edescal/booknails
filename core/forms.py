@@ -31,8 +31,8 @@ class RegistroForm(FormBase):
         max_length=20,
         required=True, 
         widget=forms.TextInput(attrs={
-            'class': "labelReg",
-            'placeholder': 'Introduce tu contraseña'
+            'class': "inputLabel",
+            'placeholder': ''
         }),
     )
     primer_apellido = forms.CharField(
@@ -40,8 +40,8 @@ class RegistroForm(FormBase):
         max_length=20,
         required=True, 
         widget=forms.TextInput(attrs={
-            'class': "labelReg",
-            'placeholder': 'Introduce tu contraseña'
+            'class': "inputLabel",
+            'placeholder': ''
         }),
     )
     segundo_apellido = forms.CharField(
@@ -49,8 +49,8 @@ class RegistroForm(FormBase):
         max_length=20,
         required=False, 
         widget=forms.TextInput(attrs={
-            'class': "labelReg",
-            'placeholder': 'Introduce tu contraseña'
+            'class': "inputLabel",
+            'placeholder': ''
         }),
     )
     usuario = forms.CharField(
@@ -58,40 +58,40 @@ class RegistroForm(FormBase):
         max_length=20, 
         required=True, 
         widget=forms.TextInput(attrs={
-            'class': "labelReg shadow",
-            'placeholder': 'Introduce tu contraseña'
+            'class': "inputLabel",
+            'placeholder': ''
         }),
     )
     email = forms.EmailField(
         label='Correo electrónico', 
         max_length=256,
         widget=forms.TextInput(attrs={
-            'class': "labelReg",
-            'placeholder': 'Introduce tu contraseña'
+            'class': "inputLabel",
+            'placeholder': ''
         }),
     )
     telefono = forms.CharField(
         label='Telefono', 
         max_length=10,
         widget=forms.TextInput(attrs={
-            'class': "labelReg",
-            'placeholder': 'Introduce tu contraseña'
+            'class': "inputLabel",
+            'placeholder': ''
         }),
     )
     password = forms.CharField(
         label='Contraseña', 
         max_length=256, 
         widget=forms.PasswordInput(attrs={
-            'class': "labelReg",
-            'placeholder': 'Introduce tu contraseña'
+            'class': "inputLabel",
+            'placeholder': ''
         }),
     )
     confirmar_password = forms.CharField(
         label='Confirmar contraseña', 
         max_length=255, 
         widget=forms.PasswordInput(attrs={
-            'class': "labelReg",
-            'placeholder': 'Introduce tu contraseña'
+            'class': "inputLabel",
+            'placeholder': ''
         }),
     )
 
@@ -126,19 +126,19 @@ class RegistroForm(FormBase):
 
 class LoginForm(FormBase):
     credential = forms.CharField(
-        label='Usuario o correo', 
+        label='Usuario/Correo', 
         max_length=256,
         widget=forms.TextInput(attrs={
-            'class': "labelLogin",
-            'placeholder': 'Introduce tu usuario'
+            'class': "inputLabel",
+            'placeholder': ''
         }),
     )
     password = forms.CharField(
         label='Contraseña', 
         max_length=256, 
         widget=forms.PasswordInput(attrs={
-            'class': "labelLogin",
-            'placeholder': 'Introduce tu contraseña'
+            'class': "inputLabel",
+            'placeholder': ''
         }),
     )
 
