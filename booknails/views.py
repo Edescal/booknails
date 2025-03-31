@@ -1,14 +1,13 @@
 from django.core.handlers.wsgi import WSGIRequest
-from django.shortcuts import render
+from django.shortcuts import render, redirect
+from django.urls import reverse
 from django.http import HttpResponse
 from core import models
-import datetime
+import datetime, core.utils as utils
 
 def index(request : WSGIRequest):
-    fecha = datetime.datetime.now().date()
-    user = models.Usuario.objects.get(username='admin')
-    cita = models.Cita.objects.filter(cliente=user, fecha_cita__date=fecha)
-    print(cita)
+
+
     return render(request, 'index.html')
 
 

@@ -7,9 +7,10 @@ urlpatterns = [
      path('logout/', views.logout_view, name='auth_logout'),
 
      path('citas/', views.agendar_cita, name='auth_cita'),
+     path('miagenda/', views.recuperar_citas, name='auth_agenda'),
      path('success/', views.success, name='auth_success_view'),
 
-     path('verify/', views.verificar_token, name='auth_verify'),
+     path('verify-login/', views.verificar_login, name='auth_verify'),
 
      path("__reload__/", include("django_browser_reload.urls")),
 ] 

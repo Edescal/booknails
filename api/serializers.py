@@ -4,6 +4,7 @@ en  automatico las vistas para las API
 al usar @api_view(['GET']) en views.py
 """
 from rest_framework import serializers
+from rest_framework.response import Response
 from core import models
 
 class CitaSerializer(serializers.ModelSerializer):
@@ -28,6 +29,9 @@ class UsuarioSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Usuario
         fields = '__all__'
+
+    def as_response(self):
+        return Response(self.data)
     
 class ServicioSerializer(serializers.ModelSerializer):
     class Meta:

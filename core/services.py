@@ -3,6 +3,16 @@ from django.template.loader import render_to_string
 from django.conf import settings
 from smtplib import SMTPRecipientsRefused, SMTPException
 from . import models
+from api import serializers
+
+from cryptography.fernet import Fernet
+
+import secrets
+
+# key = Fernet.generate_key()
+# print(key)
+
+fernet = Fernet(b'LgSAckJzkYiTVkvdI5JuoUlRCIlw9b4JOa4HCOwuBHs=')
 
 class Notificacion:
     def __init__(self, email, telefono, usuario : models.Usuario):
@@ -35,3 +45,21 @@ class Notificacion:
 
     def enviar_recordatorio(self):
         pass
+
+
+class LoginVerify:
+    def __init__(self, id = None, usuario:models.Usuario = None):
+        if id:
+            self.id = id
+        else: self.id = secrets.token_hex(4).upper()        
+        if isinstance(usuario, dict):
+            self.usuario = models.Usuario.objects.get(id=usuario.get('id'))
+        else: self.usuario = usuario
+
+    def to_dict(self) -> dict:
+        return {
+            "id": self.id,
+            "usuario": serializers.UsuarioSerializer(self.usuario).data,
+        }
+    
+
