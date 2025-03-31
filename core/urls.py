@@ -2,8 +2,6 @@ from django.urls import path, include
 from . import views
 
 urlpatterns = [
-     path('', views.index, name='auth_index'),
-     
      path('registro/', views.registro, name='auth_registro'),
      path('login/', views.login_view, name='auth_login'),
      path('logout/', views.logout_view, name='auth_logout'),
@@ -15,3 +13,4 @@ urlpatterns = [
 
      path("__reload__/", include("django_browser_reload.urls")),
 ] 
+

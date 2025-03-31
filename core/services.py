@@ -35,22 +35,3 @@ class Notificacion:
 
     def enviar_recordatorio(self):
         pass
-
-
-# def generar_token(data):
-#     serializer = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
-#     token = serializer.dumps(data, salt=current_app.config['SECURITY_PASSWORD_SALT'])
-#     return token
-
-# def verificar_token(token, expiration=86400):
-#     try:
-#         serializer = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
-#         data = serializer.loads(token, salt=current_app.config['SECURITY_PASSWORD_SALT'], max_age=expiration)
-#         return data
-#     except:
-#         print('Token no válido')
-#     return None
-
-# def generar_url_token(data):
-#     token = generar_token(data)
-#     return url_for('verificar_token', token=token, _external=True)
