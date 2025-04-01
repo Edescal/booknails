@@ -134,7 +134,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',  # Usar el backend de MySQL
         'NAME': 'booknails',  # Nombre de la base de datos
         'USER': 'root',                  # Usuario de MariaDB
-        'PASSWORD': '1234',           # Contraseña de MariaDB
+        'PASSWORD': '123',           # Contraseña de MariaDB
         'HOST': 'localhost',                   # Host de la base de datos
         'PORT': '3307',                        # Puerto de MariaDB (por defecto es 3306)
         'OPTIONS': {

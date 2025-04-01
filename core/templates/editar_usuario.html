@@ -1,6 +1,10 @@
 {% extends 'base.html' %}
 
+<<<<<<< HEAD
 {% block title %}Editar Datos{% endblock %}
+=======
+{% block title %}Regístrate{% endblock %}
+>>>>>>> fdb1a1bb11891936c3c05b9242a844252fb624cc
 
 {% block nav %}
 <ul class="nav nav-pills" id="navIndex">
@@ -13,6 +17,7 @@
 {% endblock %}
 
 {% block body %}
+<<<<<<< HEAD
 <div class="background" style="background: url('/static/img/fondo.png') no-repeat center center/cover;">
     <div class="loginContainer" style="width: 75%;">
         <div class="loginBox">
@@ -22,6 +27,18 @@
                     <div class="form-container"> <!-- Contenedor para los campos -->
                         {% for field in form %}
                         <div class="inputGroup"> <!-- Cada campo se envuelve en un div -->
+=======
+<div class="container">
+    <div class="row d-flex justify-content-center">
+        <div class="col-xxl-4 col-xl-5 col-lg-7 col-md-8 col-sm-10">
+            <div class="card p-3 containerReg">
+                <h4 class="singUpTxth4">EDITAR DATOS DE CUENTA</h4>
+                <form action="{% url 'auth_usuario' %}" method="post" novalidate>
+                    {% csrf_token %}
+                    <div class="form-container"> <!-- Contenedor para los campos -->
+                        {% for field in form %}
+                        <div class="form-field"> <!-- Cada campo se envuelve en un div -->
+>>>>>>> fdb1a1bb11891936c3c05b9242a844252fb624cc
                             {{ field.label }}
                             {{ field }}
                             {% include "macro_form_error.html" with field=field.name %}
@@ -32,8 +49,14 @@
                         {{ mensaje }}
                     </div>
                     
+<<<<<<< HEAD
                     <input class="loginBTN" style="width: 25%;" type="submit" name="submit" id="submit" value="Enviar">
                 </form>
+=======
+                    <input class="btnReg" type="submit" name="submit" id="submit" value="Enviar">
+                </form>
+            </div>
+>>>>>>> fdb1a1bb11891936c3c05b9242a844252fb624cc
         </div>
     </div>
 </div>
