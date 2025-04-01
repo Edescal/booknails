@@ -6,12 +6,19 @@
 <div class="container-fluid py-3" style="background-color: #f79dfd;">
 	<div class="row d-flex justify-content-center">
 		<div class="col-2">
-			<img src="{% static 'img/NAILS.png' %}" alt="Logo" class="img-fluid rounded-circle shadow-lg" style="height: 250px; width: 300px;">
+			<img src="{% static 'img/logo.png' %}" alt="Logo" class="img-fluid" style="height: 250px; width: 300px;">
 		</div>
 	</div>
 	<div class="row d-flex justify-content-center mt-3 py-3" style="background-color: #935edd;">
+		<div class="indexBTNdiv">
+			<div>
+				<a class="navLink" href="{% url 'auth_login' %}">Iniciar Sesión</a>
+			</div>
+			<div>
+				<a class="navLink" href="{% url 'auth_registro' %}">Registrarse</a>
+			</div>
+		</div>
 		<div class="col-12 text-center text-white">
-			<img src="{% static 'img/text.png' %}" class="navImg">
 			<p class="card-text fs-5 Poppins"> 
 			El mejor cuidado para tus uñas con atención profesional y personalizada.
 			</p>

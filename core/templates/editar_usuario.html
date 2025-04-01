@@ -1,13 +1,23 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 
-{% block title %}Regístrate{% endblock %}
+{% block title %}Editar Datos{% endblock %}
+
+{% block nav %}
+<ul class="nav nav-pills" id="navIndex">
+    <li>
+    <a class="btnNav" href="{% url 'auth_index' %}">
+      Regresar a Inicio
+    </a>
+    </li>
+  </ul>
+{% endblock %}
 
 {% block body %}
 <div class="background" style="background: url('/static/img/fondo.png') no-repeat center center/cover;">
-    <div class="loginContainerR">
+    <div class="loginContainer" style="width: 75%;">
         <div class="loginBox">
-                <form action="{% url 'auth_registro' %}" method="post" novalidate>
-                    <h2 class="loginT">REGISTRAR CUENTA</h2>
+                <form action="{% url 'auth_usuario' %}" method="post" novalidate class="loginForm">
+                    <h2>EDITAR DATOS DE CUENTA</h2>
                     {% csrf_token %}
                     <div class="form-container"> <!-- Contenedor para los campos -->
                         {% for field in form %}
@@ -22,10 +32,7 @@
                         {{ mensaje }}
                     </div>
                     
-                    <input class="loginBTN" type="submit" name="submit" id="submit" value="Enviar" style="width: 30%;">
-                    <p class="login__register">
-                        ¿Ya tienes cuenta? <a href="{% url 'auth_login' %}" class="aLogin">Inicia Sesión</a>
-                      </p>
+                    <input class="loginBTN" style="width: 25%;" type="submit" name="submit" id="submit" value="Enviar">
                 </form>
         </div>
     </div>

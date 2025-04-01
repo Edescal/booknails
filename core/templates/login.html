@@ -19,9 +19,14 @@
                 <form action="{% url 'auth_login' %}" method="post" novalidate class="loginForm">
 
                     <h2 class="loginT">INICIAR SESIÓN</h2>
-
                     {% csrf_token %}
                     <div>
+                        {% if form.credential.errors %}
+                        <div class="advertencia" id="advertencia">{{ 'Usuario no encontrado' }}</div>
+                        <script>
+                            document.getElementById("advertencia").style.display = "block";
+                        </script>
+                        {% endif %}
                         <div class="inputGroup">
                             {{ form.credential.label }}
                             {{ form.credential }}
@@ -30,17 +35,18 @@
                     </div>
                     
                     <div>
+                        {% if form.password.errors %}
+                        <div class="advertencia" id="advertencia">{{ 'Error de Contraseña' }}</div>
+                        <script>
+                            document.getElementById("advertencia").style.display = "block";
+                        </script>
+                        {% endif %}
                         <div class="inputGroup">
                             {{ form.password.label }}
                             {{ form.password }}
                             {% include "macro_form_error.html" with field='credencial' %}
                         </div>
                     </div>
-                    
-                        <div class="loginBoxInput">
-                            {{ mensaje }}
-                        </div>
-                    
                     <input class="loginBTN" type="submit" name="submit" id="submit" value="Iniciar Sesión">
                     <p class="login__register">
                         ¿No tienes cuenta? <a href="{% url 'auth_registro' %}" class="aLogin">Registrate</a>

@@ -19,7 +19,7 @@ body::-webkit-scrollbar-thumb:hover {
 }
 body {
     font-family: 'Poppins', sans-serif;
-    padding-top: 50px;
+    background-color: #F79DFD;
 }
 .navbarcss {
     font-family: 'Poppins', sans-serif;
@@ -35,20 +35,25 @@ body {
     box-shadow: none;
 }
 .navLink{
-    font-family: 'Poppins', sans-serif;
     color: #784eb3;
+    text-align: center;
+    background-color: #dcc7f9;
     text-decoration: none;
     transition: color 0.3s ease, transform 0.3s ease;
     display: inline-block;
     font-weight: bold;
+    border-radius: 15px;
+    width: 150px;
 }
 .navLink:hover{
-    color: #FF636E;
+    color: white;
+    background-color: #FF636E;
     transform: scale(1.1);
 }
 .navLink:active{
     transform: scale(0.95);
     color: black;
+    background-color: #784eb3;
 }
 .navImg{
     width: 300px;
@@ -116,7 +121,7 @@ body {
     color: #FF636E !important; 
     -webkit-box-shadow: 0 0 0 1000px white inset !important; 
 }
-.inputLabel:-webkit-autofill::first-line {
+.inputGroup input:-webkit-autofill::first-line {
     color: #FF636E !important;
 }
 
@@ -126,6 +131,9 @@ body {
     border: none;
     outline: none;
     border-radius: 15px;
+    display: block;
+    font-size: 14px;
+    color: #FF636E;
 }
 
 .loginBTN {
@@ -140,9 +148,10 @@ body {
 }
 
 .loginBTN:hover {
-    background: #FF636E;
     transform: scale(1.05);
     color: white;
+    background-color: #FF636E;
+
 }
 .loginBTN:active{
     transform: scale(0.95);
@@ -162,4 +171,15 @@ body {
 .aLogin:active{
     transform: scale(0.95);
     color: black;
+}
+.indexBTNdiv{
+    display: flex;        
+    justify-content: center;  
+    gap: 100px;                       
+}
+.advertencia{
+    display: none;
+    color: red;
+    text-align: center;
+    font-weight: bold;
 }

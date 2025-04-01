@@ -34,7 +34,7 @@ def registro(request : HttpRequest):
     if request.method == 'POST':
         form = forms.RegistroForm(request.POST)
         if form.is_valid():
-            apellidos = f'{form.cleaned_data['primer_apellido']} {form.cleaned_data['segundo_apellido']}'
+            apellidos = f'{form.cleaned_data['apellidos']}'
             usuario = models.Usuario(
                 username = form.cleaned_data['usuario'],
                 email = form.cleaned_data['email'],
@@ -102,6 +102,33 @@ def success(request : HttpRequest):
     previous_url = request.META['HTTP_REFERER']
     print(f'Success from: {previous_url}')
     return render(request=request, template_name='success.html', context={ 'previous_url':previous_url })
+
+@login_required
+def editar_usuario(request : WSGIRequest):
+    usuario = request.user
+    if request.method == 'POST':
+        form = forms.EditarUsuarioForm(request.POST, instance=usuario)
+        if form.is_valid():
+            form.save()
+            # Cambiar la contraseña solo si se ingresó una nueva
+            nueva_contraseña = form.cleaned_data['password']
+            if nueva_contraseña:
+                if nueva_contraseña == form.cleaned_data['confirmar_password']:
+                    usuario.set_password(nueva_contraseña)  # Encriptamos la nueva contraseña
+                    usuario.save()  # Guardamos el usuario con la nueva contraseña
+                else:
+                    messages.error(request, 'Las contraseñas no coinciden.')
+                    return redirect('editar_usuario')
+
+            # Guardamos los cambios (si la contraseña no fue modificada, sólo los datos)
+            usuario.save()
+            messages.success(request, 'Tus datos han sido actualizados correctamente.')
+            return redirect('auth_index')  # Redirigir al perfil o la página que desees
+    else:
+        # Cargar los datos actuales del usuario para precargar el formulario
+        form = forms.EditarUsuarioForm(instance=usuario)
+
+    return render(request, 'editar_usuario.html', {'form': form})
 
 
 @login_required

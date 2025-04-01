@@ -4,8 +4,8 @@ from django.core.exceptions import ValidationError
 from django.contrib import messages
 from django.db.models import Q
 from django.db.utils import IntegrityError
-
 from . import models
+from .models import Usuario
 import datetime
 
 class FormBase(forms.Form):
@@ -27,71 +27,62 @@ class FormBase(forms.Form):
 
 class RegistroForm(FormBase):
     nombre = forms.CharField(
-        label='Nombre(s)',
         max_length=20,
+        label='',
         required=True, 
         widget=forms.TextInput(attrs={
             'class': "inputLabel",
-            'placeholder': ''
+            'placeholder': 'Nombre(s)'
         }),
     )
-    primer_apellido = forms.CharField(
-        label='Primer apellido',
-        max_length=20,
-        required=True, 
-        widget=forms.TextInput(attrs={
-            'class': "inputLabel",
-            'placeholder': ''
-        }),
-    )
-    segundo_apellido = forms.CharField(
-        label='Segundo apellido',
-        max_length=20,
+    apellidos = forms.CharField(
+        max_length=50,
+        label='',
         required=False, 
         widget=forms.TextInput(attrs={
             'class': "inputLabel",
-            'placeholder': ''
+            'placeholder': 'Apellidos'
         }),
     )
     usuario = forms.CharField(
-        label='Nombre de usuario',
         max_length=20, 
+        label='',
         required=True, 
         widget=forms.TextInput(attrs={
             'class': "inputLabel",
-            'placeholder': ''
+            'placeholder': 'Usuario'
         }),
     )
     email = forms.EmailField(
-        label='Correo electrónico', 
         max_length=256,
+        label='',
         widget=forms.TextInput(attrs={
             'class': "inputLabel",
-            'placeholder': ''
+            'placeholder': 'Correo Electronico'
         }),
     )
     telefono = forms.CharField(
-        label='Telefono', 
         max_length=10,
+        label='',
         widget=forms.TextInput(attrs={
             'class': "inputLabel",
-            'placeholder': ''
+            'placeholder': 'Teléfono'
         }),
     )
     password = forms.CharField(
-        label='Contraseña', 
+        label='',
         max_length=256, 
         widget=forms.PasswordInput(attrs={
             'class': "inputLabel",
-            'placeholder': ''
+            'placeholder': 'Contraseña'
         }),
     )
-    confirmar_password = forms.CharField(
-        label='Confirmar contraseña', 
+    confirmar_password = forms.CharField( 
         max_length=255, 
+        label='',
         widget=forms.PasswordInput(attrs={
             'class': "inputLabel",
-            'placeholder': ''
+            'placeholder': 'Confirmar Contraseña'
         }),
     )
 
@@ -123,22 +114,45 @@ class RegistroForm(FormBase):
             raise ValidationError('Las contraseñas no coinciden. Vuelve a intentarlo.')
         return confirmation
 
+class EditarUsuarioForm(forms.ModelForm):
+    class Meta:
+        model = Usuario
+        fields = ['nombre', 'apellidos', 'email', 'telefono']  # Campos que quieres permitir editar
+
+    password = forms.CharField(
+        label='Nueva Contraseña', 
+        max_length=256, 
+        required=False,  # Solo lo pedimos si el usuario desea cambiar la contraseña
+        widget=forms.PasswordInput(attrs={
+            'class': "inputLabel",
+            'placeholder': 'Introduce una nueva contraseña (opcional)'
+        }),
+    )
+    confirmar_password = forms.CharField(
+        label='Confirmar nueva contraseña',
+        max_length=256,
+        required=False,  # Solo si se pidió una nueva contraseña
+        widget=forms.PasswordInput(attrs={
+            'class': "inputLabel",
+            'placeholder': 'Confirma la nueva contraseña (opcional)'
+        }),
+    )
 
 class LoginForm(FormBase):
-    credential = forms.CharField(
-        label='Usuario/Correo', 
+    credential = forms.CharField( 
         max_length=256,
+        label='',
         widget=forms.TextInput(attrs={
             'class': "inputLabel",
-            'placeholder': ''
+            'placeholder': 'Usuario/Correo'
         }),
     )
     password = forms.CharField(
-        label='Contraseña', 
         max_length=256, 
+        label='',
         widget=forms.PasswordInput(attrs={
             'class': "inputLabel",
-            'placeholder': ''
+            'placeholder': 'Contraseña'
         }),
     )
 

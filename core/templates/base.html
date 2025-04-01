@@ -24,28 +24,8 @@
         rel="stylesheet">
 </head>
 
-<body style="font-family: 'Poppins', sans-serif;">
+<body style="font-family: 'Poppins', sans-serif; background-color: #F79DFD;">
     {% load template_tags %}
-    <div class="d-flex flex-column min-vh-100" style="background-color: #ffd3f3;">
-        <nav class="navbarcss navbar-expand-lg navbar-light shadow">
-            <div class="container-fluid d-flex justify-content-center fs-6">
-                <div class="nav-item px-4">
-                    <a class="navLink" href="{% url 'home' %}">Inicio</a>
-                </div>
-                <div class="nav-item px-4">
-                    <a class="navLink" href="{% url 'home' %}">Servicios</a>
-                </div>
-                <div class="nav-item px-4">
-                    <a class="navLink" href="{% url 'home' %}">Citas</a>
-                </div>
-                <div class="nav-item px-4">
-                    <a class="navLink" href="{% url 'home' %}">Contacto</a>
-                </div>
-                <div class="nav-item px-4">
-                    <a class="navLink" href="{% url 'auth_login' %}">Iniciar Sesión</a>
-                </div>
-            </div>
-        </nav>
         {% block body %}
  
         {% endblock %}
