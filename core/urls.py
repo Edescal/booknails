@@ -11,7 +11,7 @@ urlpatterns = [
      path('citas/', views.agendar_cita, name='auth_cita'),
      path('success/', views.success, name='auth_success_view'),
 
-     path('verify/', views.verificar_token, name='auth_verify'),
+     path('agenda/', views.ver_agenda, name='auth_agenda'),
 
      path("__reload__/", include("django_browser_reload.urls")),
 ] 

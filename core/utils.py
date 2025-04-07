@@ -5,6 +5,7 @@ from django.http.request import HttpRequest
 
 import os
 import pandas
+import time
 from core import models
 
 def generar_token(data) -> str:
@@ -22,6 +23,9 @@ def token_to_url(token, request : HttpRequest) -> str:
     full_url = request.build_absolute_uri(partial_url)
     return full_url
 
+
+def to_unix_timestamp(datetime) -> int:
+    return int(time.mktime(datetime.date().timetuple())) * 1000
 
 """
 PARA PARSEAR Y GENERAR LOS SERVICIOS A PARTIR DEL EXCEL

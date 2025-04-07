@@ -10,13 +10,22 @@
 		</div>
 	</div>
 	<div class="row d-flex justify-content-center mt-3 py-3" style="background-color: #935edd;">
-		<div class="indexBTNdiv">
+		<div class="indexBTNdiv" style="margin-bottom: 1rem; margin-top: 1rem;">
+			{% if not request.user.is_authenticated %}
 			<div>
 				<a class="navLink" href="{% url 'auth_login' %}">Iniciar Sesión</a>
 			</div>
 			<div>
 				<a class="navLink" href="{% url 'auth_registro' %}">Registrarse</a>
 			</div>
+			{% else %}
+			<div>
+				<a class="navLink" href="{% url 'auth_logout' %}">Cerrar sesión</a>
+			</div>
+			<div>
+				<a class="navLink" href="{% url 'auth_cita' %}">Agendar una cita</a>
+			</div>
+			{% endif %}
 		</div>
 		<div class="col-12 text-center text-white">
 			<p class="card-text fs-5 Poppins"> 

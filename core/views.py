@@ -31,6 +31,9 @@ VISTAS PARA EL REGISTRO, LOGIN Y LOGOUT
 =======================================
 '''
 def registro(request : HttpRequest):   
+    if request.user.is_authenticated:
+        return redirect('home')
+    
     if request.method == 'POST':
         form = forms.RegistroForm(request.POST)
         if form.is_valid():
@@ -53,9 +56,10 @@ def registro(request : HttpRequest):
     context = { 'form': form }
     return render(request=request, template_name='register.html', context=context)
 
-
 def login_view(request : HttpRequest):
-    print("ID de sesión:", request.session.session_key)
+    if request.user.is_authenticated:
+        return redirect('home')
+
     mensaje = ''
     if request.method == 'POST':
         form : forms.LoginForm = forms.LoginForm(request.POST)
@@ -75,7 +79,7 @@ def login_view(request : HttpRequest):
                 print('Inicio de sesión exitoso')
                 print(request.user.is_authenticated)
                 request.session.save()
-                return redirect('auth_cita')
+                return redirect('home')
         else:
             # mensaje = 'Error de validacion'
             form.show_errors(request)
@@ -90,11 +94,10 @@ def login_view(request : HttpRequest):
     }
     return render(request=request, template_name='login.html', context=context)
 
-@login_required
 def logout_view(request : HttpRequest):
     if request.user.is_authenticated:
         logout(request)
-    return redirect(to='auth_login', permanent=False)
+    return redirect(to='home', permanent=False)
 '''
 =======================================
 '''
@@ -133,37 +136,26 @@ def editar_usuario(request : WSGIRequest):
 
 @login_required
 def agendar_cita(request : HttpRequest):
-
-    cliente = models.Usuario.objects.first()
+    cliente = request.user
     if request.method == 'POST':
         form = forms.CitasForm(cliente, request.POST)
-        '''
-        VALIDAR FORMULARIO
-        '''
         if form.is_valid():
-            print('JEJE')
-
             cita = form.to_cita()
             if cita:
-                print('================')
-                print(f'Nueva cita creada: {cita.id}')
-                print('================')
-                return redirect('auth_success_view')
+                print(f'Cita agendada: {cita}')
+                # return redirect('auth_success_view')
+                return render(request, 'cita_success.html', context={'cita':cita})
         else:
             print('ups')
             form.show_errors(request)
 
     elif request.method == 'GET':
-        """
-        MOSTRAR FORMULARIO
-        """
         form : forms.CitasForm = forms.CitasForm(cliente=cliente)
-        form.fields['servicios'].queryset = models.Servicio.objects.none()
 
-
+    form.fields['servicios'].queryset = models.Servicio.objects.none()
     return render(request, 'cita.html', { 'form':form })
 
 
-def verificar_token(request):
+def ver_agenda(request : HttpRequest):
 
-    return HttpResponse('SSDSDSD')
+    return render(request, 'ver_agenda.html', context={'cita':models.Cita.objects.last()})

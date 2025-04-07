@@ -4,6 +4,7 @@ from django.core.exceptions import ValidationError
 from django.contrib import messages
 from django.db.models import Q
 from django.db.utils import IntegrityError
+from django.utils.timezone import make_aware
 from . import models
 from .models import Usuario
 import datetime
@@ -124,11 +125,7 @@ class EditarUsuarioForm(forms.ModelForm):
         max_length=256, 
         required=False,  # Solo lo pedimos si el usuario desea cambiar la contraseña
         widget=forms.PasswordInput(attrs={
-<<<<<<< HEAD
             'class': "inputLabel",
-=======
-            'class': "labelReg",
->>>>>>> fdb1a1bb11891936c3c05b9242a844252fb624cc
             'placeholder': 'Introduce una nueva contraseña (opcional)'
         }),
     )
@@ -137,11 +134,7 @@ class EditarUsuarioForm(forms.ModelForm):
         max_length=256,
         required=False,  # Solo si se pidió una nueva contraseña
         widget=forms.PasswordInput(attrs={
-<<<<<<< HEAD
             'class': "inputLabel",
-=======
-            'class': "labelReg",
->>>>>>> fdb1a1bb11891936c3c05b9242a844252fb624cc
             'placeholder': 'Confirma la nueva contraseña (opcional)'
         }),
     )
@@ -206,18 +199,6 @@ class CitasForm(FormBase):
             'readonly': True,
         }),
     )
-    hora_cita = forms.TimeField(
-        label='Horarios disponibles: ',
-        input_formats=['%H:%M'],
-        required=True,
-        widget=forms.DateInput(
-            format="%Y-%m-%d", 
-            attrs={
-                "type": "time", 
-                'class': "form-control shadow-sm",
-            }
-        ),
-    )
     categoria = forms.ChoiceField(
         label='Categoría',
         choices=models.Servicio.Categorias.choices,
@@ -232,13 +213,17 @@ class CitasForm(FormBase):
         required=True,
         widget=forms.CheckboxSelectMultiple
     )
-    # servicios = forms.MultipleChoiceField(
-    #     label='Servicios',
-    #     choices=models.Servicio.objects.none(),
-    #     initial=None,
-    #     required=True,
-    #     widget=forms.CheckboxSelectMultiple
-    # )
+    horario = forms.ChoiceField(
+        label= 'Horarios disponibles: ',
+        required=False,
+        choices=models.Cita.Horario.values,
+        widget=forms.Select(
+            attrs={
+                'class': "form-control shadow-sm",
+                # 'disabled':True,
+            }
+        )
+    )
 
     def clean_fecha_cita(self):
         fecha = self.cleaned_data.get('fecha_cita')
@@ -248,34 +233,30 @@ class CitasForm(FormBase):
         hora = self.cleaned_data.get('hora_cita')
         return hora
     
+    def clean_horario(self):
+        horario = self.cleaned_data.get('horario')
+        return horario
+    
     def clean_servicios(self):
         servicios = self.cleaned_data.get('servicios')
-
-        """VALIDAR Y CONVERTIR A UNA INSTANCIA VERDADERA"""
-        print(servicios)
-        for s in servicios:
-            print(f'SERVICIO: {s}')
-        
-        """^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"""
         return servicios
     
     def to_cita(self):
         try:
-            fulldate = f'{self.cleaned_data['fecha_cita']} {self.cleaned_data['hora_cita']}'
+            fulldate = f'{self.cleaned_data['fecha_cita']} {self.cleaned_data['horario']}'
             dateobj = datetime.datetime.strptime(fulldate, '%Y-%m-%d %H:%M:%S')
             cita = models.Cita()
-            cita.fecha_cita = dateobj
+            cita.fecha_cita = make_aware(dateobj)
             cita.cliente = self.cliente
-            cita.fecha_creacion = datetime.datetime.now()
+            cita.fecha_creacion = make_aware(datetime.datetime.now())
+
             cita.save()
             for serv in self.cleaned_data['servicios']:
                 cita.servicios.add(serv)
-                print(f'add servicio: {serv}')
+
             return cita
         except IntegrityError as e:
            return None
-
-
 
     def __init__(self, cliente : models.Usuario, *args, **kwargs):
         super().__init__(*args, **kwargs)

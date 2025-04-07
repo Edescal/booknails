@@ -11,6 +11,8 @@ class CitaSerializer(serializers.ModelSerializer):
     unix_timestamp = serializers.SerializerMethodField()
     # obtener el objeto del cliente
     cliente = serializers.SerializerMethodField()
+    servicios = serializers.SerializerMethodField()
+    precio = serializers.SerializerMethodField()
 
     class Meta:
         model = models.Cita
@@ -20,8 +22,17 @@ class CitaSerializer(serializers.ModelSerializer):
         return obj.UNIX_timestamp
     
     def get_cliente(self, obj : models.Cita):
-        serializer = UsuarioSerializer(obj.id_cliente)
+        serializer = UsuarioSerializer(obj.cliente)
         return serializer.data
+    
+    def get_servicios(self, obj : models.Cita):
+        serializer = ServicioSerializer(obj.servicios, many=True)
+        return serializer.data
+    
+    def get_precio(self, obj : models.Cita):
+        precio = obj.get_precio()
+        return precio
+
 
 
 class UsuarioSerializer(serializers.ModelSerializer):

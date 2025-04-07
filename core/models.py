@@ -1,6 +1,7 @@
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.db import models
-import time
+import time as time_module
+from datetime import datetime, time
 
 class Usuario(AbstractBaseUser, PermissionsMixin):
     id = models.AutoField(primary_key=True, blank=True)
@@ -43,7 +44,6 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
                 f"telefono='{self.telefono}',\n\tnombre='{self.get_full_name()}',\n\t"
                 f"fecha_creacion='{self.fecha_creacion}'\n)")
 
-
 class Servicio(models.Model):
     class Categorias(models.TextChoices):
         NA = '?', 'Sin asignar' # por si acaso
@@ -64,6 +64,14 @@ class Servicio(models.Model):
         return (f"Servicio(id={self.id}, nombre='{self.nombre}', precio='{self.precio}, categoria={self.get_categoria_display()}')")
 
 class Cita(models.Model):
+    class Horario:
+        MAÑANA = time(10, 0), 'MAÑANA - 10:00 AM'
+        TARDE = time(16, 0), 'TARDE - 4:00 PM'
+        NOCHE = time(20, 0), 'NOCHE - 8:00 PM'
+
+        values = [MAÑANA, TARDE, NOCHE]
+        
+
     id = models.AutoField(primary_key=True, blank=True)
     fecha_cita = models.DateTimeField(null=False, unique=True)
     cliente = models.ForeignKey(Usuario, on_delete=models.CASCADE, null=False)
@@ -84,8 +92,30 @@ class Cita(models.Model):
     @property
     def UNIX_timestamp(self):
         """ DATO ÚTIL PARA CASTEAR A FECHAS DE JAVASCRIPT """
-        return int(time.mktime(self.fecha_cita.date().timetuple())) * 1000
+        return int(time_module.mktime(self.fecha_cita.date().timetuple())) * 1000
     
+    def validar_horario(self):
+        data = Cita.horarios_disponibles(self.fecha_cita.date())
+        horarios = [d[0] for d in data]
+        print(f'{self.hora}  {horarios}')
+        if self.hora in horarios:
+            print('El horario esta disponible XD')
+
+
+    @staticmethod
+    def horarios_disponibles(dia:datetime.date):
+        citas = Cita.objects.filter(
+            fecha_cita__date = dia # filtra por la fecha dd/mm/yyyy
+        ).values_list(          # obtiene una lista de las horas ocupadas
+            'fecha_cita__time', # selecciona solo la hora (datetime.time)
+            flat=True
+        )
+        horarios = []
+        for  hora, string in Cita.Horario.values:
+            if hora not in citas: # si la hora no está en las citas ocupadas
+                horarios.append((hora, string))
+        return horarios
+
     def get_precio(self) -> float:
         if self.servicios:
             precio = 0
