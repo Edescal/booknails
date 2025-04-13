@@ -1,5 +1,6 @@
 from django.core.handlers.wsgi import WSGIRequest
 from django.shortcuts import render, redirect
+from django.urls import reverse
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, get_user_model, logout
 from django.contrib.auth.decorators import login_required
@@ -7,6 +8,7 @@ from django.http.response import HttpResponse
 from django.http.request import HttpRequest
 
 from . import models, forms, services, utils
+from api import serializers
 import datetime
 
 def crear_admin():
@@ -21,9 +23,6 @@ def crear_admin():
     user.set_password('password')
     user.save()
 
-def index(request : WSGIRequest):
-
-    return render(request=request, template_name='index.html')
 
 '''
 =======================================
@@ -74,8 +73,12 @@ def login_view(request : HttpRequest):
                 password=form.cleaned_data['password']
             )
             if user:
-                
+                # verify = services.LoginVerify(usuario=user)
+                # query_url = f'{reverse('auth_verify')}?token={utils.generar_token(verify.to_dict())}'
+                # return redirect(query_url)
+
                 login(request, user)
+
                 print('Inicio de sesión exitoso')
                 print(request.user.is_authenticated)
                 request.session.save()
@@ -146,16 +149,30 @@ def agendar_cita(request : HttpRequest):
                 # return redirect('auth_success_view')
                 return render(request, 'cita_success.html', context={'cita':cita})
         else:
-            print('ups')
             form.show_errors(request)
-
     elif request.method == 'GET':
         form : forms.CitasForm = forms.CitasForm(cliente=cliente)
 
     form.fields['servicios'].queryset = models.Servicio.objects.none()
     return render(request, 'cita.html', { 'form':form })
 
+def verificar_login(request : HttpRequest):
+    print(f'Usuario autenticado: {request.user.is_authenticated}')
+    
+    token = request.GET.get('token')
+    if token:
+        data, _ = utils.verificar_token(token, 43200)
+        verify = services.LoginVerify(**data)
+        print(f'Código de inicio: {verify.id}')
+        print(f'Usuario identificado: {verify.usuario.get_full_name()}')
+        if request.method == 'GET':
+            '''AQUÍ MUESTRA EL FORMULARIO PARA PEDIR CÓDIGO DE VERIFICACIÓN'''
+            print('Es GET')
+        elif request.method == 'POST':
+            '''AQUI RECUPERA DATOS DEL FORMULARIO PARA SABER SI EL CÓDIGO ES CORRECTO'''
+            print('Es POST')
 
 def ver_agenda(request : HttpRequest):
 
     return render(request, 'ver_agenda.html', context={'cita':models.Cita.objects.last()})
+

@@ -19,6 +19,7 @@ class FormBase(forms.Form):
                 field.widget.attrs.update({'class': field.widget.attrs.get('class', '') + ' invalid:border-pink-500 invalid:text-pink-600 focus:border-sky-500 focus:outline focus:outline-sky-500 focus:invalid:border-pink-500 focus:invalid:outline-pink-500 disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-500 disabled:shadow-none dark:disabled:border-gray-700 dark:disabled:bg-gray-800/20'})
                 
     def show_errors(self, request):
+        print('Errores del formulario')
         for field, errors in self.errors.items():
             for error in errors:
                 print(f'Error: {error}\tField: {field}')
@@ -227,6 +228,10 @@ class CitasForm(FormBase):
 
     def clean_fecha_cita(self):
         fecha = self.cleaned_data.get('fecha_cita')
+        if self.cliente:
+            duplicated = models.Cita.objects.filter(cliente=self.cliente, fecha_cita__date=fecha).exists()
+            if duplicated:
+                raise ValidationError('No se permite más de una cita para el mismo día')
         return fecha
     
     def clean_hora_cita(self):
@@ -259,8 +264,7 @@ class CitasForm(FormBase):
            return None
 
     def __init__(self, cliente : models.Usuario, *args, **kwargs):
+        self.cliente = cliente
         super().__init__(*args, **kwargs)
-        if cliente:
-            self.cliente = cliente
-        # self.fields['servicios'].queryset = models.Servicio.objects.none()
+
 

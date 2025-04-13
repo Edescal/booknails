@@ -24,7 +24,7 @@ def api_get_citas(request, año, mes, dia):
 
     serializer = serializers.CitaSerializer(citas_validas, many=True)
     return Response(serializer.data)
-    
+
 @api_view(['GET'])
 @login_required
 def api_get_usuarios(request):

@@ -58,10 +58,14 @@ class Servicio(models.Model):
     categoria = models.CharField(null=True, max_length=2, choices=Categorias.choices, default=Categorias.MANOS)
 
     class Meta:
+        """Clase especial que usa Django para asociar a la BD"""
         db_table = 'servicios'
 
     def __str__(self):
-        return (f"Servicio(id={self.id}, nombre='{self.nombre}', precio='{self.precio}, categoria={self.get_categoria_display()}')")
+        return (f"Servicio(id={self.id}, "\
+                f"nombre='{self.nombre}', "\
+                f"precio='{self.precio}, "\
+                f"categoria={self.get_categoria_display()}')")
 
 class Cita(models.Model):
     class Horario:
@@ -79,8 +83,10 @@ class Cita(models.Model):
     fecha_creacion = models.DateTimeField(auto_now=True)
 
     class Meta:
+        """Clase especial que usa Django para asociar a la BD"""
         db_table = 'citas'
 
+#region propiedades
     @property
     def fecha(self):
         return self.fecha_cita.date().isoformat()
@@ -125,10 +131,10 @@ class Cita(models.Model):
         
     def __str__(self) -> str:
         try:
-            str_servs = ''
+            str_s = ''
             for serv in self.servicios.all():
-                str_servs += f' {serv.nombre},'
-            return f'Cita para {self.cliente.get_full_name()} el {self.fecha_cita} por{str_servs} por ${self.get_precio()}'
+                str_s += f' {serv.nombre},'
+            return f'Cita para {self.cliente.get_full_name()} el {self.fecha_cita} por{str_s} por ${self.get_precio()}'
         except Exception as e:
             return 'Cita incompleta'
 
