@@ -30,10 +30,13 @@ VISTAS PARA EL REGISTRO, LOGIN Y LOGOUT
 =======================================
 '''
 def registro(request : HttpRequest):   
+    if request.user.is_authenticated:
+        return redirect('home')
+    
     if request.method == 'POST':
         form = forms.RegistroForm(request.POST)
         if form.is_valid():
-            apellidos = f'{form.cleaned_data['primer_apellido']} {form.cleaned_data['segundo_apellido']}'
+            apellidos = f'{form.cleaned_data['apellidos']}'
             usuario = models.Usuario(
                 username = form.cleaned_data['usuario'],
                 email = form.cleaned_data['email'],
@@ -52,9 +55,10 @@ def registro(request : HttpRequest):
     context = { 'form': form }
     return render(request=request, template_name='register.html', context=context)
 
-
 def login_view(request : HttpRequest):
-    print("ID de sesión:", request.session.session_key)
+    if request.user.is_authenticated:
+        return redirect('home')
+
     mensaje = ''
     if request.method == 'POST':
         form : forms.LoginForm = forms.LoginForm(request.POST)
@@ -74,7 +78,11 @@ def login_view(request : HttpRequest):
                 # return redirect(query_url)
 
                 login(request, user)
-                return redirect('auth_cita')
+
+                print('Inicio de sesión exitoso')
+                print(request.user.is_authenticated)
+                request.session.save()
+                return redirect('home')
         else:
             # mensaje = 'Error de validacion'
             form.show_errors(request)
@@ -89,11 +97,10 @@ def login_view(request : HttpRequest):
     }
     return render(request=request, template_name='login.html', context=context)
 
-@login_required
 def logout_view(request : HttpRequest):
     if request.user.is_authenticated:
         logout(request)
-    return redirect(to='auth_login', permanent=False)
+    return redirect(to='home', permanent=False)
 '''
 =======================================
 '''
@@ -101,6 +108,33 @@ def success(request : HttpRequest):
     previous_url = request.META['HTTP_REFERER']
     print(f'Success from: {previous_url}')
     return render(request=request, template_name='success.html', context={ 'previous_url':previous_url })
+
+@login_required
+def editar_usuario(request : WSGIRequest):
+    usuario = request.user
+    if request.method == 'POST':
+        form = forms.EditarUsuarioForm(request.POST, instance=usuario)
+        if form.is_valid():
+            form.save()
+            # Cambiar la contraseña solo si se ingresó una nueva
+            nueva_contraseña = form.cleaned_data['password']
+            if nueva_contraseña:
+                if nueva_contraseña == form.cleaned_data['confirmar_password']:
+                    usuario.set_password(nueva_contraseña)  # Encriptamos la nueva contraseña
+                    usuario.save()  # Guardamos el usuario con la nueva contraseña
+                else:
+                    messages.error(request, 'Las contraseñas no coinciden.')
+                    return redirect('editar_usuario')
+
+            # Guardamos los cambios (si la contraseña no fue modificada, sólo los datos)
+            usuario.save()
+            messages.success(request, 'Tus datos han sido actualizados correctamente.')
+            return redirect('auth_index')  # Redirigir al perfil o la página que desees
+    else:
+        # Cargar los datos actuales del usuario para precargar el formulario
+        form = forms.EditarUsuarioForm(instance=usuario)
+
+    return render(request, 'editar_usuario.html', {'form': form})
 
 
 @login_required
@@ -111,36 +145,16 @@ def agendar_cita(request : HttpRequest):
         if form.is_valid():
             cita = form.to_cita()
             if cita:
-                print(f'Nueva cita creada: {cita.id}')
-                return redirect('auth_success_view')
+                print(f'Cita agendada: {cita}')
+                # return redirect('auth_success_view')
+                return render(request, 'cita_success.html', context={'cita':cita})
         else:
             form.show_errors(request)
     elif request.method == 'GET':
         form : forms.CitasForm = forms.CitasForm(cliente=cliente)
-        
+
     form.fields['servicios'].queryset = models.Servicio.objects.none()
     return render(request, 'cita.html', { 'form':form })
-
-
-@login_required
-def recuperar_citas(request : HttpRequest):
-
-    mes = datetime.datetime.now().date().month
-    citas = models.Cita.objects.filter(fecha_cita__month=mes)   
-    citas = citas.order_by('fecha_cita')
-        
-    print('---------------------')
-    for c in citas:
-        servicios : list[models.Servicio] = c.servicios.all()
-        for s in servicios:
-            print(f'{s.nombre} Precio: ${s.precio}')
-
-    context = {
-        'citas': citas
-    }
-    return render(request=request, template_name='citas_registradas.html', context=context)
-
-
 
 def verificar_login(request : HttpRequest):
     print(f'Usuario autenticado: {request.user.is_authenticated}')
@@ -158,5 +172,7 @@ def verificar_login(request : HttpRequest):
             '''AQUI RECUPERA DATOS DEL FORMULARIO PARA SABER SI EL CÓDIGO ES CORRECTO'''
             print('Es POST')
 
+def ver_agenda(request : HttpRequest):
 
-    return HttpResponse(str(data))
+    return render(request, 'ver_agenda.html', context={'cita':models.Cita.objects.last()})
+

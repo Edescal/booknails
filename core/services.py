@@ -24,7 +24,7 @@ class Notificacion:
         try:# preparar contenido del email
             context = {
                 'usuario': self.usuario,
-                'token_url': 'puta.com',
+                'token_url': 'jkjkjkj.com',
             }
             content = render_to_string('emails/email_confirmacion.html', context)
             # crear email

@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Cita agendada exitosamente{% endblock %}
+{% block nav %}
+<ul class="nav nav-pills" id="navIndex">
+    <li>
+    <a class="btnNav" href="{% url 'auth_index' %}">
+      Regresar a Inicio
+    </a>
+    </li>
+  </ul>
+{% endblock %}
+
+{% block body %}
+    <div class="background" style="background: url('/static/img/fondo.png') no-repeat center center/cover;">
+        <div class="loginContainer" style="width: 26rem;">
+            <div class="loginBox">
+
+                <h2 class="loginT">AGENDASTE UNA CITA</h2>
+                
+                <div class="card mb-3">
+                    <div class="card-header">
+                        <h4>Datos:</h4>
+                    </div>
+                    <div class="card-body">
+                        <div>
+                            <p>Cita de: {{ cita.cliente.get_full_name }}</p>
+                    <small>
+                        Hora: {{ cita.fecha_cita }}
+                    </small>
+                        </div>
+                        <hr>
+                        Seleccionaste los siguientes servicios:
+                        {% for servicio in cita.servicios.all %}
+                        <div class="ms-4">
+                            <small class="text-start">{{forloop.counter}}.  {{servicio.nombre}} ${{servicio.precio}}</small>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <div class="card-footer">
+                        <small>
+                            Fecha de registro: {{ cita.fecha_creacion }}
+                        </small>
+                    </div>
+                </div>
+
+                <a class="text-center mt-2" href="{% url 'home' %}">Regresar al inicio</a>
+            </div>
+        </div>
+    </div>
+{% endblock %}

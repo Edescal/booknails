@@ -6,13 +6,29 @@
 <div class="container-fluid py-3" style="background-color: #f79dfd;">
 	<div class="row d-flex justify-content-center">
 		<div class="col-2">
-			<img src="{% static 'img/NAILS.png' %}" alt="Logo" class="img-fluid rounded-circle shadow-lg" style="height: 250px; width: 300px;">
+			<img src="{% static 'img/logo.png' %}" alt="Logo" class="img-fluid" style="height: 250px; width: 300px;">
 		</div>
 	</div>
 	<div class="row d-flex justify-content-center mt-3 py-3" style="background-color: #935edd;">
+		<div class="indexBTNdiv" style="margin-bottom: 1rem; margin-top: 1rem;">
+			{% if not request.user.is_authenticated %}
+			<div>
+				<a class="navLink" href="{% url 'auth_login' %}">Iniciar Sesión</a>
+			</div>
+			<div>
+				<a class="navLink" href="{% url 'auth_registro' %}">Registrarse</a>
+			</div>
+			{% else %}
+			<div>
+				<a class="navLink" href="{% url 'auth_logout' %}">Cerrar sesión</a>
+			</div>
+			<div>
+				<a class="navLink" href="{% url 'auth_cita' %}">Agendar una cita</a>
+			</div>
+			{% endif %}
+		</div>
 		<div class="col-12 text-center text-white">
-			<h1 class="card-title my-3">Nails by Marin</h1>
-			<p class="card-text fs-5"> 
+			<p class="card-text fs-5 Poppins"> 
 			El mejor cuidado para tus uñas con atención profesional y personalizada.
 			</p>
 		</div>

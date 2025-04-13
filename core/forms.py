@@ -4,8 +4,9 @@ from django.core.exceptions import ValidationError
 from django.contrib import messages
 from django.db.models import Q
 from django.db.utils import IntegrityError
-
+from django.utils.timezone import make_aware
 from . import models
+from .models import Usuario
 import datetime
 
 class FormBase(forms.Form):
@@ -28,71 +29,62 @@ class FormBase(forms.Form):
 
 class RegistroForm(FormBase):
     nombre = forms.CharField(
-        label='Nombre(s)',
         max_length=20,
+        label='',
         required=True, 
         widget=forms.TextInput(attrs={
-            'class': "labelReg",
-            'placeholder': 'Introduce tu contraseña'
+            'class': "inputLabel",
+            'placeholder': 'Nombre(s)'
         }),
     )
-    primer_apellido = forms.CharField(
-        label='Primer apellido',
-        max_length=20,
-        required=True, 
-        widget=forms.TextInput(attrs={
-            'class': "labelReg",
-            'placeholder': 'Introduce tu contraseña'
-        }),
-    )
-    segundo_apellido = forms.CharField(
-        label='Segundo apellido',
-        max_length=20,
+    apellidos = forms.CharField(
+        max_length=50,
+        label='',
         required=False, 
         widget=forms.TextInput(attrs={
-            'class': "labelReg",
-            'placeholder': 'Introduce tu contraseña'
+            'class': "inputLabel",
+            'placeholder': 'Apellidos'
         }),
     )
     usuario = forms.CharField(
-        label='Nombre de usuario',
         max_length=20, 
+        label='',
         required=True, 
         widget=forms.TextInput(attrs={
-            'class': "labelReg shadow",
-            'placeholder': 'Introduce tu contraseña'
+            'class': "inputLabel",
+            'placeholder': 'Usuario'
         }),
     )
     email = forms.EmailField(
-        label='Correo electrónico', 
         max_length=256,
+        label='',
         widget=forms.TextInput(attrs={
-            'class': "labelReg",
-            'placeholder': 'Introduce tu contraseña'
+            'class': "inputLabel",
+            'placeholder': 'Correo Electronico'
         }),
     )
     telefono = forms.CharField(
-        label='Telefono', 
         max_length=10,
+        label='',
         widget=forms.TextInput(attrs={
-            'class': "labelReg",
-            'placeholder': 'Introduce tu contraseña'
+            'class': "inputLabel",
+            'placeholder': 'Teléfono'
         }),
     )
     password = forms.CharField(
-        label='Contraseña', 
+        label='',
         max_length=256, 
         widget=forms.PasswordInput(attrs={
-            'class': "labelReg",
-            'placeholder': 'Introduce tu contraseña'
+            'class': "inputLabel",
+            'placeholder': 'Contraseña'
         }),
     )
-    confirmar_password = forms.CharField(
-        label='Confirmar contraseña', 
+    confirmar_password = forms.CharField( 
         max_length=255, 
+        label='',
         widget=forms.PasswordInput(attrs={
-            'class': "labelReg",
-            'placeholder': 'Introduce tu contraseña'
+            'class': "inputLabel",
+            'placeholder': 'Confirmar Contraseña'
         }),
     )
 
@@ -124,22 +116,45 @@ class RegistroForm(FormBase):
             raise ValidationError('Las contraseñas no coinciden. Vuelve a intentarlo.')
         return confirmation
 
+class EditarUsuarioForm(forms.ModelForm):
+    class Meta:
+        model = Usuario
+        fields = ['nombre', 'apellidos', 'email', 'telefono']  # Campos que quieres permitir editar
+
+    password = forms.CharField(
+        label='Nueva Contraseña', 
+        max_length=256, 
+        required=False,  # Solo lo pedimos si el usuario desea cambiar la contraseña
+        widget=forms.PasswordInput(attrs={
+            'class': "inputLabel",
+            'placeholder': 'Introduce una nueva contraseña (opcional)'
+        }),
+    )
+    confirmar_password = forms.CharField(
+        label='Confirmar nueva contraseña',
+        max_length=256,
+        required=False,  # Solo si se pidió una nueva contraseña
+        widget=forms.PasswordInput(attrs={
+            'class': "inputLabel",
+            'placeholder': 'Confirma la nueva contraseña (opcional)'
+        }),
+    )
 
 class LoginForm(FormBase):
-    credential = forms.CharField(
-        label='Usuario o correo', 
+    credential = forms.CharField( 
         max_length=256,
+        label='',
         widget=forms.TextInput(attrs={
-            'class': "labelLogin",
-            'placeholder': 'Introduce tu usuario'
+            'class': "inputLabel",
+            'placeholder': 'Usuario/Correo'
         }),
     )
     password = forms.CharField(
-        label='Contraseña', 
         max_length=256, 
+        label='',
         widget=forms.PasswordInput(attrs={
-            'class': "labelLogin",
-            'placeholder': 'Introduce tu contraseña'
+            'class': "inputLabel",
+            'placeholder': 'Contraseña'
         }),
     )
 
@@ -185,18 +200,6 @@ class CitasForm(FormBase):
             'readonly': True,
         }),
     )
-    hora_cita = forms.TimeField(
-        label='Horarios disponibles: ',
-        input_formats=['%H:%M'],
-        required=True,
-        widget=forms.DateInput(
-            format="%Y-%m-%d", 
-            attrs={
-                "type": "time", 
-                'class': "form-control shadow-sm",
-            }
-        ),
-    )
     categoria = forms.ChoiceField(
         label='Categoría',
         choices=models.Servicio.Categorias.choices,
@@ -211,8 +214,17 @@ class CitasForm(FormBase):
         required=True,
         widget=forms.CheckboxSelectMultiple
     )
-
-    """MÉTODOS ESPECIALES PARA VALIDAR CAMPOS"""
+    horario = forms.ChoiceField(
+        label= 'Horarios disponibles: ',
+        required=False,
+        choices=models.Cita.Horario.values,
+        widget=forms.Select(
+            attrs={
+                'class': "form-control shadow-sm",
+                # 'disabled':True,
+            }
+        )
+    )
 
     def clean_fecha_cita(self):
         fecha = self.cleaned_data.get('fecha_cita')
@@ -226,29 +238,27 @@ class CitasForm(FormBase):
         hora = self.cleaned_data.get('hora_cita')
         return hora
     
+    def clean_horario(self):
+        horario = self.cleaned_data.get('horario')
+        return horario
+    
     def clean_servicios(self):
         servicios = self.cleaned_data.get('servicios')
-
-        """VALIDAR Y CONVERTIR A UNA INSTANCIA VERDADERA"""
-        # print(servicios)
-        # for s in servicios:
-        #     print(f'SERVICIO: {s}')
-        
-        """^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"""
         return servicios
     
     def to_cita(self):
         try:
-            fulldate = f'{self.cleaned_data['fecha_cita']} {self.cleaned_data['hora_cita']}'
+            fulldate = f'{self.cleaned_data['fecha_cita']} {self.cleaned_data['horario']}'
             dateobj = datetime.datetime.strptime(fulldate, '%Y-%m-%d %H:%M:%S')
             cita = models.Cita()
-            cita.fecha_cita = dateobj
+            cita.fecha_cita = make_aware(dateobj)
             cita.cliente = self.cliente
-            cita.fecha_creacion = datetime.datetime.now()
+            cita.fecha_creacion = make_aware(datetime.datetime.now())
+
             cita.save()
             for serv in self.cleaned_data['servicios']:
                 cita.servicios.add(serv)
-                print(f'add servicio: {serv}')
+
             return cita
         except IntegrityError as e:
            return None

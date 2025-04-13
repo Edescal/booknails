@@ -35,7 +35,7 @@ AUTHENTICATION_BACKENDS = [
     'core.authentication_backends.UsuarioBackend',
 ]
 
-SESSION_ENGINE = "django.contrib.sessions.backends.signed_cookies"
+# SESSION_ENGINE = "django.contrib.sessions.backends.signed_cookies"
 # SESSION_ENGINE = "django.contrib.sessions.backends.db"  # Usa base de datos para sesiones
 SESSION_COOKIE_SECURE = False  # Debe ser False en desarrollo
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # No cerrar sesión al cerrar el navegador
