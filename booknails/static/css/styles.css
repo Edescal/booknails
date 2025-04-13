@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+/* @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
 h1 {
     font-family: 'Poppins', sans-serif;
     color: aquamarine;
@@ -47,12 +47,6 @@ h1 {
     color: white;
     transform: scale(1.1);
 }
-/*#btnLogin{
-    background-color: #9F7FB1;
-    color: white;
-    border-radius: 15px;
-    border: none;
-}*/
 .footPage{
     font-family: 'Poppins', sans-serif;
     color: black;
@@ -117,7 +111,7 @@ body {
     margin: 0;
 }
 .navbar {
-    background: linear-gradient(to right, #9F7FB1 20%, #d4b5c8 50%, #F9E7D1 70%); /* Izquierda a derecha */
+    background: linear-gradient(to right, #9F7FB1 20%, #d4b5c8 50%, #F9E7D1 70%);
                 
     padding: 15px;
     border: none;
@@ -130,11 +124,11 @@ body {
     font-size: 25px;
 }
 .logoAlt{
-    width: 400px; /* Ancho de la imagen */
-    height: auto; /* Altura automática para mantener la proporción */
-    max-width: 100%; /* Limita el ancho al 100% del contenedor */
-    object-fit: cover; /* Ajusta la imagen para cubrir el contenedor */
-    object-position: center; /* Centra la imagen */
+    width: 400px; 
+    height: auto; 
+    max-width: 100%; 
+    object-fit: cover; 
+    object-position: center; 
 }
 .labelLogin{
     font-family: 'Poppins', sans-serif;
@@ -216,13 +210,13 @@ body {
 }
 .form-container {
     display: grid;
-    grid-template-columns: repeat(2, 1fr); /* Dos columnas de igual tamaño */
-    gap: 20px; /* Espacio entre los campos */
+    grid-template-columns: repeat(2, 1fr); 
+    gap: 20px; 
 }
 
 .form-field {
     display: flex;
-    flex-direction: column; /* Organiza el label y el input en columna */
+    flex-direction: column; 
 }
 
 .btnReg{
@@ -242,4 +236,4 @@ body {
     background-color: #9F7FB1;
     color: white;
     transform: scale(1.03);
-}
+} */

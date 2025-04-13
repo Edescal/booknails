@@ -2,10 +2,6 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, Permis
 from django.db import models
 import time
 
-class UsuarioManager(BaseUserManager):
-    pass
-
-# Create your models here.
 class Usuario(AbstractBaseUser, PermissionsMixin):
     id = models.AutoField(primary_key=True, blank=True)
     username = models.CharField(max_length=32, unique=True, null=False, blank=False)
@@ -44,32 +40,45 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self) -> str:
         return (f"Usuario(\n\tid={self.id},\n\tusername='{self.username}',\n\temail='{self.email}',\n\t"
-                f"telefono='{self.telefono}',\n\tnombre='{self.nombre}',\n\tapellidos='{self.apellidos}',\n\t"
-                f"password='{self.password}',\n\tfecha_creacion='{self.fecha_creacion}'\n)")
+                f"telefono='{self.telefono}',\n\tnombre='{self.get_full_name()}',\n\t"
+                f"fecha_creacion='{self.fecha_creacion}'\n)")
 
 
 class Servicio(models.Model):
+    class Categorias(models.TextChoices):
+        NA = '?', 'Sin asignar' # por si acaso
+        MANOS = 'M', 'Manos'
+        FRAN_BABY_BOOMER = 'F', 'Full Set Francesas/Baby Boomer'
+        PIES = 'P', 'Pies'
+        RETIRO = 'R', 'Retiro'
+
     id = models.AutoField(primary_key=True, blank=True)
-    nombre = models.CharField(max_length=64, null=False, unique=True)
+    nombre = models.CharField(max_length=64, null=False)
     precio = models.DecimalField(null=True, decimal_places=2, max_digits=6)
+    categoria = models.CharField(null=True, max_length=2, choices=Categorias.choices, default=Categorias.MANOS)
 
     class Meta:
+        """Clase especial que usa Django para asociar a la BD"""
         db_table = 'servicios'
 
     def __str__(self):
-        return (f"Servicio(id={self.id}, nombre='{self.nombre}', precio='{self.precio}')")
-
+        return (f"Servicio(id={self.id}, "\
+                f"nombre='{self.nombre}', "\
+                f"precio='{self.precio}, "\
+                f"categoria={self.get_categoria_display()}')")
 
 class Cita(models.Model):
     id = models.AutoField(primary_key=True, blank=True)
     fecha_cita = models.DateTimeField(null=False, unique=True)
-    id_cliente = models.ForeignKey(Usuario, on_delete=models.CASCADE, null=False)
-    id_servicio = models.ForeignKey(Servicio, on_delete=models.CASCADE, null=False)
+    cliente = models.ForeignKey(Usuario, on_delete=models.CASCADE, null=False)
+    servicios = models.ManyToManyField(Servicio, related_name='citas')
     fecha_creacion = models.DateTimeField(auto_now=True)
 
     class Meta:
+        """Clase especial que usa Django para asociar a la BD"""
         db_table = 'citas'
 
+#region propiedades
     @property
     def fecha(self):
         return self.fecha_cita.date().isoformat()
@@ -80,14 +89,23 @@ class Cita(models.Model):
     
     @property
     def UNIX_timestamp(self):
-        '''
-        DATO ÚTIL PARA CASTEAR A FECHAS DE JAVASCRIPT
-        '''
+        """ DATO ÚTIL PARA CASTEAR A FECHAS DE JAVASCRIPT """
         return int(time.mktime(self.fecha_cita.date().timetuple())) * 1000
+#endregion
     
+    def get_precio(self) -> float:
+        if self.servicios:
+            precio = 0
+            for serv in self.servicios.all():
+                precio += serv.precio
+        return precio
+        
     def __str__(self) -> str:
         try:
-            return f'Cita para {self.id_cliente.get_full_name()} el {self.fecha_cita} para {self.id_servicio}'
+            str_s = ''
+            for serv in self.servicios.all():
+                str_s += f' {serv.nombre},'
+            return f'Cita para {self.cliente.get_full_name()} el {self.fecha_cita} por{str_s} por ${self.get_precio()}'
         except Exception as e:
             return 'Cita incompleta'
 
@@ -100,17 +118,11 @@ class FechaBloqueada(models.Model):
     class Meta:
         db_table = 'fechas_bloqueadas'
 
+    @property
+    def UNIX_timestamp(self):
+        """ DATO ÚTIL PARA CASTEAR A FECHAS DE JAVASCRIPT """
+        return int(time.mktime(self.fecha.timetuple())) * 1000
+
     def __str__(self) -> str:
         return f'Fecha bloqueada: {self.fecha.isoformat()}'
 
-
-class Notificacion:
-    def __init__(self, email, telefono):
-        self.email = email
-        self.telefono = telefono
-
-    def enviar_confirmacion(self):
-        pass
-
-    def enviar_recordatorio(self):
-        pass

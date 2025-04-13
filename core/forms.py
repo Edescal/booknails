@@ -3,6 +3,7 @@ from django.core.validators import MaxLengthValidator, MinLengthValidator
 from django.core.exceptions import ValidationError
 from django.contrib import messages
 from django.db.models import Q
+from django.db.utils import IntegrityError
 
 from . import models
 import datetime
@@ -17,6 +18,7 @@ class FormBase(forms.Form):
                 field.widget.attrs.update({'class': field.widget.attrs.get('class', '') + ' invalid:border-pink-500 invalid:text-pink-600 focus:border-sky-500 focus:outline focus:outline-sky-500 focus:invalid:border-pink-500 focus:invalid:outline-pink-500 disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-500 disabled:shadow-none dark:disabled:border-gray-700 dark:disabled:bg-gray-800/20'})
                 
     def show_errors(self, request):
+        print('Errores del formulario')
         for field, errors in self.errors.items():
             for error in errors:
                 print(f'Error: {error}\tField: {field}')
@@ -174,41 +176,85 @@ class CitasForm(FormBase):
     cliente : models.Usuario = None
     fecha_cita = forms.DateField(
         label='Selecciona el día: ',
-        input_formats=['%Y-%m-%d'],
-
+        input_formats=['%Y-%m-%d', '%d-%m-%Y'],
+        required=True,
         widget=forms.DateInput(format="%Y-%m-%d", attrs={
-            'class': "form-control shadow",
+            'class': "form-control shadow-sm",
             'placeholder': 'Introduce tu contraseña',
-            'type': 'date'
+            'type': 'date',
+            'readonly': True,
         }),
     )
     hora_cita = forms.TimeField(
-        label='Selecciona la hora: ',
+        label='Horarios disponibles: ',
         input_formats=['%H:%M'],
+        required=True,
         widget=forms.DateInput(
             format="%Y-%m-%d", 
-            attrs={"type": "time"}
+            attrs={
+                "type": "time", 
+                'class': "form-control shadow-sm",
+            }
         ),
     )
+    categoria = forms.ChoiceField(
+        label='Categoría',
+        choices=models.Servicio.Categorias.choices,
+        required=True,
+        widget=forms.Select(
+            attrs={'class': "form-control shadow-sm",}
+        )
+    )
+    servicios = forms.ModelMultipleChoiceField(
+        label='Servicios',
+        queryset=models.Servicio.objects.all(),
+        required=True,
+        widget=forms.CheckboxSelectMultiple
+    )
+
+    """MÉTODOS ESPECIALES PARA VALIDAR CAMPOS"""
 
     def clean_fecha_cita(self):
         fecha = self.cleaned_data.get('fecha_cita')
+        if self.cliente:
+            duplicated = models.Cita.objects.filter(cliente=self.cliente, fecha_cita__date=fecha).exists()
+            if duplicated:
+                raise ValidationError('No se permite más de una cita para el mismo día')
         return fecha
     
     def clean_hora_cita(self):
         hora = self.cleaned_data.get('hora_cita')
         return hora
     
+    def clean_servicios(self):
+        servicios = self.cleaned_data.get('servicios')
+
+        """VALIDAR Y CONVERTIR A UNA INSTANCIA VERDADERA"""
+        # print(servicios)
+        # for s in servicios:
+        #     print(f'SERVICIO: {s}')
+        
+        """^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"""
+        return servicios
+    
     def to_cita(self):
-        fulldate = f'{self.cleaned_data['fecha_cita']} {self.cleaned_data['hora_cita']}'
-        cita = models.Cita()
-        cita.fecha_cita = datetime.datetime.strptime(fulldate, '%Y-%m-%d %H:%M:%S')
-        cita.id_cliente = self.cliente
-        cita.id_servicio = models.Servicio.objects.get(id=1)
-        cita.fecha_creacion = datetime.datetime.now()
-        return cita
+        try:
+            fulldate = f'{self.cleaned_data['fecha_cita']} {self.cleaned_data['hora_cita']}'
+            dateobj = datetime.datetime.strptime(fulldate, '%Y-%m-%d %H:%M:%S')
+            cita = models.Cita()
+            cita.fecha_cita = dateobj
+            cita.cliente = self.cliente
+            cita.fecha_creacion = datetime.datetime.now()
+            cita.save()
+            for serv in self.cleaned_data['servicios']:
+                cita.servicios.add(serv)
+                print(f'add servicio: {serv}')
+            return cita
+        except IntegrityError as e:
+           return None
 
     def __init__(self, cliente : models.Usuario, *args, **kwargs):
+        self.cliente = cliente
         super().__init__(*args, **kwargs)
-        if cliente:
-            self.cliente = cliente
+
+

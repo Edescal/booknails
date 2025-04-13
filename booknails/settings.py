@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-32yx!$o!cyuvo*wz#ofn3^u*_(2&&uyjpe4iq1!i36vb9!m3=r
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1']
+ALLOWED_HOSTS = ['127.0.0.1', '192.168.0.10']
 
 # Custom model
 AUTH_USER_MODEL = 'core.Usuario'
@@ -40,10 +40,10 @@ SESSION_ENGINE = "django.contrib.sessions.backends.signed_cookies"
 SESSION_COOKIE_SECURE = False  # Debe ser False en desarrollo
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # No cerrar sesión al cerrar el navegador
 SESSION_ENGINE = "django.contrib.sessions.backends.db"  # Usar base de datos para sesiones
-SESSION_COOKIE_AGE = 1209600  # 2 semanas en segundos
+SESSION_COOKIE_AGE = 43200  # 12 horas en segundos
 SESSION_SAVE_EVERY_REQUEST = True  # Forzar que Django guarde la sesión en cada request
 
-
+TOKEN_SALT='a9z834xz'
 # Application definition
 
 INSTALLED_APPS = [
@@ -54,10 +54,30 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'core',
+    'api',
     'tailwind',
     'theme',
     'django_browser_reload',
+    'rest_framework',
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.BrowsableAPIRenderer',  # HTML 
+        'rest_framework.renderers.StaticHTMLRenderer',  # HTML 
+        'rest_framework.renderers.JSONRenderer',  # Solo responde en formato JSON
+    ]
+}
+
+# Emails
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = "eduardo1582000@gmail.com"
+EMAIL_HOST_PASSWORD = "jzff xmsn ebrc hwnu"  # Usa una contraseña de aplicación en Gmail
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
 
 TAILWIND_APP_NAME = 'theme'
 
