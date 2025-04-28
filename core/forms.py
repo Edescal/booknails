@@ -124,11 +124,7 @@ class EditarUsuarioForm(forms.ModelForm):
         max_length=256, 
         required=False,  # Solo lo pedimos si el usuario desea cambiar la contraseña
         widget=forms.PasswordInput(attrs={
-<<<<<<< HEAD
             'class': "inputLabel",
-=======
-            'class': "labelReg",
->>>>>>> fdb1a1bb11891936c3c05b9242a844252fb624cc
             'placeholder': 'Introduce una nueva contraseña (opcional)'
         }),
     )
@@ -137,11 +133,7 @@ class EditarUsuarioForm(forms.ModelForm):
         max_length=256,
         required=False,  # Solo si se pidió una nueva contraseña
         widget=forms.PasswordInput(attrs={
-<<<<<<< HEAD
             'class': "inputLabel",
-=======
-            'class': "labelReg",
->>>>>>> fdb1a1bb11891936c3c05b9242a844252fb624cc
             'placeholder': 'Confirma la nueva contraseña (opcional)'
         }),
     )

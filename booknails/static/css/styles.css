@@ -183,3 +183,81 @@ body {
     text-align: center;
     font-weight: bold;
 }
+/*************************************REGISTRAR CITAS**************************************/
+.dataUser{
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(8px);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    width: 95%px;
+}
+.dataUser table{
+    background-color: #fcbdff;
+    width: 100%;
+    margin: auto;
+    border-collapse:inherit;
+    border: 2px solid #784eb3;
+    color: #784eb3;
+    border-radius: 15px;
+}
+.dataUser tr td{
+    padding: 8px;
+}
+.jalada {
+    border-bottom: 1px solid #784eb3;
+}
+/**********************************CALENDARIO MIERDERO************************************/
+.datepicker .datepicker-switch, .datepicker .next, .datepicker .prev, .datepicker .dow, .datepicker .today, .datepicker-days .day, span.month {
+    background-color: #ddc5ff; /* Cambia el fondo del encabezado */
+    color: #784eb3;
+    border: 1px solid #784eb3; /* Cambia el color del texto */
+}
+
+span.month.focused{
+    background-color: #F79DFD !important;
+    color: #784eb3;
+}
+
+.datepicker-inline {
+    background-color: #C49CFC; /* Cambia a tu color deseado */
+    border: 2px solid #784eb3;
+}
+
+.datepicker-days .day:hover, .datepicker-switch:hover, .datepicker .next:hover, .datepicker .prev:hover, .datepicker .today:hover, span.month:hover {
+    background-color: #FF636E !important; /* Gris más oscuro al pasar el ratón */
+    color: white;
+}   
+
+.datepicker-days .day:active, .datepicker .next:active, .datepicker .prev:active {
+    transform: scale(0.9); /* Reduce ligeramente el tamaño al hacer clic */
+    transition: transform 0.1s ease; /* Suaviza la animación */
+}
+
+.datepicker-switch:active, .datepicker .today:active, span.month:active {
+    transform: scale(0.95); /* Reduce ligeramente el tamaño al hacer clic */
+    transition: transform 0.1s ease; /* Suaviza la animación */
+}
+
+.custom-table tr,
+.custom-table td {
+    background-color: #1D1C23 !important;
+}
+
+.datepicker-days th.next, .datepicker-days th.prev {
+    width: 14.2%;
+}
+
+.datepicker-months th.prev, .datepicker-months th.next {
+    width: 25%;
+}
+
+.table th, .table td {
+            padding: 0.2rem; /* Espaciado interno */
+        }
+
+.table th {
+    font-size: 1.2rem; /* Aumenta el tamaño de la fuente */
+    text-align: center; /* Centrar contenido si es apropiado */
+}
+

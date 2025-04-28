@@ -1,0 +1,15 @@
+/* Día actual sin depender de clases padres */
+td.today{
+    background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#926cc9), to(#784eb3)) !important;
+    background-image: linear-gradient(to bottom, #926cc9, #784eb3);
+    color: white !important;
+    border-radius: 10px !important;
+}
+
+/* Día seleccionado (active), sin depender de .datepicker */
+td.active.day {
+    background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#FF63B1), to(#FF636E)) !important;
+    background-image: linear-gradient(to bottom, #926cc9, #784eb3);
+    color: #fff !important;
+    border-radius: 10px !important;
+}

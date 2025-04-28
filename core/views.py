@@ -1,4 +1,5 @@
 from django.core.handlers.wsgi import WSGIRequest
+from django.utils.timezone import now
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, get_user_model, logout
@@ -161,7 +162,7 @@ def agendar_cita(request : HttpRequest):
         form.fields['servicios'].queryset = models.Servicio.objects.none()
 
 
-    return render(request, 'cita.html', { 'form':form })
+    return render(request, 'cita.html', { 'form':form, 'now': now()})
 
 
 def verificar_token(request):

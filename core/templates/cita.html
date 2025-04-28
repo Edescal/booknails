@@ -3,79 +3,81 @@
 {% block title %}VISTA PROTEGIDA{% endblock %}
 
 {% block body %}
-<div class="container">
-    <div class="row d-flex justify-content-center">
-        <div class="col-xxl-8 col-xl-8 col-lg-10 col-md-10 col-sm-12">
-            <div class="card p-3 my-3">
-                <h3 class="text-center my-4">Agenda una nueva cita</h3>
-                <form action="{% url 'auth_cita' %}" method="post" novalidate>
-                    {% csrf_token %}
-
-                    <div class="card rouded-1 p-3">
-                        <p class="card-text text-center">Estos datos serán compartidos para registrar tu cita:</p>
-                        <div class="px-5">
-                            <table class="table table-auto table-bordered small">
-                                <tr>
-                                    <td class="table-active">Nombre</td>
-                                    <td>{{ form.cliente.get_full_name }}</td>
-                                </tr>
-                                <tr>
-                                    <td class="table-active">Teléfono</td>
-                                    <td>{{ form.cliente.telefono }}</td>
-                                </tr>
-                                <tr>
-                                    <td class="table-active">Correo</td>
-                                    <td>{{ form.cliente.email }}</td>
-                                </tr>
-                            </table>
-                        </div>
-                    </div>
-
-                    <div class="row d-flex justify-content-center mb-3">
-                        <div class="col-sm-12 col-md-12 col-lg-6 d-flex mt-3">
-                            <div class="card rounded-1 p-3 flex-fill">
-                                <div id="datepicker" data-date="12/03/2012"></div>
+<div class="background" style="background: url('/static/img/fondo.png') no-repeat center center/cover; ; height: 95%; width: 96%;;">
+    <div class="container">
+        <div class="row d-flex justify-content-center">
+            <div class="loginContainer">
+                <div class="loginBox">
+                    <h2>AGENDAR NUEVA CITA</h2>
+                    <form action="{% url 'auth_cita' %}" method="post" novalidate>
+                        {% csrf_token %}
+    
+                        <div class="dataUser"> 
+                            <p class="card-text text-center">Estos datos serán compartidos para registrar tu cita:</p>
+                            <div class="px-5">
+                                <table>
+                                    <tr>
+                                        <td class="jalada"><strong>Nombre</strong></td>
+                                        <td class="jalada">{{ form.cliente.get_full_name }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="jalada"><strong>Teléfono</strong></td>
+                                        <td class="jalada">{{ form.cliente.telefono }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Correo</strong></td>
+                                        <td>{{ form.cliente.email }}</td>
+                                    </tr>
+                                </table>
                             </div>
                         </div>
-                        <div class="col-sm-12 col-md-12 col-lg-6 d-flex mt-3">
-                            <div class="card rounded-1 p-3 flex-fill">
-                                <h4 class="card-title text-center my-3">Datos de tu cita</h4>
-                                <div class="input-group mb-3">
-                                    <span class="input-group-text">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30"
-                                            fill="currentColor" class="bi bi-key" viewBox="0 0 16 16">
-                                            <path
-                                                d="M11 6.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5z" />
-                                            <path
-                                                d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5M1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4z" />
-                                        </svg>
-                                    </span>
-                                    <div class="form-floating">
-                                        {{ form.fecha_cita }}
-                                        <label for="fecha_cita" class="form-label">{{ form.fecha_cita.label }}</label>
+    
+                        <div class="row d-flex justify-content-center mb-3">
+                            <div class="col-sm-12 col-md-12 col-lg-6 d-flex mt-3">
+                                <div class="card rounded-1 p-3 flex-fill">
+                                    <div id="datepicker" data-date="12/03/2012"></div>
+                                </div>
+                            </div>
+                            <div class="col-sm-12 col-md-12 col-lg-6 d-flex mt-3">
+                                <div class="card rounded-1 p-3 flex-fill">
+                                    <h4 class="card-title text-center my-3">Datos de tu cita</h4>
+                                    <div class="input-group mb-3">
+                                        <span class="input-group-text">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30"
+                                                fill="currentColor" class="bi bi-key" viewBox="0 0 16 16">
+                                                <path
+                                                    d="M11 6.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5z" />
+                                                <path
+                                                    d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5M1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4z" />
+                                            </svg>
+                                        </span>
+                                        <div class="form-floating">
+                                            {{ form.fecha_cita }}
+                                            <label for="fecha_cita" class="form-label">{{ form.fecha_cita.label }}</label>
+                                        </div>
+                                    </div>
+                                    <div class="form-floating mb-3">
+                                        {{ form.hora_cita }}
+                                        <label for="fecha_cita" class="form-label">{{ form.hora_cita.label }}</label>
+                                    </div>
+    
+                                    <div class="form-floating mb-3">
+                                        {{ form.categoria }}
+                                        <label for="fecha_cita" class="form-label">{{ form.categoria.label }}</label>
+                                    </div>
+    
+                                    <div class="form-control mb-3">
+                                        <label for="fecha_cita" class="form-label small text-muted d-flex">{{ form.servicios.label }}</label>
+                                        {{ form.servicios }}
                                     </div>
                                 </div>
-                                <div class="form-floating mb-3">
-                                    {{ form.hora_cita }}
-                                    <label for="fecha_cita" class="form-label">{{ form.hora_cita.label }}</label>
-                                </div>
-
-                                <div class="form-floating mb-3">
-                                    {{ form.categoria }}
-                                    <label for="fecha_cita" class="form-label">{{ form.categoria.label }}</label>
-                                </div>
-
-                                <div class="form-control mb-3">
-                                    <label for="fecha_cita" class="form-label small text-muted d-flex">{{ form.servicios.label }}</label>
-                                    {{ form.servicios }}
-                                </div>
                             </div>
                         </div>
-                    </div>
-
-
-                    <input class="btn btn-primary w-100" type="submit" name="submit" id="submit">
-                </form>
+    
+    
+                        <input class="btn btn-primary w-100" type="submit" name="submit" id="submit">
+                    </form>
+                </div>
             </div>
         </div>
     </div>
@@ -84,11 +86,7 @@
 
 {% block scripts %}
 
-<!-- Bootstrap datepicker CSS -->
-<link rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css" />
-<!-- Bootstrap datepicker JS-->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+
 <script defer>
     $.fn.datepicker.dates['es'] = {
         days: ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'],
@@ -108,6 +106,7 @@
         todayHighlight: true,
         changeMonth: false,
         changeYear: false,
+        maxViewMode: 1,
         format: 'yyyy-mm-dd',
         startDate: new Date(),
         endDate: new Date(new Date().getFullYear(), new Date().getMonth() + 3, 0)
