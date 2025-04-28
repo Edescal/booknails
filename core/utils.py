@@ -1,10 +1,11 @@
-from itsdangerous import URLSafeTimedSerializer
+from itsdangerous import URLSafeTimedSerializer, SignatureExpired
 from django.conf import settings
 from django.urls import reverse 
 from django.http.request import HttpRequest
 
 import os
 import pandas
+import time
 from core import models
 
 def generar_token(data) -> str:
@@ -12,16 +13,27 @@ def generar_token(data) -> str:
     token = serializer.dumps(data, salt=settings.TOKEN_SALT)
     return token
 
-def verificar_token(token, expiration_secs : int = 86400) -> None: # 60secs * 60hrs * 24hrs
-    serializer = URLSafeTimedSerializer(secret_key=settings.SECRET_KEY)
-    data = serializer.loads(token, salt=settings.TOKEN_SALT, max_age=expiration_secs)
-    return data
+
+
+def verificar_token(token, expiration_secs : int = 86400): # 60secs * 60min * 24hrs
+    try:
+        serializer = URLSafeTimedSerializer(secret_key=settings.SECRET_KEY)
+        data = serializer.loads(token, salt=settings.TOKEN_SALT, max_age=expiration_secs)
+        return data, False
+    except SignatureExpired as e:
+        print(f'Token expirado: {type(e)} {str(e)}')
+        return None, True
+    except Exception as e:
+        return None, False  
 
 def token_to_url(token, request : HttpRequest) -> str:
     partial_url = reverse('auth_verify') + f'token=?{token}'
     full_url = request.build_absolute_uri(partial_url)
     return full_url
 
+
+def to_unix_timestamp(datetime) -> int:
+    return int(time.mktime(datetime.date().timetuple())) * 1000
 
 """
 PARA PARSEAR Y GENERAR LOS SERVICIOS A PARTIR DEL EXCEL

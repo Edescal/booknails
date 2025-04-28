@@ -3,6 +3,16 @@ from django.template.loader import render_to_string
 from django.conf import settings
 from smtplib import SMTPRecipientsRefused, SMTPException
 from . import models
+from api import serializers
+
+from cryptography.fernet import Fernet
+
+import secrets
+
+# key = Fernet.generate_key()
+# print(key)
+
+fernet = Fernet(b'LgSAckJzkYiTVkvdI5JuoUlRCIlw9b4JOa4HCOwuBHs=')
 
 class Notificacion:
     def __init__(self, email, telefono, usuario : models.Usuario):
@@ -14,7 +24,7 @@ class Notificacion:
         try:# preparar contenido del email
             context = {
                 'usuario': self.usuario,
-                'token_url': 'puta.com',
+                'token_url': 'jkjkjkj.com',
             }
             content = render_to_string('emails/email_confirmacion.html', context)
             # crear email
@@ -37,20 +47,19 @@ class Notificacion:
         pass
 
 
-# def generar_token(data):
-#     serializer = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
-#     token = serializer.dumps(data, salt=current_app.config['SECURITY_PASSWORD_SALT'])
-#     return token
+class LoginVerify:
+    def __init__(self, id = None, usuario:models.Usuario = None):
+        if id:
+            self.id = id
+        else: self.id = secrets.token_hex(4).upper()        
+        if isinstance(usuario, dict):
+            self.usuario = models.Usuario.objects.get(id=usuario.get('id'))
+        else: self.usuario = usuario
 
-# def verificar_token(token, expiration=86400):
-#     try:
-#         serializer = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
-#         data = serializer.loads(token, salt=current_app.config['SECURITY_PASSWORD_SALT'], max_age=expiration)
-#         return data
-#     except:
-#         print('Token no válido')
-#     return None
+    def to_dict(self) -> dict:
+        return {
+            "id": self.id,
+            "usuario": serializers.UsuarioSerializer(self.usuario).data,
+        }
+    
 
-# def generar_url_token(data):
-#     token = generar_token(data)
-#     return url_for('verificar_token', token=token, _external=True)

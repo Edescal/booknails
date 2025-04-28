@@ -1,6 +1,7 @@
 from django.core.handlers.wsgi import WSGIRequest
 from django.utils.timezone import now
 from django.shortcuts import render, redirect
+from django.urls import reverse
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, get_user_model, logout
 from django.contrib.auth.decorators import login_required
@@ -8,6 +9,7 @@ from django.http.response import HttpResponse
 from django.http.request import HttpRequest
 
 from . import models, forms, services, utils
+from api import serializers
 import datetime
 
 def crear_admin():
@@ -22,9 +24,6 @@ def crear_admin():
     user.set_password('password')
     user.save()
 
-def index(request : WSGIRequest):
-
-    return render(request=request, template_name='index.html')
 
 '''
 =======================================
@@ -32,6 +31,9 @@ VISTAS PARA EL REGISTRO, LOGIN Y LOGOUT
 =======================================
 '''
 def registro(request : HttpRequest):   
+    if request.user.is_authenticated:
+        return redirect('home')
+    
     if request.method == 'POST':
         form = forms.RegistroForm(request.POST)
         if form.is_valid():
@@ -54,9 +56,10 @@ def registro(request : HttpRequest):
     context = { 'form': form }
     return render(request=request, template_name='register.html', context=context)
 
-
 def login_view(request : HttpRequest):
-    print("ID de sesión:", request.session.session_key)
+    if request.user.is_authenticated:
+        return redirect('home')
+
     mensaje = ''
     if request.method == 'POST':
         form : forms.LoginForm = forms.LoginForm(request.POST)
@@ -71,12 +74,16 @@ def login_view(request : HttpRequest):
                 password=form.cleaned_data['password']
             )
             if user:
-                
+                # verify = services.LoginVerify(usuario=user)
+                # query_url = f'{reverse('auth_verify')}?token={utils.generar_token(verify.to_dict())}'
+                # return redirect(query_url)
+
                 login(request, user)
+
                 print('Inicio de sesión exitoso')
                 print(request.user.is_authenticated)
                 request.session.save()
-                return redirect('auth_cita')
+                return redirect('home')
         else:
             # mensaje = 'Error de validacion'
             form.show_errors(request)
@@ -91,11 +98,10 @@ def login_view(request : HttpRequest):
     }
     return render(request=request, template_name='login.html', context=context)
 
-@login_required
 def logout_view(request : HttpRequest):
     if request.user.is_authenticated:
         logout(request)
-    return redirect(to='auth_login', permanent=False)
+    return redirect(to='home', permanent=False)
 '''
 =======================================
 '''
@@ -134,37 +140,40 @@ def editar_usuario(request : WSGIRequest):
 
 @login_required
 def agendar_cita(request : HttpRequest):
-
-    cliente = models.Usuario.objects.first()
+    cliente = request.user
     if request.method == 'POST':
         form = forms.CitasForm(cliente, request.POST)
-        '''
-        VALIDAR FORMULARIO
-        '''
         if form.is_valid():
-            print('JEJE')
-
             cita = form.to_cita()
             if cita:
-                print('================')
-                print(f'Nueva cita creada: {cita.id}')
-                print('================')
-                return redirect('auth_success_view')
+                print(f'Cita agendada: {cita}')
+                # return redirect('auth_success_view')
+                return render(request, 'cita_success.html', context={'cita':cita})
         else:
-            print('ups')
             form.show_errors(request)
-
     elif request.method == 'GET':
-        """
-        MOSTRAR FORMULARIO
-        """
         form : forms.CitasForm = forms.CitasForm(cliente=cliente)
-        form.fields['servicios'].queryset = models.Servicio.objects.none()
 
+    form.fields['servicios'].queryset = models.Servicio.objects.none()
+    return render(request, 'cita.html', { 'form':form, 'now': now() })
 
-    return render(request, 'cita.html', { 'form':form, 'now': now()})
+def verificar_login(request : HttpRequest):
+    print(f'Usuario autenticado: {request.user.is_authenticated}')
+    
+    token = request.GET.get('token')
+    if token:
+        data, _ = utils.verificar_token(token, 43200)
+        verify = services.LoginVerify(**data)
+        print(f'Código de inicio: {verify.id}')
+        print(f'Usuario identificado: {verify.usuario.get_full_name()}')
+        if request.method == 'GET':
+            '''AQUÍ MUESTRA EL FORMULARIO PARA PEDIR CÓDIGO DE VERIFICACIÓN'''
+            print('Es GET')
+        elif request.method == 'POST':
+            '''AQUI RECUPERA DATOS DEL FORMULARIO PARA SABER SI EL CÓDIGO ES CORRECTO'''
+            print('Es POST')
 
+def ver_agenda(request : HttpRequest):
 
-def verificar_token(request):
+    return render(request, 'ver_agenda.html', context={'cita':models.Cita.objects.last()})
 
-    return HttpResponse('SSDSDSD')

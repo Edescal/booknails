@@ -71,13 +71,28 @@
                                         {{ form.servicios }}
                                     </div>
                                 </div>
+                                <div class="form-floating mb-3">
+                                    {{ form.horario }}
+                                    <label for="horario" class="form-label">{{ form.horario.label }}</label>
+                                </div>
+
+                                <div class="form-floating mb-3">
+                                    {{ form.categoria }}
+                                    <label for="categoria" class="form-label">{{ form.categoria.label }}</label>
+                                </div>
+
+                                <div class="form-control mb-3">
+                                    <label for="servicios" class="form-label small text-muted d-flex">{{ form.servicios.label }}</label>
+                                    {{ form.servicios }}
+                                </div>
                             </div>
                         </div>
-    
-    
-                        <input class="btn btn-primary w-100" type="submit" name="submit" id="submit">
-                    </form>
-                </div>
+                    </div>
+
+                    
+
+                    <input class="btn btn-primary w-100" type="submit" name="submit" id="submit">
+                </form>
             </div>
         </div>
     </div>
@@ -112,12 +127,13 @@
         endDate: new Date(new Date().getFullYear(), new Date().getMonth() + 3, 0)
     });
 
-    picker.on('changeDate', function () {
+    picker.on('changeDate', function (evt) {
         let data = picker.datepicker('getFormattedDate')
         let input = document.getElementById('id_fecha_cita')
         if (input) {
-            console.log(data)
             input.setAttribute('value', data)
+            delHorarios()
+            getHorarios(evt.date.getFullYear(), evt.date.getMonth(), evt.date.getDate())
         }
     });
     $(document.querySelectorAll('.datepicker')).addClass('w-100')
@@ -169,6 +185,61 @@
             }
         })
         .catch(error => console.error('Error:', error));
+    }
+
+
+
+    function delHorarios() {
+        let element = document.getElementById('id_horario')
+        if (element) {
+            while(element.firstChild)
+                element.removeChild(element.firstChild)
+        }
+    }
+
+    async function getHorarios(year, month, day) {
+        try {
+            const response = await fetch(`/api/horarios/${year}/${month+1}/${day}?format=json`, {
+                method: 'GET', // O 'POST', 'PUT', 'DELETE'
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{csrf_token}}' // Solo si es POST o PUT
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error(`Response status: ${response.status}`);
+            }
+            
+            const json = await response.json();            
+            let element = document.getElementById('id_horario')
+            if (element) {
+                if (json.length == 0) {
+                    let title = `<option value="NA">Sin horarios disponibles para esta fecha</option>`
+                    let base_elem = document.createElement('template')
+                    base_elem.innerHTML = title.trim()
+                    element.insertAdjacentElement('beforeend', base_elem.content.firstElementChild)
+                    return
+                }
+
+
+                let title = `<option value="NA">Selecciona un horario</option>`
+                let base_elem = document.createElement('template')
+                base_elem.innerHTML = title.trim()
+                element.insertAdjacentElement('beforeend', base_elem.content.firstElementChild)
+
+                console.log(`\u{1F6A8} \u{26A0} \u{2705} Horarios disponibles:`);
+                json.forEach(d => {
+                    let template = `<option value="${d[0]}">\u{2705} ${d[1]}</option>`
+                    new_ele = document.createElement('div')
+                    new_ele.innerHTML = template
+                    element.insertAdjacentElement('beforeend', new_ele)
+                })
+            }
+                
+        } catch (error) {
+            console.error(`Fetch error: ${error.message}`);
+        }
     }
 </script>
 {% endblock %}

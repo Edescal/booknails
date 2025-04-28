@@ -1,0 +1,205 @@
+{% extends "base.html" %}
+
+{% block title %}VISTA PROTEGIDA{% endblock %}
+
+{% block body %}
+<div class="container">
+    <div class="row d-flex justify-content-center">
+        <div class="col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12">
+            <div class="card p-3 my-3" style="background: url('/static/img/fondo.png') no-repeat center center/cover;">
+                <h3 class="text-center my-4">Agenda digital de citas</h3>
+                <div class="row d-flex justify-content-center mb-3">
+                    <div class="col-sm-12 col-md-12 col-lg-6 d-flex mt-3">
+                        <div class="card rounded-1 p-3 flex-fill">
+                            <div id="datepicker" data-date="12/03/2012"></div>
+                        </div>
+                    </div>
+                </div>
+                <div id="cita-container" class="row d-flex my-3"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<template id="cita-template">
+    <div class="col-sm-12 col-md-12 col-lg-4 d-flex mt-3">
+        <div class="text-start rounded-1 p-3 flex-fill loginContainer">
+            <h4 class="text-center my-3 loginT">Datos de tu cita</h4>
+    
+            <div class="input-group mb-3">
+                <div class="form-floating">
+                    <input type="text" class="form-control text-center cliente-name" readonly>
+                    <label for="fecha_cita" class="form-label">Nombre de la clienta</label>
+                </div>
+            </div>
+    
+            <div class="input-group mb-3">
+                <span class="input-group-text">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-key" viewBox="0 0 16 16">
+                        <path d="M11 6.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5z" />
+                        <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5M1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4z" />
+                    </svg>
+                </span>
+                <div class="form-floating">
+                    <input type="text" class="form-control fecha-date" readonly>
+                    <label for="fecha_cita" class="form-label">Día</label>
+                </div>
+                <div class="form-floating">
+                    <input type="text" class="form-control fecha-time" readonly>
+                    <label for="fecha_cita" class="form-label">Hora</label>
+                </div>
+            </div>
+            
+            <div class="form-control mb-3">
+                <label for="fecha_cita" class="form-label small text-secondary">Servicios solicitados</label>
+                <div class="form-floating">
+                    <ul id="lista-servicios">
+                        
+                    </ul>
+                </div>
+            </div>
+    
+            <div class="input-group mb-3">
+                <span class="input-group-text">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-currency-dollar" viewBox="0 0 16 16">
+                        <path d="M4 10.781c.148 1.667 1.513 2.85 3.591 3.003V15h1.043v-1.216c2.27-.179 3.678-1.438 3.678-3.3 0-1.59-.947-2.51-2.956-3.028l-.722-.187V3.467c1.122.11 1.879.714 2.07 1.616h1.47c-.166-1.6-1.54-2.748-3.54-2.875V1H7.591v1.233c-1.939.23-3.27 1.472-3.27 3.156 0 1.454.966 2.483 2.661 2.917l.61.162v4.031c-1.149-.17-1.94-.8-2.131-1.718zm3.391-3.836c-1.043-.263-1.6-.825-1.6-1.616 0-.944.704-1.641 1.8-1.828v3.495l-.2-.05zm1.591 1.872c1.287.323 1.852.859 1.852 1.769 0 1.097-.826 1.828-2.2 1.939V8.73z"/>
+                    </svg>
+                </span>
+                <div class="form-floating">
+                    <input type="text" class="form-control precio" readonly>
+                    <label for="fecha_cita" class="form-label">Costo</label>
+                </div>
+                <input type="text" class="form-control" readonly value="MXN">
+            </div>
+    
+            <div class="input-group mb-3">
+                <div class="form-floating">
+                    <input type="text" class="form-control text-center fecha-creacion" readonly>
+                    <label for="fecha_cita" class="form-label">Fecha de registro</label>
+                </div>
+            </div>
+    
+        </div>
+    </div>
+</template>
+{% endblock %}
+
+{% block scripts %}
+
+<!-- Bootstrap datepicker CSS -->
+<link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css" />
+<!-- Bootstrap datepicker JS-->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+<script defer>
+    $.fn.datepicker.dates['es'] = {
+        days: ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'],
+        daysShort: ['Dom', 'Lun', 'Mar', 'Mié', 'Juv', 'Vie', 'Sáb'],
+        daysMin: ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'],
+        months: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'],
+        monthsShort: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
+        today: 'Hoy',
+        clear: 'Limpiar',
+        format: 'dd/mm/yyyy',
+        titleFormat: "MM yyyy",
+        weekStart: 1
+    };
+
+    const picker = $('#datepicker').datepicker({
+        language: 'es-419',
+        todayHighlight: false,
+        changeMonth: false,
+        changeYear: false,
+        format: 'yyyy-mm-dd',
+        startDate: new Date(),
+        endDate: new Date(new Date().getFullYear(), new Date().getMonth() + 3, 0)
+    });
+
+    picker.on('changeDate', function (evt) {
+        let data = picker.datepicker('getFormattedDate')
+        let input = document.getElementById('id_fecha_cita')
+        if (input) {
+            input.setAttribute('value', data)
+           
+            console.log(evt.date.getFullYear(), evt.date.getMonth(), evt.date.getDate())
+        }
+        del()
+        api(evt.date.getFullYear(), evt.date.getMonth(), evt.date.getDate())
+    });
+    $(document.querySelectorAll('.datepicker')).addClass('w-100')
+    $(document.querySelectorAll('.table-condensed')).addClass('table').removeClass('table-condensed')
+
+
+    function del() {
+        let container = document.getElementById('cita-container')
+        if (container) {
+            while(container.firstChild)
+                container.removeChild(container.firstChild)
+        }
+    }
+
+    async function api(year, month, day) {
+        try {
+            const response = await fetch(`/api/citas/${year}/${month+1}/${day}?format=json`, {
+                method: 'GET', // O 'POST', 'PUT', 'DELETE'
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{csrf_token}}' // Solo si es POST o PUT
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error(`Response status: ${response.status}`);
+            }
+            
+            const json = await response.json();   
+            console.log(json)
+            
+            // en esto se pega cada card
+            let container = document.getElementById('cita-container')
+
+            let temp = document.getElementById('cita-template')
+            if (temp) {
+                json.forEach(element => {
+                    const clone = temp.content.cloneNode(true);
+                    const dateObj = new Date(element.fecha_cita);
+
+                    const dateCreation = new Date(element.fecha_creacion)
+
+                    const opciones = {
+                        hour: 'numeric',
+                        minute: '2-digit',
+                        hour12: true,
+                        timeZone: 'UTC' // Puedes quitar esto si quieres hora local
+                    };
+                    const hora12 = dateObj.toLocaleTimeString('en-US', opciones);
+                    const fecha = dateObj.toISOString().split('T')[0];
+                    const hora = dateObj.toISOString().split('T')[1].substring(0, 5);
+                    
+                    clone.querySelector('.cliente-name').value = `${element.cliente.nombre} ${element.cliente.apellidos}`;
+                    clone.querySelector('.fecha-date').value = `${fecha}`;
+                    clone.querySelector('.fecha-time').value = `${hora12}`;
+                    clone.querySelector('.precio').value = `${element.precio}`;
+                    clone.querySelector('.fecha-creacion').value = `${dateCreation}`;
+
+                    const servicioContainer = clone.querySelector('#lista-servicios')
+                    element.servicios.forEach(ele => {
+                        const servTemplate = `<small class="text-start">${ele.nombre} $${ele.precio}</small>`
+                        let new_ele = document.createElement('li')
+                        new_ele.innerHTML = servTemplate
+                        console.log(new_ele)
+                        servicioContainer.insertAdjacentElement('beforeend', new_ele)
+
+                    })
+                    
+                    console.log(`${fecha}  ${hora}`)
+                    container.appendChild(clone)
+                });   
+            }
+                
+        } catch (error) {
+            console.error(`Fetch error: ${error.message}`);
+        }
+    }
+</script>
+{% endblock %}

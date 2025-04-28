@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}Calendario{% endblock %}
+
+{% block body %}
+<div class="container- p-3">
+    <div class="row">
+        {% for cita in citas %}
+        <div class="col-3 my-2">
+            <div class="card">
+                <div class="card-header">
+                    <p>Cita de: {{ cita.cliente.get_full_name }}</p>
+                    <small>
+                        Hora: {{ cita.fecha_cita }}
+                    </small>
+                </div>
+                
+                <div class="card-body">
+                    {% for servicio in cita.servicios.all %}
+                    <div class="ms-4">
+                        <small class="text-start">{{forloop.counter}}.  {{servicio.nombre}} ${{servicio.precio}}</small>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <div class="card-footer">
+                    <small>
+                        Cita registrada el: {{ cita.fecha_creacion }}
+                    </small>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
