@@ -260,4 +260,72 @@ span.month.focused{
     font-size: 1.2rem; /* Aumenta el tamaño de la fuente */
     text-align: center; /* Centrar contenido si es apropiado */
 }
+/******************************* MENÚ DE OPCIONES *************************************/
+.menu {
+    position: sticky;
+    top: 10px; /* distancia desde arriba */
+    right: 20px; /* distancia desde la derecha (para flex o fixed) */
+    display: flex;
+    justify-content: flex-end;
+    z-index: 1000;
+}
+.iconColor{
+    color: white;
+}
 
+/* Estilo para el botón de menú */
+.menu-button {
+    background-color: #784eb3;
+    border: 2px solid #784eb3;
+    border-radius: 5px;
+    cursor: pointer;
+    padding: 5px;
+}
+
+/* Estilos del menú cuando está oculto */
+.menu-options {
+    position: absolute;
+    top: 40px; /* Ajusta según sea necesario */
+    right: 0;
+    background-color: #784eb3;
+    color: #fff;
+    border-radius: 15px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    width: 200px;
+    padding: 10px 0; /* Espaciado entre las opciones */
+    z-index: 10; /* Asegura que esté por encima de otros elementos */
+    display: none; /* Inicialmente está oculto */
+}
+
+/* Estilo para los enlaces dentro del menú */
+.menu-options a {
+    display: block;
+    padding: 12px 16px;
+    text-decoration: none;
+    color: white; /* Asegura que el texto sea blanco */
+    border-bottom: 1px solid #C49CFC;
+    font-size: 16px;
+    background-color: #784eb3; /* Fondo para los enlaces */
+}
+
+/* Estilo para los enlaces al final para que no tenga borde inferior */
+.menu-options a:last-child {
+    border-bottom: none;
+}
+
+/* Estilo para los enlaces en hover */
+.menu-options a:hover {
+    background-color: #C49CFC;
+    color: black;
+}
+
+/* Estilo para el menú en pantallas pequeñas */
+@media screen and (max-width: 768px) {
+    .menu-button {
+        font-size: 28px; /* Ajusta según prefieras */
+    }
+}
+/*--------------------------------DATOS DE LA CITA---------------------------------------*/
+.dataCitas{
+    background-color: #784eb3;
+}

@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}VISTA PROTEGIDA{% endblock %}
+{% block title %}Agendar Nueva Cita{% endblock %}
 
 {% block body %}
 <div class="background" style="background: url('/static/img/fondo.png') no-repeat center center/cover; ; height: 95%; width: 96%;;">
@@ -51,26 +51,8 @@
                                                     d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5M1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4z" />
                                             </svg>
                                         </span>
-                                        <div class="form-floating">
-                                            {{ form.fecha_cita }}
-                                            <label for="fecha_cita" class="form-label">{{ form.fecha_cita.label }}</label>
-                                        </div>
-                                    </div>
-                                    <div class="form-floating mb-3">
-                                        {{ form.hora_cita }}
-                                        <label for="fecha_cita" class="form-label">{{ form.hora_cita.label }}</label>
-                                    </div>
-    
-                                    <div class="form-floating mb-3">
-                                        {{ form.categoria }}
-                                        <label for="fecha_cita" class="form-label">{{ form.categoria.label }}</label>
-                                    </div>
-    
-                                    <div class="form-control mb-3">
-                                        <label for="fecha_cita" class="form-label small text-muted d-flex">{{ form.servicios.label }}</label>
-                                        {{ form.servicios }}
-                                    </div>
                                 </div>
+
                                 <div class="form-floating mb-3">
                                     {{ form.horario }}
                                     <label for="horario" class="form-label">{{ form.horario.label }}</label>
@@ -85,14 +67,13 @@
                                     <label for="servicios" class="form-label small text-muted d-flex">{{ form.servicios.label }}</label>
                                     {{ form.servicios }}
                                 </div>
+
                             </div>
                         </div>
                     </div>
-
-                    
-
-                    <input class="btn btn-primary w-100" type="submit" name="submit" id="submit">
-                </form>
+                    <input class="loginBTN" type="submit" name="submit" id="submit" style="width: 15%;">
+                    </form>
+                </div>
             </div>
         </div>
     </div>
@@ -100,8 +81,6 @@
 {% endblock %}
 
 {% block scripts %}
-
-
 <script defer>
     $.fn.datepicker.dates['es'] = {
         days: ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'],
