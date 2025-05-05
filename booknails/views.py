@@ -4,35 +4,49 @@ from django.urls import reverse
 from django.http import HttpResponse
 from django.template.loader import render_to_string
 from django.conf import settings
-import datetime
-from core import services
+import datetime, logging
+from core import services, models
+
+
+def crear_admin():
+    user, new_instance = models.Usuario.objects.get_or_create(
+        username = 'admin'
+    )
+    if new_instance:
+        user.is_superuser = True
+        user.username = 'admin'
+        user.nombre = 'Eduardo'
+        user.apellidos = 'Escalante Pacheco'
+        user.email = 'eduardo1582000@gmail.com'
+        user.fecha_creacion = datetime.datetime.now()
+        user.telefono = '9993914295'
+        user.set_password('password')
+        user.save()
+
 
 def index(request : WSGIRequest):
-    
-    if request.method == 'POST':
-        dato = request.POST.get('mierda')
-        hora = datetime.datetime.strptime(dato, '%H:%M:%S').time()
-        print(hora)
-        pass
-
+    if models.Usuario.objects.count() == 0:
+        print('No hay usuarios activos')
+        crear_admin()
     return render(request, 'index.html')
 
 
 
 def menu(request : WSGIRequest):
 
-    notificacion = services.Notificacion(request.user.email, 'sdsds', request.user)
-    notificacion.enviar_confirmacion()
+    cita = models.Cita.objects.filter(cliente=request.user).first()
+    print(cita)
+
+    notificacion = services.Notificacion(request.user)
+    print(notificacion)
+    return HttpResponse(notificacion._render_email({
+        'usuario':request.user,
+        'cita':cita
+    }))
+    # if notificacion.enviar_confirmacion():
+    #     logging.info('Se envió un correo exitosamente')
+    # else:
+    #     logging.error('No se envió el correo')
 
     return render(request, 'index.html')
 
-
-def enviar_correo_electronico(usuario, username):
-    asunto = 'Bienvenido a Booknails'
-    contexto = {
-        'usuario': usuario
-    }
-    html_content = render_to_string('emails/email_confirmation.html')
-
-
-    pass

@@ -1,7 +1,8 @@
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.db import models
-import time as time_module
+from django.utils import timezone
 from datetime import datetime, time
+import time as time_module
 
 class Usuario(AbstractBaseUser, PermissionsMixin):
     id = models.AutoField(primary_key=True, blank=True)
@@ -18,23 +19,6 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
 
     class Meta:
         db_table = 'usuarios'
-
-    @staticmethod
-    def build(**kwargs) -> 'Usuario':
-        user = Usuario()
-        if kwargs.get('username'):
-            user.username = kwargs.get('username')
-        elif kwargs.get('password'):
-            user.set_password(kwargs.get('password'))
-        elif kwargs.get('email'):
-            user.username = kwargs.get('email')
-        elif kwargs.get('telefono'):
-            user.username = kwargs.get('telefono')
-        elif kwargs.get('nombre'):
-            user.username = kwargs.get('nombre')
-        elif kwargs.get('apellidos'):
-            user.username = kwargs.get('apellidos')
-        return user
 
     def get_full_name(self) -> str:
         return f'{self.nombre} {self.apellidos}'
@@ -61,24 +45,34 @@ class Servicio(models.Model):
         """Clase especial que usa Django para asociar a la BD"""
         db_table = 'servicios'
 
+    def get_categoria(self):
+        if self.categoria in self.Categorias.values:
+            index = self.Categorias.values.index(self.categoria)
+            return self.Categorias.choices[index][1]
+        return self.Categorias.choices[0][1]
+
+
     def __str__(self):
         return (f"Servicio(id={self.id}, "\
                 f"nombre='{self.nombre}', "\
                 f"precio='{self.precio}, "\
                 f"categoria={self.get_categoria_display()}')")
 
+
+class Horario:
+    MAÑANA = time(9, 0), '9:00 AM'
+    MEDIODIA = time(12, 0), '12:00 PM'
+    TARDE = time(16, 0), '4:00 PM'
+    NOCHE = time(19, 0), '7:00 PM'
+    
+    choices = [MAÑANA, MEDIODIA, TARDE, NOCHE]
+    values = [val[0] for val in choices]
+
 class Cita(models.Model):
-    class Horario:
-        MAÑANA = time(10, 0), 'MAÑANA - 10:00 AM'
-        TARDE = time(16, 0), 'TARDE - 4:00 PM'
-        NOCHE = time(20, 0), 'NOCHE - 8:00 PM'
-
-        values = [MAÑANA, TARDE, NOCHE]
-        
-
     id = models.AutoField(primary_key=True, blank=True)
     fecha_cita = models.DateTimeField(null=False, unique=True)
     cliente = models.ForeignKey(Usuario, on_delete=models.CASCADE, null=False)
+    comprobante = models.FileField(null=True, upload_to='citas/comprobantes/')
     servicios = models.ManyToManyField(Servicio, related_name='citas')
     fecha_creacion = models.DateTimeField(auto_now=True)
 
@@ -99,7 +93,27 @@ class Cita(models.Model):
     def UNIX_timestamp(self):
         """ DATO ÚTIL PARA CASTEAR A FECHAS DE JAVASCRIPT """
         return int(time_module.mktime(self.fecha_cita.date().timetuple())) * 1000
-    
+#endregion
+
+    def fecha_vencida(self):
+        return timezone.now() > self.fecha_cita
+
+    def tiempo_restante_legible(self):
+        diferencia = self.fecha_cita - timezone.now()
+        if diferencia.total_seconds() < 0:
+            return "Ya pasó"
+
+        dias = diferencia.days
+        horas, resto = divmod(diferencia.seconds, 3600)
+        minutos, _ = divmod(resto, 60)
+
+        partes = []
+        if dias: partes.append(f"{dias} días")
+        if horas: partes.append(f"{horas} horas")
+        if minutos: partes.append(f"{minutos} minutos")
+
+        return ", ".join(partes)
+
     def validar_horario(self):
         data = Cita.horarios_disponibles(self.fecha_cita.date())
         horarios = [d[0] for d in data]
@@ -142,6 +156,7 @@ class Cita(models.Model):
 class FechaBloqueada(models.Model):
     id = models.AutoField(primary_key=True, blank=True)
     fecha = models.DateField(null=False, unique=True)
+    motivo = models.CharField(max_length=100, default='N/A')
     fecha_creacion = models.DateTimeField(auto_now=True)
 
     class Meta:
@@ -151,7 +166,30 @@ class FechaBloqueada(models.Model):
     def UNIX_timestamp(self):
         """ DATO ÚTIL PARA CASTEAR A FECHAS DE JAVASCRIPT """
         return int(time.mktime(self.fecha.timetuple())) * 1000
+    
+    @property
+    def dia_entero_bloqueado(self) -> bool:
+        if not hasattr(self, 'horas_bloqueadas'):
+            return False
+        horarios = self.horas_bloqueadas.all()
+        todos_los_horarios = True
+        for horario in horarios:
+            if horario.hora not in Horario.values:
+                todos_los_horarios = False
+                break
+        return todos_los_horarios
 
     def __str__(self) -> str:
-        return f'Fecha bloqueada: {self.fecha.isoformat()}'
+        return f'[{self.id}] Fecha bloqueada: {self.fecha.isoformat()}, motivo: {self.motivo}'
 
+
+class HoraBloqueada(models.Model):
+    fecha_bloqueada = models.ForeignKey(FechaBloqueada, on_delete=models.CASCADE, related_name='horas_bloqueadas')
+    hora = models.TimeField(choices=Horario.choices)
+
+    class Meta:
+        db_table = 'horas_bloqueadas'
+        
+    def __str__(self) -> str:
+        return f'[{self.id}] Hora bloqueada: {self.hora} para [{self.fecha_bloqueada.id}]'
+    

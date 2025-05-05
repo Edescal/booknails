@@ -5,7 +5,7 @@ al usar @api_view(['GET']) en views.py
 """
 from rest_framework import serializers
 from rest_framework.response import Response
-from core import models
+from core import models, utils
 
 class CitaSerializer(serializers.ModelSerializer):
     # fecha en tiempo unix
@@ -52,13 +52,20 @@ class ServicioSerializer(serializers.ModelSerializer):
 class FechaBloqueadaSerializer(serializers.ModelSerializer):
     # fecha en tiempo unix
     unix_timestamp = serializers.SerializerMethodField()
+    dia_entero_bloqueado = serializers.SerializerMethodField()
     
     class Meta:
         model = models.FechaBloqueada
         fields = '__all__'
 
     def get_unix_timestamp(self, obj : models.FechaBloqueada):
-        return obj.UNIX_timestamp
+        return utils.to_unix_timestamp(obj.fecha)
     
+    def get_dia_entero_bloqueado(self, obj : models.FechaBloqueada):
+        return obj.dia_entero_bloqueado
 
+class HoraBloqueadasSerializer(serializers.ModelSerializer):
 
+    class Meta:
+        model = models.HoraBloqueada
+        fields = '__all__'

@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block title %}Calendario{% endblock %}
+
+{% block links %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/style.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/confirmDate/confirmDate.css">
+{% endblock %}
+
+{% block body %}
+<div class="container-fluid">
+    <div class="row d-flex justify-content-center mt-4">
+        <div class="col-12 col-sm-10 col-md-8 col-lg-6 mx-auto">
+            <div class="card">
+                <h3 class="text-center my-3">Agenda de citas</h3>
+
+                <div class="card-body">
+                    <div class="row d-flex justify-content-center">
+                        <div class="col-12">
+                            <input type="text" name="fecha" id="calendar">
+                        </div>
+                        <div class="col-12">
+                            <div class="flatpickr input-group">
+                                <a class="input-group-text" title="toggle" data-toggle>
+                                    <i class="bi bi-calendar"></i>
+                                </a>
+                                <input type="text" class="form-control" placeholder="Select Date.." data-input> <!-- input is mandatory -->
+                                <a class="input-group-text btn btn-danger bg-gradient" title="clear" data-clear>
+                                    <i class="bi bi-x-lg"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <hr>
+                <div class="card-body">
+                    <table class="table table-bordered">
+                        <tr>
+                            <th>Cliente</th>
+                            <th>Servicio</th>
+                            <th>Hora</th>
+                            <th>Estado</th>
+                        </tr>
+                        <tbody>
+                            <tr>
+                                <td>Puta</td>
+                                <td>Mierda</td>
+                                <td>10:00</td>
+                                <td>Sidosa</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script src="https://npmcdn.com/flatpickr/dist/flatpickr.min.js"></script>
+<script src="https://npmcdn.com/flatpickr/dist/l10n/es.js"></script>
+<script src="https://npmcdn.com/flatpickr/dist/plugins/monthSelect/index.js"></script>
+<script src="https://npmcdn.com/flatpickr/dist/plugins/confirmDate/confirmDate.js"></script>
+<script>
+
+const wrapped = $('.flatpickr').flatpickr({
+    wrap:true,
+    autoclose:false,
+    mode: 'multiple',
+    maxDate: new Date(2025, 11, 31),
+    minDate: new Date(2025, 0, 1),
+    defaultDate: new Date(),
+})
+
+const picker = $('#calendar').flatpickr({
+    inline:true,
+    locale: "es",
+    dateFormat: "Y-m-d",
+    altFormat: "d F Y",
+    altInput: true,
+    allowInvalidPreload: true,
+    disableMobile:true,
+    maxDate: new Date(2025, 11, 31),
+    minDate: new Date(2025, 0, 1),
+    defaultDate: new Date(),
+    onReady: function(data) {
+        this._input.style.display = 'none'
+        this.clear()
+    },
+    onChange: function(data) {
+        const date = data[0]
+        if (typeof date === 'undefined') return
+    }
+})
+</script>
+{% endblock %}

@@ -1,0 +1,134 @@
+<div class="blur-card rounded-3 m-3" style="width: 30rem;">
+    <div class="loginBox px-3">
+        <div class="alert-dismissible">
+            <button type="button" class="btn-close"></button>
+        </div>
+        <div class="my-3">
+            <h2 class="loginT">Datos de la cita</h2>
+        </div>
+        <div>
+            <form action="" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <div class="inputGroup">
+                        <div class="form-floating">
+                            <input type="text" class="form-control" value="{{ cita.cliente.get_full_name }}">
+                            <label style="color: #784eb3;">Nombre de la clienta:</label>
+                        </div>
+                    </div>
+                    <div class="inputGroup">
+                        <div class="input-group">
+                            <div class="form-floating">
+                                <input type="date" class="form-control" value="{{ cita.fecha_cita|date:'Y-m-d' }}">
+                                <label style="color: #784eb3;">Fecha de la cita</label>
+                            </div>
+                            <div class="form-floating">
+                                <input type="time" class="form-control" value="{{ cita.fecha_cita|date:'H:m' }}">
+                                <label style="color: #784eb3;">Hora de la cita</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="inputGroup">
+                        <div class="form-control">
+                            <label style="color: #784eb3;">Servicios solicitados</label>
+                            <table class="table table-sm">
+                                {% for service in cita.servicios.all %}
+                                <tr class="d-table-row">
+                                    <td><small class="ps-3 text-start">{{ service.nombre }}</small></td>
+                                    <td><small class="pe-0">${{ service.precio }}</small></td>
+                                </tr>
+                                {% endfor %}
+                                <tr class="d-table-row table-active">
+                                    <td><small class="ps-3 text-start">Precio total: </small></td>
+                                    <td><small class="pe-0">${{ cita.get_precio }}</small></td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    {{ form.id_cita }}
+                    <h2 class="loginT text-center fs-5">{{ form.comprobante.label }}</h2>
+                    <div class="input-group">
+                        {{ form.comprobante }}
+                        <i class="input-group-text bi bi-receipt"></i>
+                    </div>
+
+                    {% if cita.comprobante %}
+                    <div class="flex-row text-e text-success fw-bold">
+                        <small>Archivo subido: </small>
+                        <small>
+                            <a href="{{cita.comprobante.url}}"
+                                download="{{ cita.comprobante.name|cut:'citas/comprobantes/' }}">
+                                {{ cita.comprobante.name|cut:"citas/comprobantes/" }}
+                            </a>
+                        </small>
+                    </div>
+                    {% else %}
+                    <div class="flex-row text-end pe-5 text-danger fw-bold">
+                        <small>Adjunta tu comprobante de pago de anticipo</small>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-3">
+                    <input class="btn w-100" style="background-color: #784eb3; color: white;" type="submit"
+                        name="submit" id="submit" value="Actualizar comprobante">
+                </div>
+            </form>
+            <div class="mb-3">
+                <form action="{% url 'eliminar_cita' %}" method="post" id="form-eliminar-cita">
+                    {% csrf_token %}
+                    <input type="hidden" name="cita_id" value="{{cita.id}}">
+                    <button type="button" class="btn btn-danger w-100" id="btn-{{cita.id}}" data-id-cita="{{cita.id}}">Eliminar cita</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<dialog class="container-fluid alert alert-dismissible fade show vh-100" id="modal-{{cita.id}}" tabindex="-1" closedby="any">
+    <div class="row d-flex justify-content-center align-items-center h-100">
+        <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+            <div class="blur-card rounded rounded-3 p-4">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Confirmar acción</h5>
+                        <form>
+                            <button class="btn-close btn-lg" formmethod="dialog"></button>
+                        </form>
+                    </div>
+                    <hr>
+                    <div class="modal-body">
+                        <p>Estás a punto de eliminar tu cita. ¿Estás segura?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <form method="dialog" class="btn-group w-100 gx-3">
+                            <button id="cerrar" class="btn btn-secondary bg-gradient w-50">Cerrar</button>
+                            <button type="button" class="btn btn-danger bg-gradient w-50" id="confirmar-eliminar-cita">Confirmar</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</dialog>
+
+<script>
+    const modal = document.getElementById('modal-{{cita.id}}')
+    const btn = document.getElementById('btn-{{cita.id}}')
+    if (btn && modal) {
+        btn.addEventListener('click', evt => {
+            modal.showModal()
+        })
+    }
+
+    const btnEliminar = document.getElementById('confirmar-eliminar-cita')
+    const formEliminar = document.getElementById('form-eliminar-cita')
+    if (btnEliminar && formEliminar) {
+        btnEliminar.addEventListener('click', evt => {
+            formEliminar.submit()
+        })
+    }
+    
+</script>

@@ -188,13 +188,14 @@ class LoginForm(FormBase):
 
 
 class CitasForm(FormBase):
+    cita : models.Cita = None
     cliente : models.Usuario = None
     fecha_cita = forms.DateField(
         label='Selecciona el día: ',
         input_formats=['%Y-%m-%d', '%d-%m-%Y'],
         required=True,
         widget=forms.DateInput(format="%Y-%m-%d", attrs={
-            'class': "form-control shadow-sm",
+            'class': "form-control form-control-sm shadow-sm",
             'placeholder': 'Introduce tu contraseña',
             'type': 'date',
             'readonly': True,
@@ -205,22 +206,22 @@ class CitasForm(FormBase):
         choices=models.Servicio.Categorias.choices,
         required=True,
         widget=forms.Select(
-            attrs={'class': "form-control shadow-sm",}
+            attrs={'class': "form-control form-control-sm shadow-sm",}
         )
     )
     servicios = forms.ModelMultipleChoiceField(
         label='Servicios',
-        queryset=models.Servicio.objects.all(),
+        queryset= models.Servicio.objects.all(),
         required=True,
         widget=forms.CheckboxSelectMultiple
     )
     horario = forms.ChoiceField(
         label= 'Horarios disponibles: ',
         required=False,
-        choices=models.Cita.Horario.values,
+        choices=cita.hora if cita else models.Horario.choices,
         widget=forms.Select(
             attrs={
-                'class': "form-control shadow-sm",
+                'class': "form-control form-control-sm shadow-sm",
                 # 'disabled':True,
             }
         )
@@ -228,22 +229,28 @@ class CitasForm(FormBase):
 
     def clean_fecha_cita(self):
         fecha = self.cleaned_data.get('fecha_cita')
-        if self.cliente:
-            duplicated = models.Cita.objects.filter(cliente=self.cliente, fecha_cita__date=fecha).exists()
-            if duplicated:
-                raise ValidationError('No se permite más de una cita para el mismo día')
+        fecha_hoy = datetime.datetime.now().date()
+        if fecha > fecha_hoy:
+            raise ValidationError('No se permite agendar citas para fechas pasadas.')
         return fecha
     
-    def clean_hora_cita(self):
-        hora = self.cleaned_data.get('hora_cita')
-        return hora
-    
     def clean_horario(self):
+        fecha = self.cleaned_data.get('fecha_cita')
         horario = self.cleaned_data.get('horario')
+        if self.cliente:
+            duplicated = models.Cita.objects.filter(
+                cliente=self.cliente, 
+                fecha_cita__date=fecha,
+                fecha_cita__time=horario
+            ).exists()
+            if duplicated:
+                raise ValidationError('Ya hay una cita para ese mismo día y horario.')
         return horario
     
     def clean_servicios(self):
         servicios = self.cleaned_data.get('servicios')
+        for servicio in servicios:
+            print(servicio)
         return servicios
     
     def to_cita(self):
@@ -266,5 +273,235 @@ class CitasForm(FormBase):
     def __init__(self, cliente : models.Usuario, *args, **kwargs):
         self.cliente = cliente
         super().__init__(*args, **kwargs)
+
+
+class ComprobanteForm(FormBase):
+    id_cita = forms.IntegerField(
+        required=True,
+        widget= forms.HiddenInput(
+            attrs= {
+
+            }
+        ),
+    )
+    eliminar_archivo = forms.BooleanField(
+        label='Eliminar archivo adjunto',
+        required=False,
+        widget=forms.CheckboxInput(
+            attrs={
+                'class': 'form-check-input form-check-inline',
+                'novalidate':True,
+                'autocomplete': 'off',
+            }
+        )
+    )
+    comprobante = forms.FileField(
+        label='Comprobante de pago de anticipo',
+        required=False,
+        allow_empty_file= False,
+        widget=forms.FileInput(
+            attrs= {
+                'class': 'form-control',
+            }
+        )
+    )
+
+    def clean_eliminar_archivo(self):
+        boolean = self.cleaned_data['eliminar_archivo']
+        if boolean:
+            print(f'Se eliminará el comprobante asociado a la cita con id={self.cleaned_data['id_cita']}')
+        return boolean
+
+    def clean_comprobante(self):
+        eliminar_archivo = self.cleaned_data['eliminar_archivo']
+        if eliminar_archivo:
+            return None
+
+        from django.core.files.uploadedfile import InMemoryUploadedFile
+        file : InMemoryUploadedFile = self.cleaned_data['comprobante']
+        if file:
+            file_extension = file.content_type.split('/')[1]
+            file.name = f'COMPROBANTE-{self.cleaned_data['id_cita']}-{datetime.datetime.now().date()}.{file_extension}'
+            print(f'Save as: {file.name}')
+            extensiones_permitidas = [
+                'application/pdf',
+                'image/jpeg',
+                'image/png',
+                'image/webp',
+            ]
+            if file.content_type not in extensiones_permitidas:
+                raise ValidationError('Tipos de archivo permitidos: [PDF, JPEG, JPG, PNG, WEBP]') 
+            return file
+        raise ValidationError('No se envió ningún archivo')
+
+
+"""
+ESTOS FORMS SON PARA BLOQUEAR DIAS O RANGOS DE DÍAS
+"""
+class BloquearFechaForm(FormBase):
+    fecha = forms.CharField(
+        label='Fecha(s) que deseas bloquear',
+        required=True,
+        widget=forms.TextInput(
+            attrs={
+                'class': 'form-control form-control-sm',
+                'type':'date',
+                'placeholder': 'fecha que quieres bloquear',
+                'novalidate':True,
+                'autocomplete': 'off',
+            }
+        ),
+    )
+    todo_el_dia = forms.BooleanField(
+        label='Bloquear dia completo',
+        required=False,
+        widget=forms.CheckboxInput(
+            attrs={
+                'class': 'form-check-input form-check-inline',
+                'placeholder': 'fecha que quieres bloquear',
+                'novalidate':True,
+                'autocomplete': 'off',
+            }
+        )
+    )
+    horarios = forms.MultipleChoiceField(
+        label='Bloquear horarios específicos',
+        required=False,
+        choices=models.Horario.choices,
+        widget=forms.CheckboxSelectMultiple(
+            attrs={
+                'class': 'form-check-input form-check-inline',
+                'placeholder': 'fecha que quieres bloquear',
+                'novalidate':True,
+                'autocomplete': 'off',
+            }
+        )
+    )
+    motivo = forms.CharField(
+        label= 'Motivo (opcional):',
+        required=False,
+        widget=forms.Textarea(
+            attrs= {
+                'class': 'form-control form-control-sm',
+                'rows': 2,
+                'maxlength':100,
+                'wrap':'hard',
+                'style': 'resize: none;',
+                'placeholder': 'Descripción de por qué quieres bloquear esta fecha',
+            }
+        )
+    )
+    lista_horarios = []
+    
+    def clean_motivo(self):
+        motivo : str = self.cleaned_data['motivo']
+        # reemplazar los saltos de línea y quitar espacios
+        motivo = motivo.replace('\r', '').replace('\n', '').strip()
+        # validar longitud máxima
+        if len(motivo) > 100:
+            raise ValidationError(f'Asegúrese de que este valor tenga como máximo 100 caracteres (tiene {len(motivo)}).')
+        return motivo
+
+    def clean_fecha(self):
+        fecha = self.cleaned_data['fecha']
+        # parsear string a fecha
+        date = datetime.datetime.strptime(fecha, '%Y-%m-%d')
+        # si se parseó correctamente...
+        if isinstance(date, datetime.date):
+            # buscar coincidencias en la BD
+            fecha_bloqueada = models.FechaBloqueada.objects.filter(fecha = date).first()
+            if not fecha_bloqueada:
+                print(f'Fecha: {date} <- La fecha está disponible')
+            else:
+                print(f'Fecha: {date}  <- {fecha_bloqueada}')
+            return date
+        raise ValidationError('No se envió una fecha válida')
+    
+    def clean_horarios(self):
+        horarios = self.cleaned_data['horarios']
+        if not horarios:
+            return None
+        
+        # si se eligió todo el día, no hace falta hacer nada
+        if self.cleaned_data['todo_el_dia']:
+            self.lista_horarios = models.Horario.values
+            return horarios
+        
+        # si no se eligió todo el día, y tampoco se eligió un horario: error
+        if len(horarios) == 0:
+            raise ValidationError('Selecciona al menos un horario')
+
+        # por cada horario elegido...
+        for h in horarios:
+            # convertir a fecha (y quedarse con la hora datetime.time())
+            hora = datetime.datetime.strptime(h, '%H:%M:%S')
+            if isinstance(hora, datetime.datetime):
+                # ver si existe en los horarios preestablecidos
+                if hora.time() in models.Horario.values:
+                    # añadir la hora a la lista del formulario
+                    print(f'Validado: {h}')
+                    # asegurar que no se repite una misma hora
+                    if not hora.time() in self.lista_horarios:
+                        self.lista_horarios.append(hora.time())
+        return horarios
+
+
+class BloquearRangoForm(FormBase):
+    fecha_inferior = forms.DateField(
+        label='Desde:',
+        required=True,
+        widget=forms.DateInput(
+           attrs={
+                'class': 'form-control form-control-sm',
+                'type':'date',
+                'placeholder': 'fecha que quieres bloquear',
+                'novalidate':True,
+                'autocomplete': 'off',
+            } 
+        )    
+    )
+    fecha_superior = forms.DateField(
+        label='Hasta:',
+        required=True,
+        widget=forms.DateInput(
+           attrs={
+                'class': 'form-control form-control-sm',
+                'type':'date',
+                'placeholder': 'fecha que quieres bloquear',
+                'novalidate':True,
+                'autocomplete': 'off',
+            } 
+        )    
+    )
+    motivo = forms.CharField(
+        label= 'Motivo (opcional):',
+        required=False,
+        widget=forms.Textarea(
+            attrs= {
+                'class': 'form-control form-control-sm',
+                'rows': 2,
+                'maxlength':100,
+                'wrap':'hard',
+                'style': 'resize: none;',
+                'placeholder': 'Esta descripción se compartirá para todas las fechas del mes.',
+            }
+        )
+    )
+    
+    def clean(self):
+        cleaned_data = super().clean()
+
+        fecha_inf : datetime.date = cleaned_data.get('fecha_inferior', None)
+        fecha_sup : datetime.date = cleaned_data.get('fecha_superior', None)
+
+        if not (fecha_sup and fecha_inf):
+            raise ValidationError('No es válido este formulario.')
+
+        if fecha_inf > fecha_sup:
+            raise ValidationError('La segunda fecha debe ser posterior a la primera.')
+
+
+
+
 
 

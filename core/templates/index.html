@@ -5,33 +5,61 @@
 {% block body %}
 <div class="container-fluid py-3" style="background-color: #f79dfd;">
 	<div class="row d-flex justify-content-center">
-		<div class="col-2">
-			<img src="{% static 'img/logo.png' %}" alt="Logo" class="img-fluid" style="height: 250px; width: 300px;">
+    	<div class="col-6 col-sm-6 col-md-4 col-lg-2">
+			<img src="{% static 'img/logo.png' %}" alt="Logo" class="img-fluid">
 		</div>
 	</div>
 	<div class="row d-flex justify-content-center mt-3 py-3" style="background-color: #935edd;">
-		<div class="indexBTNdiv" style="margin-bottom: 1rem; margin-top: 1rem;">
-			{% if not request.user.is_authenticated %}
-			<div>
-				<a class="navLink" href="{% url 'auth_login' %}">Iniciar Sesión</a>
+		<div class="col-12">
+			<div class="indexBTNdiv" style="margin-bottom: 1rem; margin-top: 1rem;">
+				{% if not user.is_authenticated %}
+				<div>
+					<a class="navLink" href="{% url 'auth_login' %}">Iniciar Sesión</a>
+				</div>
+				<div>
+					<a class="navLink" href="{% url 'auth_registro' %}">Registrarse</a>
+				</div>
+				{% else %}
+				<div>
+					<a class="navLink" href="{% url 'auth_logout' %}">Cerrar sesión</a>
+				</div>
+				<div>
+					<a class="navLink" href="{% url 'agendar_cita' %}">Agendar una cita</a>
+				</div>
+				{% endif %}
 			</div>
-			<div>
-				<a class="navLink" href="{% url 'auth_registro' %}">Registrarse</a>
+			<div class="col-12 text-center text-white">
+				<p class="card-text fs-5 Poppins">
+					El mejor cuidado para tus uñas con atención profesional y personalizada.
+				</p>
+				{% if user.is_authenticated %}
+				<div class="indexBTNdiv" style="margin-bottom: 1rem; margin-top: 1rem;">
+					<div>
+						<a class="navLink" href="{% url 'auth_perfil' %}">Ver mi perfil</a>
+					</div>
+				</div>
+				{% if user.is_superuser %}
+				<div class="indexBTNdiv" style="margin-bottom: 1rem; margin-top: 1rem;">
+					<div>
+						<a class="navLink" href="{% url 'ver_agenda' %}">Ver mi agenda</a>
+					</div>
+				</div>
+				<div class="indexBTNdiv" style="margin-bottom: 1rem; margin-top: 1rem;">
+					<div>
+						<a class="navLink" href="{% url 'bloquear_fechas_get' %}">Bloquear fechas</a>
+					</div>
+				</div>
+				{% else %}
+				<div class="indexBTNdiv" style="margin-bottom: 1rem; margin-top: 1rem;">
+					<div>
+						<a class="navLink" href="{% url 'ver_mis_citas' %}">Ver mis citas</a>
+					</div>
+				</div>
+				{% endif %}
+				{% endif %}
 			</div>
-			{% else %}
-			<div>
-				<a class="navLink" href="{% url 'auth_logout' %}">Cerrar sesión</a>
-			</div>
-			<div>
-				<a class="navLink" href="{% url 'auth_cita' %}">Agendar una cita</a>
-			</div>
-			{% endif %}
 		</div>
-		<div class="col-12 text-center text-white">
-			<p class="card-text fs-5 Poppins"> 
-			El mejor cuidado para tus uñas con atención profesional y personalizada.
-			</p>
-		</div>
+
 	</div>
 	<div class="row d-flex justify-content-center py-3 column-gap-lg-5" style="background-color: #935edd;">
 		<div class="col-2 text-center text-white">
@@ -51,4 +79,9 @@
 	</div>
 </div>
 
+
+<script>
+
+
+</script>
 {% endblock %}

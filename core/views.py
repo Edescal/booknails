@@ -11,18 +11,6 @@ from . import models, forms, services, utils
 from api import serializers
 import datetime
 
-def crear_admin():
-    user = models.Usuario()
-    user.is_superuser = True
-    user.username = 'admin'
-    user.nombre = 'Eduardo'
-    user.apellidos = 'Escalante Pacheco'
-    user.email = 'eduardo1582000@gmail.com'
-    user.fecha_creacion = datetime.datetime.now()
-    user.telefono = '9993914295'
-    user.set_password('password')
-    user.save()
-
 
 '''
 =======================================
@@ -129,32 +117,18 @@ def editar_usuario(request : WSGIRequest):
             # Guardamos los cambios (si la contraseña no fue modificada, sólo los datos)
             usuario.save()
             messages.success(request, 'Tus datos han sido actualizados correctamente.')
-            return redirect('auth_index')  # Redirigir al perfil o la página que desees
+            return redirect('home')  # Redirigir al perfil o la página que desees
     else:
         # Cargar los datos actuales del usuario para precargar el formulario
         form = forms.EditarUsuarioForm(instance=usuario)
 
     return render(request, 'editar_usuario.html', {'form': form})
 
-
 @login_required
-def agendar_cita(request : HttpRequest):
-    cliente = request.user
-    if request.method == 'POST':
-        form = forms.CitasForm(cliente, request.POST)
-        if form.is_valid():
-            cita = form.to_cita()
-            if cita:
-                print(f'Cita agendada: {cita}')
-                # return redirect('auth_success_view')
-                return render(request, 'cita_success.html', context={'cita':cita})
-        else:
-            form.show_errors(request)
-    elif request.method == 'GET':
-        form : forms.CitasForm = forms.CitasForm(cliente=cliente)
+def ver_perfil(request : HttpRequest):
 
-    form.fields['servicios'].queryset = models.Servicio.objects.none()
-    return render(request, 'cita.html', { 'form':form })
+    return render(request, 'ver_perfil.html', {})
+
 
 def verificar_login(request : HttpRequest):
     print(f'Usuario autenticado: {request.user.is_authenticated}')
@@ -171,8 +145,3 @@ def verificar_login(request : HttpRequest):
         elif request.method == 'POST':
             '''AQUI RECUPERA DATOS DEL FORMULARIO PARA SABER SI EL CÓDIGO ES CORRECTO'''
             print('Es POST')
-
-def ver_agenda(request : HttpRequest):
-
-    return render(request, 'ver_agenda.html', context={'cita':models.Cita.objects.last()})
-

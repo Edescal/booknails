@@ -1,0 +1,40 @@
+{% extends 'components/base.html' %}
+
+{% block title %}Mi perfil{% endblock %}
+
+{% block body %}
+<div class="row d-flex justify-content-center">
+    <div class="col-sm-10 col-md-6">
+        <div class=" m-3 blur-container">
+            <div class="card-header">
+                <h2 class="loginBox">Mis datos personales</h2>
+            </div>
+            <div class="card-body mb-3">
+                <div class="inputGroup">
+                    <label for="form-label input">Nombre completo</label>
+                    <p class="input form-control">{{user.get_full_name}}</p>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12 col-md-6">
+                        <div class="inputGroup">
+                            <label for="form-label input">Teléfono</label>
+                            <p class="input form-control">{{user.telefono}}</p>
+                        </div>
+                    </div>
+                    <div class="col-sm-12 col-md-6">
+                        <div class="inputGroup">
+                            <label for="form-label input">Correo electrónico</label>
+                            <p class="input form-control">{{user.email}}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer">
+                <a href="{% url 'auth_editar_usuario' %}" class="btn btn-primary">
+                    Editar mis datos
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

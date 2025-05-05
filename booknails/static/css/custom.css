@@ -1,0 +1,159 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+:root {
+    font-family: 'Poppins', sans-serif;
+}
+
+.body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #F79DFD;
+}
+
+.background {
+    background-image: url('../img/fondo.png');
+    background-size: cover;
+    /* Ajusta la imagen para cubrir todo el fondo */
+    background-position: center center;
+    /* Centra la imagen */
+    background-attachment: scroll;
+    margin: 2vh;
+    height: auto;
+    min-height: calc(76vh);
+    padding: 0%;
+    border-radius: 1rem;
+    box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.2);
+}
+
+
+.main-footer {
+    height: 20vh;
+    min-height: 20vh;
+    background-color: #78249f;
+}
+
+
+.blur-container {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(8px);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    text-align: center;
+}
+
+.blur-container h2 {
+    color: #784eb3 !important;
+}
+
+.inputGroup {
+    color: #784eb3;
+}
+
+.input {
+    width: 100%;
+    padding: 10px;
+    border: none;
+    outline: none;
+    border-radius: 15px !important;
+    display: block;
+    font-size: 14px;
+    color: #FF636E !important;
+}
+
+.btn.btn-morado {
+    background-color: #784eb3;
+    border-color: #784eb3;
+}
+
+.titulo {
+    color: #784eb3;
+}
+
+
+dialog {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border: none;
+    padding: 0;
+    margin: 0;
+    background: none;
+    z-index: 9999;
+    max-width: 100vh;
+    max-height: 100vh;
+}
+
+
+dialog::backdrop {
+    background: rgba(0, 0, 0, 0.5);
+}
+
+dialog .card {
+    justify-self: center;
+    width: 100%;
+    max-width: 500px;
+}
+
+
+#modal-bloquear {
+    width: 26rem;
+}
+
+#modal-editar-cita {
+    width: 30rem;
+}
+
+#modal-eliminar-cita {
+    width: 24rem;
+}
+
+#modal-comprobante {
+    width: 26rem;
+}
+
+
+
+#modal-eliminar {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    margin: 0;
+    padding: 0;
+    border: none;
+    z-index: 9999;
+    background: none;
+}
+
+#modal-eliminar::backdrop {
+    background: rgba(0, 0, 0, 0.5);
+}
+
+
+@media (max-width: 400px) {
+    #modal-bloquear {
+        width: 22rem;
+    }
+/*     
+    #modal-bloquear .card {
+        max-width: 22rem;
+    } */
+
+    #modal-editar-cita {
+        width: 25rem;
+    }
+/*     
+    #modal-editar-cita .card {
+        max-width: 25rem;
+    } */
+
+    #modal-eliminar-cita {
+        width: 20rem;
+    }
+
+    #modal-comprobante {
+        width: 20rem;
+    }
+    
+}

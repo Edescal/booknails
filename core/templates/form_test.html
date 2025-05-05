@@ -1,0 +1,158 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}
+Cita agendada exitosamente
+{% endblock %}
+
+{% block body %}
+<dialog class="container-fluid " id="modal-eliminar" tabindex="-1" closedby="any">
+	<div class="card rounded rounded-3 p-4">
+		<div class="modal-content">
+			<form class="modal-header d-flex justify-content-between align-items-center">
+				<h5 class="modal-title">Confirmar acción</h5>
+				<button class="btn-close btn-lg" formmethod="dialog"></button>
+			</form>
+			<hr>
+			<div class="modal-body">
+				<p id="modal-mensaje">¿Quieres desbloquear esta fecha?</p>
+			</div>
+			<div class="modal-footer">
+				<form method="post" action="{% url 'eliminar_fecha' %}" class="btn-group w-100 gx-3">
+					{% csrf_token %}
+					<input type="hidden" name="fecha_id" id="fecha_id">
+					<button type="submit" class="btn btn-secondary bg-gradient w-50 rounded-start"
+						formmethod="dialog">Cerrar</button>
+					<button type="submit" class="btn btn-danger bg-gradient w-50 rounded-end"
+						id="confirmar-eliminar-cita">Confirmar</button>
+				</form>
+			</div>
+		</div>
+	</div>
+</dialog>
+
+
+<div class="container-fluid">
+	<div class="row d-flex">
+		<div class="col-sm-12 col-sm-8 col-lg-4">
+			<div class="card">
+				<div class="card-body p-3">
+					<form action="" method="post">
+						{% csrf_token %}
+						{{ form.fechas }}
+						<button class="btn btn-primary mt-2 w-100" type="submit">Bloquear fechas</button>
+					</form>
+
+					<div class="container p-3">
+						<div class="row">
+							{% for fecha in fechas %}
+							<div class="col-12">
+								<div class="card p-2 mb-2" style="max-width: 300px;">
+									<div class="d-flex justify-content-between gap-2 align-items-center">
+										<span class="btn btn-sm w-100">{{ fecha.fecha }}</span>
+										<button type="button" class="btn btn-sm btn-danger" data-fecha="{{fecha.fecha}}"
+											data-id="{{fecha.id}}">
+											<i class="bi bi-trash3-fill"></i>
+										</button>
+									</div>
+								</div>
+							</div>
+							{% endfor %}
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<!-- Bootstrap datepicker CSS -->
+<link rel="stylesheet"
+	href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css" />
+<!-- Bootstrap datepicker JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+
+<script defer>
+	$.fn.datepicker.dates['es'] = {
+		days: ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'],
+		daysShort: ['Dom', 'Lun', 'Mar', 'Mié', 'Juv', 'Vie', 'Sáb'],
+		daysMin: ['Do', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'],
+		months: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'],
+		monthsShort: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
+		today: 'Hoy',
+		clear: 'Limpiar',
+		format: 'dd/mm/yyyy',
+		titleFormat: 'MM yyyy',
+		weekStart: 1
+	}
+
+	const disabled_dates = []
+
+	const picker = $('#datepicker').datepicker({
+		language: 'es-419',
+		clearBtn: true,
+		todayHighlight: false,
+		changeMonth: false,
+		changeYear: false,
+		multidate: true,
+		maxViewMode: 1,
+		minViewMode: 0,
+		startView: "days",
+		format: 'yyyy-mm-dd',
+		startDate: new Date(),
+		endDate: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0),
+		autoclose: false,
+		disabledDates: api(new Date().getFullYear(), new Date().getMonth() + 1),
+
+	})
+
+	picker.on('changeMonth', evt => {
+		evt.date.setDate(1)
+		const fecha = formatearFecha(evt.date)
+		api(evt.date.getFullYear(), evt.date.getMonth() + 1, evt.date)
+	})
+
+	function api(year, month, fecha) {
+		fetch(`/api/fechas-bloqueadas/${year}/${month}?format=json`, {
+			method: 'GET',
+			headers: { 'Content-Type': 'application/json', }
+		})
+			.then(response => response.json())
+			.then(data => {
+				if (data.length > 0) {
+					disabled_dates.length = 0
+					data.forEach(obj => disabled_dates.push(formatearFecha(new Date(obj.unix_timestamp))) )
+					picker.datepicker('setDate', fecha)
+					picker.datepicker('setDatesDisabled', disabled_dates);
+				}
+			})
+			.catch(error => console.error('Error:', error));
+	}
+
+	function formatearFecha(fecha) {
+		const year = fecha.getFullYear();
+		const month = String(fecha.getMonth() + 1).padStart(2, '0');
+		const day = String(fecha.getDate()).padStart(2, '0');
+		return `${year}-${month}-${day}`;
+	}
+
+</script>
+
+<script defer>
+	const modal = document.getElementById('modal-eliminar')
+	const mensaje = document.getElementById('modal-mensaje')
+	const fecha = document.getElementById('fecha_id')
+	document.querySelectorAll('.btn').forEach(boton => {
+		boton.addEventListener('click', function () {
+			if ('fecha' in this.dataset && 'id' in this.dataset) {
+				if (modal && mensaje && fecha) {
+					fecha.value = this.dataset.id
+					mensaje.innerHTML = `¿Quieres desbloquear la fecha ${this.dataset.fecha}?`
+					modal.showModal()
+				}
+			}
+		})
+	})
+</script>
+{% endblock %}

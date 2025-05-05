@@ -1,6 +1,7 @@
 {% extends "base.html" %}
+{% load static %}
 
-{% block title %}VISTA PROTEGIDA{% endblock %}
+{% block title %}Agendar una cita{% endblock %}
 
 {% block body %}
 <div class="container">
@@ -8,13 +9,13 @@
         <div class="col-xxl-8 col-xl-8 col-lg-10 col-md-10 col-sm-12">
             <div class="card p-3 my-3">
                 <h3 class="text-center my-4">Agenda una nueva cita</h3>
-                <form action="{% url 'auth_cita' %}" method="post" novalidate>
+                <form action="{% url 'agendar_cita' %}" method="post" novalidate>
                     {% csrf_token %}
 
                     <div class="card rouded-1 p-3">
                         <p class="card-text text-center">Estos datos serán compartidos para registrar tu cita:</p>
-                        <div class="px-5">
-                            <table class="table table-auto table-bordered small">
+                        <div class="table-responsive small">
+                            <table class="table table-bordered small">
                                 <tr>
                                     <td class="table-active">Nombre</td>
                                     <td>{{ form.cliente.get_full_name }}</td>
@@ -31,23 +32,24 @@
 
                             {% if messages %}
                             {% for message in messages %}
-                                <div class="toast align-items-center text-bg-danger border-0 w-100 my-2" role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="false">
+                                <div class="toast align-items-center text-bg-{{ message.tags }} border-0 w-100 my-2" role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="false">
                                     <div class="d-flex">
-                                    <div class="toast-body">
-                                        <small>{{ message.tags }}: {{ message }}</small>
-                                    </div>
-                                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close" tabindex="-1"></button>
+                                        <div class="toast-body">
+                                            <small>{{ message }}</small>
+                                        </div>
+                                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close" tabindex="-1"></button>
                                     </div>
                                 </div>
                             {% endfor %}
                             {% endif %}
+
 
                         </div>
                     </div>
 
                     <div class="row d-flex justify-content-center mb-3">
                         <div class="col-sm-12 col-md-12 col-lg-6 d-flex mt-3">
-                            <div class="card rounded-1 p-3 flex-fill">
+                            <div class="card rounded-1 flex-fill">
                                 <div id="datepicker" data-date="12/03/2012"></div>
                             </div>
                         </div>
@@ -98,149 +100,10 @@
 {% endblock %}
 
 {% block scripts %}
-
 <!-- Bootstrap datepicker CSS -->
-<link rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css" />
 <!-- Bootstrap datepicker JS-->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
-<script defer>
-    $.fn.datepicker.dates['es'] = {
-        days: ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'],
-        daysShort: ['Dom', 'Lun', 'Mar', 'Mié', 'Juv', 'Vie', 'Sáb'],
-        daysMin: ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'],
-        months: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'],
-        monthsShort: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
-        today: 'Hoy',
-        clear: 'Limpiar',
-        format: 'dd/mm/yyyy',
-        titleFormat: "MM yyyy",
-        weekStart: 1
-    };
-
-    const picker = $('#datepicker').datepicker({
-        language: 'es-419',
-        todayHighlight: true,
-        changeMonth: false,
-        changeYear: false,
-        format: 'yyyy-mm-dd',
-        startDate: new Date(),
-        endDate: new Date(new Date().getFullYear(), new Date().getMonth() + 3, 0)
-    });
-
-    picker.on('changeDate', function (evt) {
-        let data = picker.datepicker('getFormattedDate')
-        let input = document.getElementById('id_fecha_cita')
-        if (input) {
-            input.setAttribute('value', data)
-            delHorarios()
-            getHorarios(evt.date.getFullYear(), evt.date.getMonth(), evt.date.getDate())
-        }
-    });
-    $(document.querySelectorAll('.datepicker')).addClass('w-100')
-    $(document.querySelectorAll('.table-condensed')).addClass('table').removeClass('table-condensed')
-
-    const categoria = document.getElementById('id_categoria')
-    if (categoria) {
-        categoria.addEventListener('input', evt => {
-            del()
-            api(`${evt.target.value}`)
-        })
-    }
-
-    function del() {
-        let element = document.getElementById('id_servicios')
-        if (element) {
-            while(element.firstChild)
-                element.removeChild(element.firstChild)
-        }
-    }
-
-    function insert(name, value) {
-        let element = document.getElementById('id_servicios')
-        if (element) {
-            let template = `
-            <label for="id_servicios_0">
-                <input type="checkbox" name="servicios" value="${value}" class="form-check-inline" id="id_servicios_0">
-                 ${name}
-            </label>`
-            new_ele = document.createElement('div')
-            new_ele.innerHTML = template
-            element.insertAdjacentElement('beforeend', new_ele)
-        }
-    }
-
-    function api(categoria) {
-        fetch(`/api/servicios/${categoria}?format=json`, {
-            method: 'GET', // O 'POST', 'PUT', 'DELETE'
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': '{{csrf_token}}' // Solo si es POST o PUT
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.length > 0) {
-                for(var i = 0; i < data.length; i++)
-                    insert(data[i].nombre, data[i].id)
-            }
-        })
-        .catch(error => console.error('Error:', error));
-    }
-
-
-
-    function delHorarios() {
-        let element = document.getElementById('id_horario')
-        if (element) {
-            while(element.firstChild)
-                element.removeChild(element.firstChild)
-        }
-    }
-
-    async function getHorarios(year, month, day) {
-        try {
-            const response = await fetch(`/api/horarios/${year}/${month+1}/${day}?format=json`, {
-                method: 'GET', // O 'POST', 'PUT', 'DELETE'
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': '{{csrf_token}}' // Solo si es POST o PUT
-                }
-            });
-
-            if (!response.ok) {
-                throw new Error(`Response status: ${response.status}`);
-            }
-            
-            const json = await response.json();            
-            let element = document.getElementById('id_horario')
-            if (element) {
-                if (json.length == 0) {
-                    let title = `<option value="NA">Sin horarios disponibles para esta fecha</option>`
-                    let base_elem = document.createElement('template')
-                    base_elem.innerHTML = title.trim()
-                    element.insertAdjacentElement('beforeend', base_elem.content.firstElementChild)
-                    return
-                }
-
-
-                let title = `<option value="NA">Selecciona un horario</option>`
-                let base_elem = document.createElement('template')
-                base_elem.innerHTML = title.trim()
-                element.insertAdjacentElement('beforeend', base_elem.content.firstElementChild)
-
-                console.log(`\u{1F6A8} \u{26A0} \u{2705} Horarios disponibles:`);
-                json.forEach(d => {
-                    let template = `<option value="${d[0]}">\u{2705} ${d[1]}</option>`
-                    new_ele = document.createElement('div')
-                    new_ele.innerHTML = template
-                    element.insertAdjacentElement('beforeend', new_ele)
-                })
-            }
-                
-        } catch (error) {
-            console.error(`Fetch error: ${error.message}`);
-        }
-    }
-</script>
+{# CARGAR EL JAVASCRIPT PARA EL CALENDARIO #}
+<script defer src="{% static 'js/calendario.js' %}"></script>
 {% endblock %}

@@ -1,0 +1,378 @@
+{% extends "components/base.html" %}
+
+{% block title %}Calendario{% endblock %}
+
+{% block outbody %}
+{% comment %}
+MODAL PARA AÑADIR UN ARCHIVO A LA CITA
+{% endcomment %}
+<dialog id="modal-comprobante" tabindex="-1" closedby="none">
+    <div class="card rounded rounded-3 overflow-hidden px-4">
+        <form class="modal-header d-flex justify-content-between align-items-center">
+            <h3 class="text-center my-3">Añadir comprobante</h3>
+            <button class="btn-close btn-lg" formmethod="dialog"></button>
+        </form>
+        <hr>
+        <form action="{% url 'cita_comprobante' %}" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="modal-body">
+                <p class="card-text">Aquí puedes actualizar el archivo del comprobante de pago de anticipo.</p>
+                
+                {{ form.id_cita }}
+                
+                {{ form.comprobante }}
+
+                <div class="form-control mt-3" id="div-switch">
+                    <div class="form-check form-switch fs-4">
+                        {{ form.eliminar_archivo }}
+                        <label class="form-check-label fs-6" for="{{ form.eliminar_archivo.id_for_label }}">
+                            {{ form.eliminar_archivo.label }}
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <hr>
+            <div class="modal-footer mb-3">
+                <div class="text-end">
+                    <input type="submit" value="Cancelar" class="btn btn-secondary" formmethod="dialog">
+                    <input type="submit" value="Guardar" class="btn btn-danger">
+                </div>
+            </div>
+        </form>
+    </div>
+</dialog>
+
+{% comment %}
+MODAL PARA ELIMINAR UNA CITA
+{% endcomment %}
+<dialog id="modal-eliminar-cita" tabindex="-1" closedby="none">
+    <div class="card rounded rounded-3 overflow-hidden px-4">
+        <form class="modal-header d-flex justify-content-between align-items-center">
+            <h3 class="text-center my-3">Eliminar cita</h3>
+            <button class="btn-close btn-lg" formmethod="dialog"></button>
+        </form>
+        <hr>
+        <form action="{% url 'eliminar_cita' %}" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="modal-body">
+                <p class="card-text">Estás a punto de eliminar tu cita para el <span id="eliminar-cita-fecha"></span>. ¿Estás segura de proceder?</p>
+                <input type="hidden" name="cita_id" id="eliminar-cita-id">
+            </div>  
+            <hr>
+            <div class="modal-footer mb-3">
+                <div class="text-end">
+                    <input type="submit" value="Cancelar" class="btn btn-secondary" formmethod="dialog">
+                    <input type="submit" value="Guardar" class="btn btn-danger">
+                </div>
+            </div>
+        </form>
+    </div>
+</dialog>
+{% endblock %}
+
+{% block body %}
+{% comment %}
+PARTE SUPERIOR DE TÍTULO
+{% endcomment %}
+<div class="row d-flex justify-content-center p-2">
+    <div class="col-sm-10 col-md-8">
+        <div class="blur-container p-3 justify-content-center">
+            <div class="row d-flex justify-content-center">
+                
+                <div class="col-sm-10 col-md-8 text-center">
+    
+                    <h2 class="fs-3">Mis citas agendadas</h2>
+
+                    <p>En esta sección podrás visualizar todas las citas que haz agendado.</p>
+                    {% if messages %}
+                    {% for message in messages %}
+                    <div class="toast align-items-center text-bg-danger border-0 w-100 my-2" role="alert"
+                        aria-live="assertive" aria-atomic="true" data-bs-autohide="false">
+                        <div class="d-flex">
+                            <div class="toast-body">
+                                <small>{{ message }}</small>
+                            </div>
+                            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                                aria-label="Close" tabindex="-1"></button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    {% endif %}
+                    <div class="form-control shadow mb-3">
+                        <p class="form-label fw-semibold mb-1">Tus datos de contacto:</p>
+                        <p class="my-0 small"><b class="fw-semibold">Nombre:</b> {{ request.user.get_full_name }}</p>
+                        <p class="my-0 small"><b class="fw-semibold">Teléfono de contacto:</b> {{ request.user.telefono }}</p>
+                        <p class="my-0 small"><b class="fw-semibold">Correo electrónico:</b> {{ request.user.email }}</p>
+
+                        <div class="my-3 text-muted px-4">
+                            <p>Estos datos serán utilizados únicamente con fines de contacto para tu cita. Si deseas cambiarlos, haz click en el botón de abajo.</p>
+                            <a class="btn btn-sm btn-outline-primary" href="{% url 'auth_editar_usuario' %}"><i class="bi bi-person-circle"> Ir a mi perfil</i></a>
+                            <a class="btn btn-sm btn-outline-primary" href="{% url 'auth_editar_usuario' %}"><i class="bi bi-pencil-fill"> Editar datos</i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+{% comment %}
+CITAS PENDIENTES Y PASADAS
+{% endcomment %}
+<div class="row p-2">
+    <div class="col-sm-12 offset-sm-0 col-md-10 offset-md-1">
+        <div class="row d-flex justify-content-center">
+            {% if citas %}
+            <div class="col-12 col-md-12">
+                <div class="blur-container p-3 mb-3 shadow-lg">
+                    <div class="row align-items-center">
+                        <div class="col-12 d-flex justify-content-center gap-2 top-0 end-0 px-3 pt-2">
+                            <h2>Tus citas pendientes</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            {% for cita in citas %}
+            <div class="col-12 col-md-4">
+                <div class="card p-3 mb-3 shadow-lg">
+                    <div class="row align-items-center">
+                        <div class="col-12 d-flex justify-content-center gap-2 top-0 end-0 px-3 pt-2">
+                            <h3>Datos de la cita</h3>
+                        </div>
+                        <p class="text-center mb-3">📆{{ cita.fecha_cita }}</p>
+                    </div>
+                    
+                    <div class="row align-items-center">
+                        <div class="col-md-12 d-flex justify-content-end gap-2 top-0 end-0 px-3">
+                            <button type="button" id="editar-cita-{{ cita.id }}" class="btn btn-sm btn-outline-primary"
+                                data-id-cita="{{ cita.id }}" data-has-comprobante="{% if cita.comprobante %}true{% else %}false{% endif %}"
+                                data-categoria="{{ cita.servicios.first.get_categoria }}" data-servicios="{{ cita.json_servicios }}"
+                                data-fecha="{{ cita.fecha }}" data-hora="{{ cita.hora }}">
+                                <i class="bi bi-pencil-fill"> Adjuntar archivo</i>
+                            </button>
+                            <button type="button" id="eliminar-cita-{{ cita.id }}" class="btn btn-sm btn-outline-danger"
+                                data-id-cita="{{ cita.id }}" data-fecha="{{ cita.fecha_cita }}">
+                                <i class="bi bi-trash3-fill"> Eliminar</i>
+                            </button>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row align-items-baseline overflow-auto border border-3" style="min-height: 20rem; max-height: 20rem; background-color: rgb(230, 230, 230);">
+                        <div class="col-md-12 py-2">
+
+                            {% with categoria=cita.servicios.first.get_categoria %}
+                            <div class="form-control mb-3">
+                                <p class="form-label fw-semibold mb-1">Servicios solicitados:</p>
+                                <p class="form-label small fw-semibold mb-1">{{ categoria }}</p>
+                                <ul class="mb-3 small">
+                                    {% for servicio in cita.servicios.all %}
+                                    <li>{{ servicio.nombre }} - ${{ servicio.precio }} MXN</li>
+                                    {% empty %}
+                                    <li class="text-muted">No hay servicios</li>
+                                    {% endfor %}
+                                </ul>
+                                <p class="form-label fw-semibold mb-1">Costo total: ${{ cita.get_precio }} MXN</p>
+                            </div>
+                            {% endwith %}
+        
+                            <div class="form-control text-center">
+                                <p class="form-label fw-semibold">Pago de anticipo:</p>
+                            {% if cita.comprobante %}
+                                <div class="overflow-x-scroll">
+                                    <a href="{{ cita.comprobante.url }}#toolbar=0&navpanes=0&scrollbar=0" target="_blank" class="badge bg-success text-start text-decoration-none">
+                                        {% with fullpath=cita.comprobante.name %}
+                                            {% with filename=fullpath|cut:"citas/comprobantes/" %}
+                                            <span>{{ filename }}</span>
+                                            {% endwith %}
+                                        {% endwith %}
+                                    </a>
+                                </div>
+                                {% with comprobante_url=cita.comprobante.url|lower %}
+                                    {% if comprobante_url|slice:"-4:" == ".pdf" %}
+                                    <a href="{{ cita.comprobante.url }}#toolbar=0&navpanes=0&scrollbar=0" target="_blank" class="btn btn-sm btn-outline-secondary mt-2">
+                                        Ver PDF
+                                    </a>
+                                    {% elif ".jpg" in comprobante_url or ".jpeg" in comprobante_url or ".png" in comprobante_url or ".webp" in comprobante_url %}
+                                    <div class="text-center">
+                                        <a href="{{ cita.comprobante.url }}" target="_blank" class="btn btn-sm btn-outline-secondary mt-2">
+                                            Ver imagen
+                                        </a>
+                                    </div>
+                                    {% else %}
+                                    <div class="alert alert-warning">
+                                        Formato no soportado: <code>{{ cita.comprobante.name }}</code>
+                                    </div>
+                                    {% endif %}
+                                {% endwith %}
+                            {% else %}
+                                <div class="overflow-x-scroll">
+                                    <div class="badge bg-danger text-start">
+                                        <span>No se ha subido ningún archivo</span>
+                                    </div>
+                                </div>
+                            {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <hr>
+                    <p class="small text-muted text-center mb-0">📝 Creada el {{ cita.fecha_creacion }}</p>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12 col-md-12">
+                <div class="blur-container p-3 mb-3 shadow-lg">
+                    <div class="row align-items-center">
+                        <div class="col-12 d-flex justify-content-center gap-2 top-0 end-0 px-3 pt-2">
+                            <h2>No se encontraron citas pendientes</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+
+
+            {% if citas_pasadas %}
+            <div class="col-12 col-md-12">
+                <div class="blur-container p-3 mb-3 shadow-lg">
+                    <div class="row align-items-center">
+                        <div class="col-12 d-flex justify-content-center gap-2 top-0 end-0 px-3 pt-2">
+                            <h2>Tus citas pasadas</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            {% for cita in citas_pasadas %}
+            <div class="col-12 col-md-4">
+                <div class="card p-3 mb-3 shadow-lg">
+                    <div class="row align-items-center">
+                        <div class="col-12 d-flex justify-content-center gap-2 top-0 end-0 px-3 pt-2">
+                            <h3>Datos de la cita</h3>
+                        </div>
+                        <p class="text-center mb-3">📆{{ cita.fecha_cita }}</p>
+                    </div>
+                    <div class="row align-items-center px-5">
+                        <button type="button" id="eliminar-cita-{{ cita.id }}" class="btn btn-sm btn-outline-danger"
+                            data-id-cita="{{ cita.id }}" data-fecha="{{ cita.fecha_cita }}">
+                            <i class="bi bi-trash3-fill"> Eliminar</i>
+                        </button>
+                    </div>
+                    <hr>
+                    <div class="row align-items-baseline overflow-auto border border-3" style="min-height: 14rem; max-height: 14rem; background-color: rgb(230, 230, 230);">
+                        <div class="col-md-12 py-2">
+                            {% with categoria=cita.servicios.first.get_categoria %}
+                            <div class="form-control mb-3">
+                                <p class="form-label fw-semibold mb-1">Servicios solicitados:</p>
+                                <p class="form-label small fw-semibold mb-1">{{ categoria }}</p>
+                                <ul class="mb-3 small">
+                                    {% for servicio in cita.servicios.all %}
+                                    <li>{{ servicio.nombre }} - ${{ servicio.precio }} MXN</li>
+                                    {% empty %}
+                                    <li class="text-muted">No hay servicios</li>
+                                    {% endfor %}
+                                </ul>
+                                <p class="form-label fw-semibold mb-1">Costo total: ${{ cita.get_precio }} MXN</p>
+                            </div>
+                            {% endwith %}
+                        </div>
+                    </div>
+                    <hr>
+                    <p class="small text-muted text-center mb-0">📝 Creada el {{ cita.fecha_creacion }}</p>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12 col-md-10">
+                <div class="blur-container p-3 mb-3 shadow-lg">
+                    <div class="row align-items-center">
+                        <div class="col-12 d-flex justify-content-center gap-2 top-0 end-0 px-3 pt-2">
+                            <h2>No se encontraron citas pendiente</h2>
+                        </div>
+                        <p class="text-center mb-3">Agenda una nueva cita 📆 y aparecerá aquí.</p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+</div>
+
+
+<script>
+const modal = document.getElementById('modal-comprobante')
+if (modal) {
+    modal.addEventListener('close', evt => {
+        if (fileInput) {
+            fileInput.value = null
+            fileInput.disabled = false
+        }
+        if (eliminarArchivoInput) {
+            eliminarArchivoInput.checked = false
+        }
+    })
+}
+
+const modalEliminar = document.getElementById('modal-eliminar-cita')
+const citaIdInput = document.getElementById('eliminar-cita-id')
+const citaFechaInput = document.getElementById('eliminar-cita-fecha')
+
+const idInput = document.getElementById('id_id_cita')
+const switchInput = document.getElementById('div-switch')
+const fileInput = document.getElementById('id_comprobante')
+const eliminarArchivoInput = document.getElementById('id_eliminar_archivo')
+if (eliminarArchivoInput) {
+    eliminarArchivoInput.addEventListener('change', evt => {
+        if (eliminarArchivoInput.checked === true && fileInput) {
+            fileInput.value = null
+            fileInput.disabled = true
+        } else {
+            fileInput.disabled = false
+        }
+    })
+}
+
+const botonesEditar = document.querySelectorAll('button[id^="editar-cita-"]');
+if (botonesEditar) {
+    botonesEditar.forEach(boton => {
+        boton.addEventListener('click', evt => {
+            if (modal) {
+                modal.showModal()
+
+                if (idInput) {
+                    idInput.value = boton.dataset.idCita
+                }
+
+                if (eliminarArchivoInput) {
+                    eliminarArchivoInput.checked = false
+                }
+
+                if (boton.dataset.hasComprobante === 'true' ) {
+                    switchInput.style.display = 'block'
+                } else {
+                    switchInput.style.display = 'none'
+                }
+            }
+        })
+    })
+}
+
+const botonesEliminar = document.querySelectorAll('button[id^="eliminar-cita-"]');
+if (botonesEliminar) {
+    botonesEliminar.forEach(boton => {
+        boton.addEventListener('click', evt => {
+            if (modalEliminar) {
+                console.log(boton.dataset)
+                console.log(citaIdInput)
+                citaIdInput.value = boton.dataset.idCita
+                citaFechaInput.innerText = boton.dataset.fecha
+                modalEliminar.showModal()
+            }
+        })
+    })
+}
+
+
+</script>
+{% endblock %}

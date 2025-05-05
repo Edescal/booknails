@@ -6,7 +6,12 @@ urlpatterns = [
      path('users/', views.api_get_usuarios, name='API_get_usuarios'),
      path('servicios/', views.api_get_servicios, name='API_get_servicios'),
      path('servicios/<str:categoria>', views.api_get_servicios_cat, name='API_get_servicios_categoria'),
-     path('fechas_bloq/', views.api_get_fechas_bloqueadas, name='API_get_fechas_bloq'),
+
+     path('fecha-bloqueada/<int:año>/<int:mes>/<int:dia>', views.api_is_fecha_bloqueada, name='API_get_fecha_bloq'),
+     path('fechas-bloqueadas/<int:año>/<int:mes>', views.api_fechas_bloqueadas_mes, name='API_get_fecha_bloq'),
+
+     path('mes-bloqueado/<int:año>/<int:mes>', views.api_mes_completamente_bloqueado, name='API_bool_mes_bloqueado'),
+     
      path('horarios/<int:year>/<int:mes>/<int:dia>', views.api_get_horarios, name='API_get_horarios'),
 ]
 

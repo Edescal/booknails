@@ -1,40 +1,52 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
-:root{
+
+:root {
     font-family: 'Poppins', sans-serif;
 }
 
 body::-webkit-scrollbar {
-    width: 8px; 
+    width: 8px;
 }
-body::-webkit-scrollbar-track{
-    background: transparent; /* Color de la pista */
-    border-radius: 10px; /* Radio de borde de la pista */
+
+body::-webkit-scrollbar-track {
+    background: transparent;
+    /* Color de la pista */
+    border-radius: 10px;
+    /* Radio de borde de la pista */
 }
+
 body::-webkit-scrollbar-thumb {
-    background: #FF636E; /* Color del pulgar #FF636E */
-    border-radius: 10px; /* Radio de borde del pulgar */
+    background: #FF636E;
+    /* Color del pulgar #FF636E */
+    border-radius: 10px;
+    /* Radio de borde del pulgar */
 }
+
 body::-webkit-scrollbar-thumb:hover {
-    background: #C49CFC; /* Color del pulgar al hacer hover */
+    background: #C49CFC;
+    /* Color del pulgar al hacer hover */
 }
+
 body {
     font-family: 'Poppins', sans-serif;
     background-color: #F79DFD;
 }
+
 .navbarcss {
     font-family: 'Poppins', sans-serif;
     background: #ddc5ff;
     z-index: 1000;
-    top: 0; 
-    left: 0; 
-    width: 100%; 
+    top: 0;
+    left: 0;
+    width: 100%;
     position: fixed;
     padding: 15px;
     border: none;
     outline: none;
     box-shadow: none;
 }
-.navLink{
+
+.navLink {
     color: #784eb3;
     text-align: center;
     background-color: #dcc7f9;
@@ -45,34 +57,45 @@ body {
     border-radius: 15px;
     width: 150px;
 }
-.navLink:hover{
+
+.navLink:hover {
     color: white;
     background-color: #FF636E;
     transform: scale(1.1);
 }
-.navLink:active{
+
+.navLink:active {
     transform: scale(0.95);
     color: black;
     background-color: #784eb3;
 }
-.navImg{
+
+.navImg {
     width: 300px;
     height: auto;
 }
+
 /*----------------------------------APARTADO DEL LOGIN-------------------------------*/
 .background {
     height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 80%; /* Ancho específico */
-    height: 500px; /* Alto específico */
-    margin: 50px auto; /* Centrar en la página */
-    background-size: cover; /* Ajustar imagen sin deformarla */
-    border-radius: 15px; /* Bordes redondeados opcionales */
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2); /* Sombra para efecto flotante */
+    width: 80%;
+    /* Ancho específico */
+    height: 500px;
+    /* Alto específico */
+    margin: 50px auto;
+    /* Centrar en la página */
+    background-size: cover;
+    /* Ajustar imagen sin deformarla */
+    border-radius: 15px;
+    /* Bordes redondeados opcionales */
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+    /* Sombra para efecto flotante */
     padding: 20px;
 }
+
 .loginContainer {
     background: rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(8px);
@@ -82,6 +105,7 @@ body {
     width: 300px;
     text-align: center;
 }
+
 .loginContainerR {
     background: rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(8px);
@@ -91,11 +115,15 @@ body {
     width: 600px;
     text-align: center;
 }
+
 .form-container {
-    width: 100%; /* Ajusta el ancho del contenedor */
+    width: 100%;
+    /* Ajusta el ancho del contenedor */
     display: grid;
-    grid-template-columns: repeat(2, 1fr); /* 2 columnas de igual tamaño */
-    gap: 10px; /* Espaciado entre los elementos */
+    grid-template-columns: repeat(2, 1fr);
+    /* 2 columnas de igual tamaño */
+    gap: 10px;
+    /* Espaciado entre los elementos */
 }
 
 .loginBox h2 {
@@ -116,11 +144,13 @@ body {
     font-size: 14px;
     color: #FF636E;
 }
+
 .inputLabel:-webkit-autofill {
-    background-color: #fff !important; 
-    color: #FF636E !important; 
-    -webkit-box-shadow: 0 0 0 1000px white inset !important; 
+    background-color: #fff !important;
+    color: #FF636E !important;
+    -webkit-box-shadow: 0 0 0 1000px white inset !important;
 }
+
 .inputGroup input:-webkit-autofill::first-line {
     color: #FF636E !important;
 }
@@ -153,33 +183,123 @@ body {
     background-color: #FF636E;
 
 }
-.loginBTN:active{
+
+.loginBTN:active {
     transform: scale(0.95);
     background: black;
 }
-.aLogin{
+
+.aLogin {
     text-decoration: none;
     color: #FF636E;
     transition: color 0.3s ease, transform 0.3s ease;
     display: inline-block;
     font-weight: bold;
 }
-.aLogin:hover{
+
+.aLogin:hover {
     color: #784eb3;
     transform: scale(1.03);
 }
-.aLogin:active{
+
+.aLogin:active {
     transform: scale(0.95);
     color: black;
 }
-.indexBTNdiv{
-    display: flex;        
-    justify-content: center;  
-    gap: 100px;                       
+
+.indexBTNdiv {
+    display: flex;
+    justify-content: center;
+    gap: 100px;
 }
-.advertencia{
+
+.advertencia {
     display: none;
     color: red;
     text-align: center;
     font-weight: bold;
+}
+
+
+.blur-card {
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+#modal-eliminar {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    margin: 0;
+    padding: 0;
+    border: none;
+    z-index: 9999;
+    background: none;
+}
+
+#modal-eliminar::backdrop {
+    background: rgba(0, 0, 0, 0.5);
+}
+
+dialog {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border: none;
+    padding: 0;
+    margin: 0;
+    background: none;
+    z-index: 9999;
+    max-width: 100vh;
+    max-height: 100vh;
+}
+
+
+dialog::backdrop {
+    background: rgba(0, 0, 0, 0.5);
+}
+
+dialog .card {
+    justify-self: center;
+    width: 100%;
+    max-width: 500px;
+}
+
+#modal-bloquear {
+    width: 30rem;
+}
+
+@media (max-width: 400px) {
+    #modal-bloquear {
+        width: 20rem;
+    }
+
+    dialog .card {
+        max-width: 350px;
+    }
+
+    dialog .card-body {
+        padding: 1rem;
+    }
+
+    dialog h3 {
+        font-size: 1.2rem;
+        text-align: center;
+    }
+
+    .form-check-label,
+    .form-label,
+    .form-control,
+    textarea,
+    select,
+    input {
+        font-size: 0.95rem;
+    }
+
+    .btn {
+        font-size: 0.9rem;
+    }
 }

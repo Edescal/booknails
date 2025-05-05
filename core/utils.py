@@ -2,11 +2,13 @@ from itsdangerous import URLSafeTimedSerializer, SignatureExpired
 from django.conf import settings
 from django.urls import reverse 
 from django.http.request import HttpRequest
+import datetime
 
 import os
 import pandas
 import time
 from core import models
+
 
 def generar_token(data) -> str:
     serializer = URLSafeTimedSerializer(secret_key=settings.SECRET_KEY)
@@ -32,8 +34,10 @@ def token_to_url(token, request : HttpRequest) -> str:
     return full_url
 
 
-def to_unix_timestamp(datetime) -> int:
-    return int(time.mktime(datetime.date().timetuple())) * 1000
+def to_unix_timestamp(fecha) -> int:
+    if isinstance(fecha, datetime.date):
+        return int(time.mktime(fecha.timetuple())) * 1000
+    return int(time.mktime(fecha.date().timetuple())) * 1000
 
 """
 PARA PARSEAR Y GENERAR LOS SERVICIOS A PARTIR DEL EXCEL
