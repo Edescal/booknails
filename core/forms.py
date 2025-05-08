@@ -230,7 +230,7 @@ class CitasForm(FormBase):
     def clean_fecha_cita(self):
         fecha = self.cleaned_data.get('fecha_cita')
         fecha_hoy = datetime.datetime.now().date()
-        if fecha > fecha_hoy:
+        if fecha < fecha_hoy:
             raise ValidationError('No se permite agendar citas para fechas pasadas.')
         return fecha
     
@@ -258,9 +258,9 @@ class CitasForm(FormBase):
             fulldate = f'{self.cleaned_data['fecha_cita']} {self.cleaned_data['horario']}'
             dateobj = datetime.datetime.strptime(fulldate, '%Y-%m-%d %H:%M:%S')
             cita = models.Cita()
-            cita.fecha_cita = make_aware(dateobj)
+            cita.fecha_cita = dateobj
             cita.cliente = self.cliente
-            cita.fecha_creacion = make_aware(datetime.datetime.now())
+            cita.fecha_creacion = datetime.datetime.now()
 
             cita.save()
             for serv in self.cleaned_data['servicios']:
@@ -274,6 +274,99 @@ class CitasForm(FormBase):
         self.cliente = cliente
         super().__init__(*args, **kwargs)
 
+class CitasDueñaForm(FormBase):
+    cita: models.Cita = None
+    cliente = forms.ModelChoiceField(
+        queryset=models.Usuario.objects.all(),
+        empty_label="Selecciona una clienta",
+        required=True,
+        widget=forms.Select(attrs={'class': "form-control form-control-sm shadow-sm"})
+    )
+
+    fecha_cita = forms.DateField(
+        label='Selecciona el día: ',
+        input_formats=['%Y-%m-%d', '%d-%m-%Y'],
+        required=True,
+        widget=forms.DateInput(format="%Y-%m-%d", attrs={
+            'class': "form-control form-control-sm shadow-sm",
+            'type': 'date',
+            'readonly': True,
+        }),
+    )
+    categoria = forms.ChoiceField(
+        label='Categoría',
+        choices=models.Servicio.Categorias.choices,
+        required=True,
+        widget=forms.Select(attrs={'class': "form-control form-control-sm shadow-sm"})
+    )
+    servicios = forms.ModelMultipleChoiceField(
+        label='Servicios',
+        queryset=models.Servicio.objects.all(),
+        required=True,
+        widget=forms.CheckboxSelectMultiple
+    )
+    horario = forms.ChoiceField(
+        label='Horarios disponibles: ',
+        required=False,
+        choices=cita.hora if cita else models.Horario.choices,
+        widget=forms.Select(attrs={'class': "form-control form-control-sm shadow-sm"})
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields['cliente'].queryset = Usuario.objects.exclude(id=1)
+        self.fields['cliente'].label_from_instance = lambda obj: f"{obj.nombre} {obj.apellidos}"
+        self.fields['servicios'].label_from_instance = lambda obj: f"{obj.nombre} - ${obj.precio} ({obj.categoria})"
+
+    def clean_cliente(self):
+        cliente = self.cleaned_data.get('cliente')
+        if cliente == "__new__":
+            return None  # para activar el formulario dinámico
+        return cliente
+
+    def clean_fecha_cita(self):
+        fecha = self.cleaned_data.get('fecha_cita')
+        if fecha and fecha < datetime.datetime.now().date():
+            raise ValidationError('No se permite agendar citas para fechas pasadas.')
+        return fecha
+
+    def clean_horario(self):
+        fecha = self.cleaned_data.get('fecha_cita')
+        horario = self.cleaned_data.get('horario')
+        cliente = self.cleaned_data['cliente']
+        if cliente and fecha and horario:
+            duplicated = models.Cita.objects.filter(
+                cliente=cliente,
+                fecha_cita__date=fecha,
+                fecha_cita__time=horario
+            ).exists()
+            if duplicated:
+                raise ValidationError('Ya hay una cita para ese mismo día y horario.')
+        return horario
+
+    def clean_servicios(self):
+        servicios = self.cleaned_data.get('servicios')
+        for servicio in servicios:
+            print(servicio)
+        return servicios
+
+    def to_cita(self):
+        try:
+            fulldate = f"{self.cleaned_data['fecha_cita']} {self.cleaned_data['horario']}"
+            dateobj = datetime.datetime.strptime(fulldate, '%Y-%m-%d %H:%M:%S')
+            cita = models.Cita()
+            cita.fecha_cita = dateobj
+            cita.cliente = self.cleaned_data['cliente']
+            cita.fecha_creacion = datetime.datetime.now()
+
+            cita.save()
+            for serv in self.cleaned_data['servicios']:
+                cita.servicios.add(serv)
+
+            return cita
+        except IntegrityError:
+            return None
 
 class ComprobanteForm(FormBase):
     id_cita = forms.IntegerField(

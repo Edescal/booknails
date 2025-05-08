@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Registrar clienta y agendar cita{% endblock %}
+
+{% block body %}
+<div class="container">
+    <div class="row d-flex justify-content-center">
+        <div class="col-xxl-8 col-xl-8 col-lg-10 col-md-10 col-sm-12">
+            <div class="card p-4 my-4">
+                <h3 class="text-center mb-4">Registrar cita para una clienta</h3>
+                <form action="{% url 'agendar_super' %}" method="post" novalidate>
+                    {% csrf_token %}
+
+                    {% if messages %}
+                    {% for message in messages %}
+                    <div class="toast align-items-center text-bg-{{ message.tags }} border-0 w-100 my-2" role="alert"
+                        aria-live="assertive" aria-atomic="true" data-bs-autohide="false">
+                        <div class="d-flex">
+                            <div class="toast-body">
+                                <small>{{ message }}</small>
+                            </div>
+                            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                                aria-label="Close" tabindex="-1"></button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    {% endif %}
+                    <!-- Sección Cita -->
+                    <div class="row d-flex justify-content-center mb-3">
+                        <div class="col-sm-12 col-md-6 mt-3">
+                            <div class="card rounded-1 p-3">
+                                <h5 class="card-title text-center">Selecciona una fecha</h5>
+                                <div id="datepicker" data-date="12/03/2012"></div>
+                            </div>
+                        </div>
+                        <div class="col-sm-12 col-md-6 mt-3">
+                            <div class="card rounded-1 p-3">
+                                <h5 class="card-title text-center">Datos de la cita</h5>
+                                <div class="form-floating mb-3">
+                                    {{ form_cita.cliente }}
+                                    <label for="cliente_cita">{{ form_cita.cliente.label }}</label>
+                                </div>
+
+                                <div class="form-floating mb-3">
+                                    {{ form_cita.fecha_cita }}
+                                    <label for="fecha_cita">{{ form_cita.fecha_cita.label }}</label>
+                                </div>
+
+                                <div class="form-floating mb-3">
+                                    {{ form_cita.horario }}
+                                    <label for="horario">{{ form_cita.horario.label }}</label>
+                                </div>
+
+                                <div class="form-floating mb-3">
+                                    {{ form_cita.categoria }}
+                                    <label for="categoria">{{ form_cita.categoria.label }}</label>
+                                </div>
+
+                                <div class="form-control mb-3">
+                                    <label for="servicios" class="form-label small text-muted">{{ form_cita.servicios.label }}</label>
+                                    {{ form_cita.servicios }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Botón de envío -->
+                    <div class="text-center">
+                        <input class="btn btn-success w-100" type="submit" value="Agendar cita">
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<!-- Bootstrap Datepicker CSS y JS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+<script defer src="{% static 'js/calendario.js' %}"></script>
+{% endblock %}

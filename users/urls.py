@@ -9,6 +9,8 @@ urlpatterns = [
 
 
     path('agendar-cita/', views.agendar_cita, name='agendar_cita'),
+    path('agendar-super/', views.agendar_super, name='agendar_super'),
+    path('registro-y-cita/', views.registro_y_cita, name='registro_y_cita'),
     path('eliminar-cita/', views.eliminar_cita, name='eliminar_cita'),
     path('editar-citas/', views.editar_cita, name='editar_citas'),
     # este es un POST para actualizar el comprobante de pago

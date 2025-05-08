@@ -23,6 +23,15 @@
 				<div>
 					<a class="navLink" href="{% url 'auth_logout' %}">Cerrar sesión</a>
 				</div>
+				{% endif %}
+				{% if user.is_superuser %}
+				<div>
+					<a class="navLink" href="{% url 'agendar_super' %}">Agendar una cita</a>
+				</div>
+				<div>
+					<a class="navLink" href="{% url 'registro_y_cita' %}">Registrar cita & clienta</a>
+				</div>
+				{% elif user.is_authenticated and not user.is_superuser %}
 				<div>
 					<a class="navLink" href="{% url 'agendar_cita' %}">Agendar una cita</a>
 				</div>
