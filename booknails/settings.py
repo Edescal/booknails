@@ -16,9 +16,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-32yx!$o!cyuvo*wz#ofn3^u*_(2&&uyjpe4iq1!i36vb9!m3=r'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = ['.onrender.com']
+ALLOWED_HOSTS = ['.railway.app', 'localhost', '127.0.0.1']
 
 # Custom model
 AUTH_USER_MODEL = 'core.Usuario'
@@ -141,7 +141,7 @@ WSGI_APPLICATION = 'booknails.wsgi.application'
 
 DATABASES = {
     'default': dj_database_url.config(
-        default='postgres://usuario:contraseña@host:puerto/nombre_base',
+        default='sqlite:///' + os.path.join(BASE_DIR, 'db.sqlite3'),  # local fallback
         conn_max_age=600,
         ssl_require=True
     )

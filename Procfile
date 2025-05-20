@@ -1,0 +1,1 @@
+web: gunicorn booknails.wsgi
