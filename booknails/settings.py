@@ -141,7 +141,7 @@ WSGI_APPLICATION = 'booknails.wsgi.application'
 
 DATABASES = {
     'default': dj_database_url.config(
-        default='postgres://usuario:contraseña@host:puerto/nombre_base',
+        default=os.environ.get('DATABASE_URL', 'postgres://usuario:contraseña@host:puerto/nombre_base'),
         conn_max_age=600,
         ssl_require=True
     )
