@@ -3,6 +3,7 @@ Django settings for booknails project.
 """
 
 from pathlib import Path
+import dj_database_url
 import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -17,7 +18,7 @@ SECRET_KEY = 'django-insecure-32yx!$o!cyuvo*wz#ofn3^u*_(2&&uyjpe4iq1!i36vb9!m3=r
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1', '192.168.0.14']
+ALLOWED_HOSTS = ['.onrender.com']
 
 # Custom model
 AUTH_USER_MODEL = 'core.Usuario'
@@ -139,22 +140,11 @@ WSGI_APPLICATION = 'booknails.wsgi.application'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASES = {
-    'alt': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    },
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',  # Usar el backend de MySQL
-        'NAME': 'booknails',  # Nombre de la base de datos
-        'USER': 'root',                  # Usuario de MariaDB
-        'PASSWORD': '123',           # Contraseña de MariaDB
-        'HOST': 'localhost',                   # Host de la base de datos
-        'PORT': '3306',                        # Puerto de MariaDB (por defecto es 3306)
-        'OPTIONS': {
-            # 'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",  # Modo SQL estricto
-            'init_command': "SET default_storage_engine=INNODB;"  # Modo SQL estricto
-        },
-    }
+    'default': dj_database_url.config(
+        default='postgres://usuario:contraseña@host:puerto/nombre_base',
+        conn_max_age=600,
+        ssl_require=True
+    )
 }
 
 
