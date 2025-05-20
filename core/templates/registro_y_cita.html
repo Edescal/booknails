@@ -1,85 +1,87 @@
-{% extends "base.html" %}
+{% extends "components/base.html" %}
 {% load static %}
 
-{% block title %}Registrar clienta y agendar cita{% endblock %}
+{% block title %}Registrar Clienta y Cita{% endblock %}
 
 {% block body %}
-<div class="container">
-    <div class="row d-flex justify-content-center">
-        <div class="col-xxl-8 col-xl-8 col-lg-10 col-md-10 col-sm-12">
-            <div class="card p-4 my-4">
-                <h3 class="text-center mb-4">Registrar clienta y agendar cita</h3>
-                <form action="{% url 'registro_y_cita' %}" method="post" novalidate>
-                    {% csrf_token %}
+<div class="min-h-screen pt-24 pb-12 px-3 bg-gradient-to-r from-pink-400 via-purple-500 to-blue-500">
+    <div class="flex justify-center">
+        <div class="w-full max-w-5xl bg-white/70 backdrop-blur-md rounded-2xl shadow-lg p-6">
+            <h3 class="text-2xl text-center font-bold text-pink-800 mb-6">Registrar clienta y agendar cita</h3>
+            <form action="{% url 'registro_y_cita' %}" method="post" novalidate>
+                {% csrf_token %}
 
-                    {% if messages %}
+                {% if messages %}
                     {% for message in messages %}
-                        <div class="toast align-items-center text-bg-{{ message.tags }} border-0 w-100 my-2" role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="false">
-                            <div class="d-flex">
-                                <div class="toast-body">
-                                    <small>{{ message }}</small>
-                                </div>
-                                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close" tabindex="-1"></button>
+                    <div class="toast align-items-center text-bg-{{ message.tags }} border-0 w-100 my-2" role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="false">
+                        <div class="d-flex">
+                            <div class="toast-body">
+                                <small>{{ message }}</small>
                             </div>
+                            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close" tabindex="-1"></button>
                         </div>
+                    </div>
                     {% endfor %}
-                    {% endif %}
+                {% endif %}
 
-                    <!-- Sección Registro -->
-                    <div class="card rounded-1 p-3 mb-4">
-                        <h4 class="card-title text-center mb-3">Datos de la nueva clienta</h4>
-                        <div class="row g-3">
-                            {% for field in form_registro %}
-                            <div class="col-md-6">
-                                <label class="form-label">{{ field.label }}</label>
-                                {{ field }}
-                                {% include "macro_form_error.html" with field=field.name %}
-                            </div>
-                            {% endfor %}
+                <!-- Sección Registro -->
+                <div class="bg-white rounded-xl p-4 shadow-md mb-6">
+                    <h4 class="text-xl font-semibold text-center text-purple-700 mb-4">Datos de la nueva clienta</h4>
+                    <div class="row g-3">
+                        {% for field in form_registro %}
+                        <div class="col-md-6">
+                            <label class="text-sm font-semibold text-pink-700">{{ field.label }}</label>
+                            {{ field }}
+                            {% include "macro_form_error.html" with field=field.name %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Sección Cita -->
+                <div class="row d-flex justify-content-center mb-3">
+                    <!-- Calendario (no tocado) -->
+                    <div class="col-sm-12 col-md-6 mt-3">
+                        <div class="card rounded-1 p-3">
+                            <h5 class="text-lg text-center font-semibold text-purple-700 mb-4 mt-1.5">Selecciona una fecha</h5>
+                            <div id="datepicker" data-date="12/03/2012"></div>
                         </div>
                     </div>
 
-                    <!-- Sección Cita -->
-                    <div class="row d-flex justify-content-center mb-3">
-                        <div class="col-sm-12 col-md-6 mt-3">
-                            <div class="card rounded-1 p-3">
-                                <h5 class="card-title text-center">Selecciona una fecha</h5>
-                                <div id="datepicker" data-date="12/03/2012"></div>
+                    <!-- Formulario de la cita -->
+                    <div class="col-sm-12 col-md-6 mt-3">
+                        <div class="bg-white rounded-xl p-4 shadow-md">
+                            <h5 class="text-lg text-center font-semibold text-purple-700 mb-4">Datos de la cita</h5>
+
+                            <div class="form-floating mb-3">
+                                {{ form_cita.fecha_cita }}
+                                <label for="fecha_cita" class="text-pink-700">{{ form_cita.fecha_cita.label }} </label>
                             </div>
-                        </div>
-                        <div class="col-sm-12 col-md-6 mt-3">
-                            <div class="card rounded-1 p-3">
-                                <h5 class="card-title text-center">Datos de la cita</h5>
-                                
-                                <div class="form-floating mb-3">
-                                    {{ form_cita.fecha_cita }}
-                                    <label for="fecha_cita">{{ form_cita.fecha_cita.label }}</label>
-                                </div>
 
-                                <div class="form-floating mb-3">
-                                    {{ form_cita.horario }}
-                                    <label for="horario">{{ form_cita.horario.label }}</label>
-                                </div>
+                            <div class="form-floating mb-3">
+                                {{ form_cita.horario }}
+                                <label for="horario" class="text-pink-700">{{ form_cita.horario.label }}</label>
+                            </div>
 
-                                <div class="form-floating mb-3">
-                                    {{ form_cita.categoria }}
-                                    <label for="categoria">{{ form_cita.categoria.label }}</label>
-                                </div>
+                            <div class="form-floating mb-3">
+                                {{ form_cita.categoria }}
+                                <label for="categoria" class="text-pink-700">{{ form_cita.categoria.label }}</label>
+                            </div>
 
-                                <div class="form-control mb-3">
-                                    <label for="servicios" class="form-label small text-muted">{{ form_cita.servicios.label }}</label>
-                                    {{ form_cita.servicios }}
-                                </div>
+                            <div class="form-control mb-3">
+                                <label for="servicios" class="form-label small">{{ form_cita.servicios.label }}</label>
+                                {{ form_cita.servicios }}
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    <!-- Botón de envío -->
-                    <div class="text-center">
-                        <input class="btn btn-success w-100" type="submit" value="Registrar y agendar cita">
-                    </div>
-                </form>
-            </div>
+                <!-- Botón -->
+                <div class="text-center">
+                    <input class="bg-pink-600 hover:bg-pink-700 text-white font-semibold text-sm px-6 py-2 rounded-full shadow transition-all w-full sm:w-1/2"
+                        type="submit" value="Registrar y agendar cita">
+                </div>
+            </form>
         </div>
     </div>
 </div>
@@ -89,6 +91,5 @@
 <!-- Bootstrap Datepicker CSS y JS -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
-<!-- Tu script personalizado -->
 <script defer src="{% static 'js/calendario.js' %}"></script>
 {% endblock %}

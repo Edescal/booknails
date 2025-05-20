@@ -3,30 +3,34 @@
 {% block title %}Regístrate{% endblock %}
 
 {% block body %}
-<div class="background" style="background: url('/static/img/fondo.png') no-repeat center center/cover;">
+<div class="min-h-screen pt-24 pb-12 px-3 bg-gradient-to-r from-pink-400 via-purple-500 to-blue-500 flex items-center justify-center">
     <div class="loginContainerR">
-        <div class="loginBox">
-                <form action="{% url 'auth_registro' %}" method="post" novalidate>
-                    <h2 class="loginT">REGISTRAR CUENTA</h2>
-                    {% csrf_token %}
-                    <div class="form-container"> <!-- Contenedor para los campos -->
-                        {% for field in form %}
-                        <div class="inputGroup"> <!-- Cada campo se envuelve en un div -->
-                            {{ field.label }}
-                            {{ field }}
-                            {% include "macro_form_error.html" with field=field.name %}
-                        </div>
-                        {% endfor %}
+        <div class="loginBox bg-white/80 backdrop-blur-md rounded-xl shadow-lg p-6">
+            <form action="{% url 'auth_registro' %}" method="post" novalidate>
+                <h2 class="loginT text-3xl font-extrabold text-pink-700 text-center mb-6">Registrar Cuenta</h2>
+                {% csrf_token %}
+                <div class="form-container">
+                    {% for field in form %}
+                    <div class="inputGroup">
+                        {{ field.label }}
+                        {{ field }}
+                        {% include "macro_form_error.html" with field=field.name %}
                     </div>
-                    <div class="mb-3">
-                        {{ mensaje }}
-                    </div>
-                    
-                    <input class="loginBTN" type="submit" name="submit" id="submit" value="Enviar" style="width: 30%;">
-                    <p class="login__register">
-                        ¿Ya tienes cuenta? <a href="{% url 'auth_login' %}" class="aLogin">Inicia Sesión</a>
-                      </p>
-                </form>
+                    {% endfor %}
+                </div>
+
+                <div class="mb-3">
+                    {{ mensaje }}
+                </div>
+
+                <input class="loginBTN" type="submit" name="submit" id="submit" value="Enviar" style="width: 30%;">
+                <p class="login__register mt-4">
+                    ¿Ya tienes cuenta?
+                    <a href="{% url 'auth_login' %}" class="aLogin text-pink-700 hover:underline font-semibold">
+                        Inicia Sesión
+                    </a>
+                </p>
+            </form>
         </div>
     </div>
 </div>

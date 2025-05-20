@@ -255,7 +255,7 @@ class CitasForm(FormBase):
     
     def to_cita(self):
         try:
-            fulldate = f'{self.cleaned_data['fecha_cita']} {self.cleaned_data['horario']}'
+            fulldate = f"{self.cleaned_data['fecha_cita']} {self.cleaned_data['horario']}"
             dateobj = datetime.datetime.strptime(fulldate, '%Y-%m-%d %H:%M:%S')
             cita = models.Cita()
             cita.fecha_cita = dateobj
@@ -402,7 +402,7 @@ class ComprobanteForm(FormBase):
     def clean_eliminar_archivo(self):
         boolean = self.cleaned_data['eliminar_archivo']
         if boolean:
-            print(f'Se eliminará el comprobante asociado a la cita con id={self.cleaned_data['id_cita']}')
+            print(f"Se eliminará el comprobante asociado a la cita con id={self.cleaned_data['id_cita']}")
         return boolean
 
     def clean_comprobante(self):
@@ -414,7 +414,7 @@ class ComprobanteForm(FormBase):
         file : InMemoryUploadedFile = self.cleaned_data['comprobante']
         if file:
             file_extension = file.content_type.split('/')[1]
-            file.name = f'COMPROBANTE-{self.cleaned_data['id_cita']}-{datetime.datetime.now().date()}.{file_extension}'
+            file.name = f"COMPROBANTE-{self.cleaned_data['id_cita']}-{datetime.datetime.now().date()}.{file_extension}"
             print(f'Save as: {file.name}')
             extensiones_permitidas = [
                 'application/pdf',

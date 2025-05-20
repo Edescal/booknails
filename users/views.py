@@ -65,7 +65,7 @@ def agendar_cita(request : HttpRequest):
             if cita:
                 messages.success(
                     request=request, 
-                    message=f'Se agendó una cita para el {cita.fecha_cita.strftime('%Y/%m/%d con horario de %I:%M %p.')}'
+                    message=f"Se agendó una cita para el {cita.fecha_cita.strftime('%Y/%m/%d con horario de %I:%M %p.')}"
                 )
                 notificacion = services.Notificacion(cliente)
                 if notificacion.enviar_confirmacion(cita):
@@ -102,7 +102,7 @@ def agendar_super(request: HttpRequest):
             if cita:
                 messages.success(
                     request=request, 
-                    message=f'Se agendó una cita para el {cita.fecha_cita.strftime('%Y/%m/%d con horario de %I:%M %p.')}'
+                    message=f"Se agendó una cita para el {cita.fecha_cita.strftime('%Y/%m/%d con horario de %I:%M %p.')}"
                 )
                 notificacion = services.Notificacion(cliente)
                 if notificacion.enviar_confirmacion(cita):
@@ -220,7 +220,7 @@ def eliminar_cita(request : HttpRequest):
     # comprobar que es un objeto de cita válido
     if cita is not None:
         mensaje_log = f'Se eliminó la cita de: {cita.cliente.get_full_name()}'\
-                    f'para el {cita.fecha_cita.strftime('día %Y/%m/%d, hora %I:%M %p')}'
+                    f"para el {cita.fecha_cita.strftime('día %Y/%m/%d, hora %I:%M %p')}"
         messages.error(request, mensaje_log)
         print(mensaje_log)
         cita.delete()
@@ -450,5 +450,5 @@ def redirigir_bloquear_fechas(request:HttpRequest):
     else:
         url = base_url
 
-    print(F'REDIRIGIR A: {url} PP: {request.POST.get('mes')}')
+    print(F"REDIRIGIR A: {url} PP: {request.POST.get('mes')}")
     return redirect(url)

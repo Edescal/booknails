@@ -1,4 +1,4 @@
-{% load static %} <!--- CARGA LOS ARCHIVOS ESTATICOS ---->
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 
@@ -6,49 +6,80 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}{% endblock %}</title>
-    <!-- Scripts de Bootstrap y jQuery -->
-    <link rel="icon" href="{% static 'img/favicon.ico' %}" type="image/x-icon"> <!--- ESTABLECE EL ICONO DE NAV --->
+    <link rel="icon" href="{% static 'img/logo.png' %}" type="image/x-icon">
 
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
-    <script src="https://code.jquery.com/ui/1.13.3/jquery-ui.js"></script>
-    <link rel="stylesheet" href="{% static '/css/styles.css' %}?v={{ timestamp }}"> <!--- CARGA EL CSS --->
+    <!-- Estilos y scripts -->
+    <link rel="stylesheet" href="{% static '/css/styles.css' %}?v={{ timestamp }}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.13.3/jquery-ui.js"></script>
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.3/themes/base/jquery-ui.css">
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
     <link href='https://fonts.googleapis.com/css?family=Poppins' rel='stylesheet'>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
-    {% block links %}
-    {% endblock %}
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    {% block links %}{% endblock %}
 </head>
 
 <body style="font-family: 'Poppins', sans-serif; background-color: #F79DFD;">
     {% load template_tags %}
-        {% block body %}
- 
-        {% endblock %}
-        <footer class="py-3 my-4 mt-auto">
-            <ul class="nav justify-content-center border-bottom pb-3 mb-3">
-                <li class="nav-item"><a href="/" class="nav-link px-2 text-body-secondary">Página principal</a></li>
-                {% if user.is_authenticated %}
-                <li class="nav-item"><a href="{% url 'auth_logout' %}" class="nav-link px-2 text-body-secondary">Cerrar sesión</a></li>
-                {% else %}
-                <li class="nav-item"><a href="{% url 'auth_login' %}" class="nav-link px-2 text-body-secondary">Iniciar sesión</a></li>
-                <li class="nav-item"><a href="{% url 'auth_registro' %}" class="nav-link px-2 text-body-secondary">Registro</a></li>
-                {% endif %}
-            </ul>
-            <p class="text-center text-body-secondary">&copy; 2025 BookNails. Todos los derechos reservados.</p>
-        </footer>
-    </div>
+    {% if user.is_authenticated %}
+<nav class="fixed top-0 left-0 w-full z-50 bg-pink-200/60 backdrop-blur-lg border-b border-pink-300 shadow-md">
+  <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
-        integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
-        crossorigin="anonymous"></script>
+    <!-- Logo o título -->
+    <a href="/" class="text-pink-700 text-2xl font-extrabold tracking-wide">BookNails</a>
+
+    <!-- Links -->
+    <div class="hidden md:flex items-center space-x-6">
+      <a href="{% url 'auth_perfil' %}" class="text-pink-900 hover:text-pink-600 font-medium">Mi perfil</a>
+
+      
+      {% if user.is_superuser %}
+        <a href="{% url 'ver_agenda' %}" class="text-pink-900 hover:text-pink-600 font-medium">Agenda</a>
+        <a href="{% url 'bloquear_fechas_get' %}" class="text-pink-900 hover:text-pink-600 font-medium">Bloquear fechas</a>
+        <a href="{% url 'agendar_super' %}" class="text-pink-900 hover:text-pink-600 font-medium">Agendar cita</a>
+        <a href="{% url 'registro_y_cita' %}" class="text-pink-900 hover:text-pink-600 font-medium">Registrar clienta</a>
+      {% else %}
+        <a href="{% url 'ver_mis_citas' %}" class="text-pink-900 hover:text-pink-600 font-medium">Mis citas</a>
+        <a href="{% url 'auth_editar_usuario' %}" class="text-pink-900 hover:text-pink-600 font-medium">Editar datos</a>
+        <a href="{% url 'agendar_cita' %}" class="text-pink-900 hover:text-pink-600 font-medium">Agendar cita</a>
+      {% endif %}
+
+      <a href="{% url 'auth_logout' %}" class="text-red-500 hover:text-red-700 font-semibold">Cerrar sesión</a>
+
+      {% if request.resolver_match.url_name != 'home' %}
+        <a href="/" class="text-pink-800 hover:text-pink-600"></a>
+      {% endif %}
+    </div>
+  </div>
+</nav>
+{% endif %}
+
+    
+
+    {% block body %}{% endblock %}
+
+    <!-- FOOTER -->
+    <footer class="bg-white text-center text-sm py-4 mt-10 border-t border-gray-300">
+        <ul class="flex justify-center space-x-4 mb-2">
+            <li><a href="/" class="text-gray-600 hover:text-pink-500">Página principal</a></li>
+            {% if user.is_authenticated %}
+                <li><a href="{% url 'auth_logout' %}" class="text-gray-600 hover:text-pink-500">Cerrar sesión</a></li>
+            {% else %}
+                <li><a href="{% url 'auth_login' %}" class="text-gray-600 hover:text-pink-500">Iniciar sesión</a></li>
+                <li><a href="{% url 'auth_registro' %}" class="text-gray-600 hover:text-pink-500">Registro</a></li>
+            {% endif %}
+        </ul>
+        <p class="text-gray-500">&copy; 2025 BookNails. Todos los derechos reservados.</p>
+    </footer>
+
+    <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
-        crossorigin="anonymous"></script>
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 
     <script>
         const toasts = document.getElementsByClassName('toast')
@@ -58,9 +89,7 @@
         })
     </script>
 
-    {% block scripts %}
-    
-    {% endblock %}
+    {% block scripts %}{% endblock %}
 </body>
 
 </html>

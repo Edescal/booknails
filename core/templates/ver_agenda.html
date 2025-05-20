@@ -1,6 +1,6 @@
 {% extends "components/base.html" %}
 
-{% block title %}VISTA PROTEGIDA{% endblock %}
+{% block title %}Agenda de Citas{% endblock %}
 
 {% block outbody %}
 {% comment %}
@@ -16,14 +16,14 @@ MODAL DE ELIMINAR CITA PARA LA DUEÑA
         <form action="{% url 'eliminar_cita' %}" method="post" enctype="multipart/form-data">
             {% csrf_token %}
             <div class="modal-body">
-                <p class="small">Estás a punto de eliminar la cita de 
-                    <span id="eliminar-cita-cliente"></span> 
-                    (<span id="eliminar-cita-cliente-telefono"></span>) 
-                    con fecha del <span id="eliminar-cita-fecha"></span>. 
+                <p class="small">Estás a punto de eliminar la cita de
+                    <span id="eliminar-cita-cliente"></span>
+                    (<span id="eliminar-cita-cliente-telefono"></span>)
+                    con fecha del <span id="eliminar-cita-fecha"></span>.
                 </p>
                 <p class="text-center">¿Estás segura de proceder?</p>
                 <input type="hidden" name="cita_id" id="eliminar-cita-id">
-            </div>  
+            </div>
             <hr>
             <div class="modal-footer">
                 <div class="text-end">
@@ -37,192 +37,196 @@ MODAL DE ELIMINAR CITA PARA LA DUEÑA
 {% endblock %}
 
 {% block body %}
-<div class="container-fluid">
-    <div class="row p-3">
-        <div class="col-12">
-            <div class="card text-center p-3">
-                <h2 class="titulo">
-                    Mi agenda de citas
-                </h2>
-                <form action="{% url 'ver_agenda' %}" method="post" class="d-flex justify-content-center align-items-center gap-2" >
-                    {% csrf_token %}
-                    <label for="selector-mes" class="mb-0 me-2">Filtrar por fecha:</label>
-            
-                    <select name="mes" id="selector-mes" class="form-select form-select-sm" style="width: auto; min-width: 130px;">
-                        <option value="1" {% if fecha_actual.month == 1 %}selected{% endif %}>Enero</option>
-                        <option value="2" {% if fecha_actual.month == 2 %}selected{% endif %}>Febrero</option>
-                        <option value="3" {% if fecha_actual.month == 3 %}selected{% endif %}>Marzo</option>
-                        <option value="4" {% if fecha_actual.month == 4 %}selected{% endif %}>Abril</option>
-                        <option value="5" {% if fecha_actual.month == 5 %}selected{% endif %}>Mayo</option>
-                        <option value="6" {% if fecha_actual.month == 6 %}selected{% endif %}>Junio</option>
-                        <option value="7" {% if fecha_actual.month == 7 %}selected{% endif %}>Julio</option>
-                        <option value="8" {% if fecha_actual.month == 8 %}selected{% endif %}>Agosto</option>
-                        <option value="9" {% if fecha_actual.month == 9 %}selected{% endif %}>Septiembre</option>
-                        <option value="10" {% if fecha_actual.month == 10 %}selected{% endif %}>Octubre</option>
-                        <option value="11" {% if fecha_actual.month == 11 %}selected{% endif %}>Noviembre</option>
-                        <option value="12" {% if fecha_actual.month == 12 %}selected{% endif %}>Diciembre</option>
-                    </select>
-                    
-                    <select name="año" id="selector-año" class="form-select form-select-sm" style="width: auto; min-width: 100px;">
-                        <option value="2025" {% if fecha_actual.year == 2025 %}selected{% endif %}>2025</option>
-                        <option value="2026" {% if fecha_actual.year == 2026 %}selected{% endif %}>2026</option>
-                        <option value="2027" {% if fecha_actual.year == 2027 %}selected{% endif %}>2027</option>
-                        <option value="2028" {% if fecha_actual.year == 2028 %}selected{% endif %}>2028</option>
-                        <option value="2029" {% if fecha_actual.year == 2029 %}selected{% endif %}>2029</option>
-                        <option value="2030" {% if fecha_actual.year == 2030 %}selected{% endif %}>2030</option>
-                    </select>                                     
+<div class="min-h-screen pt-24 pb-12 px-3 bg-gradient-to-r from-pink-400 via-purple-500 to-blue-500">
+    <div class="col-12">
+        <div class="card text-center p-3">
+            <h2 class="text-2xl text-center font-bold text-pink-800 mb-6 mt-2">
+                Mi agenda de citas
+            </h2>
+            <form action="{% url 'ver_agenda' %}" method="post" class="d-flex justify-content-center align-items-center gap-2">
+                {% csrf_token %}
+                <label for="selector-mes" class="mb-0 me-2">Filtrar por fecha:</label>
 
-                    <button type="submit" id="btn-buscar-fechas" class="btn btn-primary btn-sm d-flex align-items-center gap-2">
-                        <i class="bi bi-search">
-                            Buscar
-                        </i>
-                    </button>
-                </form>
-            </div>
+                <select name="mes" id="selector-mes" class="form-select form-select-sm" style="width: auto; min-width: 130px;">
+                    <option value="1" {% if fecha_actual.month == 1 %}selected{% endif %}>Enero</option>
+                    <option value="2" {% if fecha_actual.month == 2 %}selected{% endif %}>Febrero</option>
+                    <option value="3" {% if fecha_actual.month == 3 %}selected{% endif %}>Marzo</option>
+                    <option value="4" {% if fecha_actual.month == 4 %}selected{% endif %}>Abril</option>
+                    <option value="5" {% if fecha_actual.month == 5 %}selected{% endif %}>Mayo</option>
+                    <option value="6" {% if fecha_actual.month == 6 %}selected{% endif %}>Junio</option>
+                    <option value="7" {% if fecha_actual.month == 7 %}selected{% endif %}>Julio</option>
+                    <option value="8" {% if fecha_actual.month == 8 %}selected{% endif %}>Agosto</option>
+                    <option value="9" {% if fecha_actual.month == 9 %}selected{% endif %}>Septiembre</option>
+                    <option value="10" {% if fecha_actual.month == 10 %}selected{% endif %}>Octubre</option>
+                    <option value="11" {% if fecha_actual.month == 11 %}selected{% endif %}>Noviembre</option>
+                    <option value="12" {% if fecha_actual.month == 12 %}selected{% endif %}>Diciembre</option>
+                </select>
+
+                <select name="año" id="selector-año" class="form-select form-select-sm" style="width: auto; min-width: 100px;">
+                    <option value="2025" {% if fecha_actual.year == 2025 %}selected{% endif %}>2025</option>
+                    <option value="2026" {% if fecha_actual.year == 2026 %}selected{% endif %}>2026</option>
+                    <option value="2027" {% if fecha_actual.year == 2027 %}selected{% endif %}>2027</option>
+                    <option value="2028" {% if fecha_actual.year == 2028 %}selected{% endif %}>2028</option>
+                    <option value="2029" {% if fecha_actual.year == 2029 %}selected{% endif %}>2029</option>
+                    <option value="2030" {% if fecha_actual.year == 2030 %}selected{% endif %}>2030</option>
+                </select>
+
+                <button type="submit" id="btn-buscar-fechas"
+                    class="btn btn-primary btn-sm d-flex align-items-center gap-2">
+                    <i class="bi bi-search">
+                        Buscar
+                    </i>
+                </button>
+            </form>
         </div>
     </div>
-</div>
-
-<div class="container-fluid">
-    <div class="row px-3 d-flex">
+    <br>
+    <div class="flex flex-wrap gap-4 justify-center">
         {% for cita in citas %}
-            <div class="col-12 col-md-3">
-                <div class="card p-3 mb-3 shadow-lg">
-                    <div class="row align-items-center">
-                        {% if cita.fecha_vencida %}
-                        <div class="badge bg-danger text-center">
-                            <span>Ya pasó la fecha de esta cita</span>
-                        </div>
-                        {% else %}
-                        <div class="badge bg-success text-center">
-                            <span>Faltan {{ cita.tiempo_restante_legible }}</span>
-                        </div>
-                        {% endif %}
-                        <div class="col-12 d-flex justify-content-center gap-2 top-0 end-0 px-3 pt-2">
-                            <h3>Datos de la cita</h3>
-                        </div>
-                        <p class="text-center mb-3">📆{{ cita.fecha_cita }}</p>
-                    </div>
-                    <div class="row align-items-center px-5">
-                        <button type="button" id="eliminar-cita-{{ cita.id }}" class="btn btn-sm btn-outline-danger"
-                            data-id-cita="{{ cita.id }}" data-fecha="{{ cita.fecha_cita }}"
-                            data-cliente="{{ cita.cliente.get_full_name }}" data-cliente-email="{{ cita.cliente.email }}"
-                            data-cliente-telefono="{{ cita.cliente.telefono }}" 
-                            >
-                            <i class="bi bi-trash3-fill"> Eliminar cita</i>
-                        </button>
-                    </div>
-                    <hr>
-                    <div class="row align-items-baseline overflow-auto border border-3" style="min-height: 18rem; max-height: 18rem; background-color: rgb(230, 230, 230);">
-                        <div class="col-md-12 py-2">
-                            <div class="form-control mb-3">
-                                <p class="fw-semibold mb-0">Datos del cliente</p>
-                                <ul class="small list-unstyled ps-4">
-                                    <li><strong>Nombre: </strong></li>
-                                    <li>{{ cita.cliente.get_full_name }}</li>
-                                    <li><strong>Correo: </strong></li>
-                                    <li>{{ cita.cliente.email }}</li>
-                                    <li><strong>Teléfono: </strong></li>
-                                    <li>{{ cita.cliente.telefono }}</li>
-                                </ul>
-                            </div>
+        <div class="w-full sm:w-1/2 md:w-1/3 lg:w-1/4">
+            <div class="bg-white/70 backdrop-blur-md rounded-xl p-3 mb-3 shadow-lg">
 
-                            {% with categoria=cita.servicios.first.get_categoria %}
-                            <div class="form-control mb-3">
-                                <p class="form-label fw-semibold mb-1">Servicios solicitados:</p>
-                                <p class="form-label small fw-semibold mb-1">{{ categoria }}</p>
-                                <ul class="mb-3 small">
-                                    {% for servicio in cita.servicios.all %}
-                                    <li>{{ servicio.nombre }} - ${{ servicio.precio }}</li>
-                                    {% empty %}
-                                    <li class="text-muted">No hay servicios</li>
-                                    {% endfor %}
-                                </ul>
-                                <p class="form-label fw-semibold mb-1">Costo total: ${{ cita.get_precio }} MXN</p>
-                            </div>
-                            {% endwith %}
-        
-                            <div class="form-control text-center">
-                                <p class="form-label fw-semibold">Pago de anticipo:</p>
-                                {% if cita.comprobante %}
-                                <div class="overflow-x-scroll">
-                                    <a href="{{ cita.comprobante.url }}#toolbar=0&navpanes=0&scrollbar=0" target="_blank" class="badge bg-success text-start text-decoration-none">
-                                        {% with fullpath=cita.comprobante.name %}
-                                            {% with filename=fullpath|cut:"citas/comprobantes/" %}
-                                            <span>{{ filename }}</span>
-                                            {% endwith %}
-                                        {% endwith %}
-                                    </a>
-                                </div>
-                                {% with comprobante_url=cita.comprobante.url|lower %}
-                                {% if comprobante_url|slice:"-4:" == ".pdf" %}
-                                <a href="{{ cita.comprobante.url }}#toolbar=0&navpanes=0&scrollbar=0" target="_blank" class="btn btn-sm btn-outline-secondary mt-2">
-                                    Ver PDF
+                <div class="row align-items-center">
+                    {% if cita.fecha_vencida %}
+                    <div class="badge bg-danger text-center">
+                        <span>Ya pasó la fecha de esta cita</span>
+                    </div>
+                    {% else %}
+                    <div class="badge bg-success text-center">
+                        <span>Faltan {{ cita.tiempo_restante_legible }}</span>
+                    </div>
+                    {% endif %}
+                    <div class="col-12 d-flex justify-content-center gap-2 top-0 end-0 px-3 pt-2">
+                        <h3>Datos de la cita</h3>
+                    </div>
+                    <p class="text-center mb-3">📆{{ cita.fecha_cita }}</p>
+                </div>
+                <div class="row align-items-center px-5">
+                    <button type="button" id="eliminar-cita-{{ cita.id }}" class="btn btn-sm btn-outline-danger"
+                        data-id-cita="{{ cita.id }}" data-fecha="{{ cita.fecha_cita }}"
+                        data-cliente="{{ cita.cliente.get_full_name }}" data-cliente-email="{{ cita.cliente.email }}"
+                        data-cliente-telefono="{{ cita.cliente.telefono }}">
+                        <i class="bi bi-trash3-fill"> Eliminar cita</i>
+                    </button>
+                </div>
+                <hr>
+                <div class="row align-items-baseline overflow-auto border border-3"
+                    style="min-height: 18rem; max-height: 18rem; background-color: rgb(230, 230, 230);">
+                    <div class="col-md-12 py-2">
+                        <div class="form-control mb-3">
+                            <p class="fw-semibold mb-0">Datos del cliente</p>
+                            <ul class="small list-unstyled ps-4">
+                                <li><strong>Nombre: </strong></li>
+                                <li>{{ cita.cliente.get_full_name }}</li>
+                                <li><strong>Correo: </strong></li>
+                                <li>{{ cita.cliente.email }}</li>
+                                <li><strong>Teléfono: </strong></li>
+                                <li>{{ cita.cliente.telefono }}</li>
+                            </ul>
+                        </div>
+
+                        {% with categoria=cita.servicios.first.get_categoria %}
+                        <div class="form-control mb-3">
+                            <p class="form-label fw-semibold mb-1">Servicios solicitados:</p>
+                            <p class="form-label small fw-semibold mb-1">{{ categoria }}</p>
+                            <ul class="mb-3 small">
+                                {% for servicio in cita.servicios.all %}
+                                <li>{{ servicio.nombre }} - ${{ servicio.precio }}</li>
+                                {% empty %}
+                                <li class="text-muted">No hay servicios</li>
+                                {% endfor %}
+                            </ul>
+                            <p class="form-label fw-semibold mb-1">Costo total: ${{ cita.get_precio }} MXN</p>
+                        </div>
+                        {% endwith %}
+
+                        <div class="form-control text-center">
+                            <p class="form-label fw-semibold">Pago de anticipo:</p>
+                            {% if cita.comprobante %}
+                            <div class="overflow-x-scroll">
+                                <a href="{{ cita.comprobante.url }}#toolbar=0&navpanes=0&scrollbar=0" target="_blank"
+                                    class="badge bg-success text-start text-decoration-none">
+                                    {% with fullpath=cita.comprobante.name %}
+                                    {% with filename=fullpath|cut:"citas/comprobantes/" %}
+                                    <span>{{ filename }}</span>
+                                    {% endwith %}
+                                    {% endwith %}
                                 </a>
-                                {% elif ".jpg" in comprobante_url or ".jpeg" in comprobante_url or ".png" in comprobante_url or ".webp" in comprobante_url %}
-                                <div class="text-center">
-                                    <a href="{{ cita.comprobante.url }}" target="_blank" class="btn btn-sm btn-outline-secondary mt-2">
-                                        Ver imagen
-                                    </a>
-                                </div>
-                                {% else %}
-                                <div class="alert alert-warning">
-                                    Formato no soportado: <code>{{ cita.comprobante.name }}</code>
-                                </div>
-                                {% endif %}
-                                {% endwith %}
-                                {% else %}
-                                <div class="overflow-x-scroll">
+                            </div>
+                            {% with comprobante_url=cita.comprobante.url|lower %}
+                            {% if comprobante_url|slice:"-4:" == ".pdf" %}
+                            <a href="{{ cita.comprobante.url }}#toolbar=0&navpanes=0&scrollbar=0" target="_blank"
+                                class="btn btn-sm btn-outline-secondary mt-2">
+                                Ver PDF
+                            </a>
+                            {% elif ".jpg" in comprobante_url or ".jpeg" in comprobante_url or ".png" in comprobante_url or
+                            ".webp" in comprobante_url %}
+                            <div class="text-center">
+                                <a href="{{ cita.comprobante.url }}" target="_blank"
+                                    class="btn btn-sm btn-outline-secondary mt-2">
+                                    Ver imagen
+                                </a>
+                            </div>
+                            {% else %}
+                            <div class="alert alert-warning">
+                                Formato no soportado: <code>{{ cita.comprobante.name }}</code>
+                            </div>
+                            {% endif %}
+                            {% endwith %}
+                            {% else %}
+                            <div class="overflow-x-scroll">
                                 <div class="badge bg-danger text-start">
                                     <span>No se ha subido ningún archivo</span>
                                 </div>
-                                </div>
-                                {% endif %}
                             </div>
-                        </div>
-                    </div>
-                    <hr>
-                    <p class="small text-muted text-center mb-0">📝 Creada el {{ cita.fecha_creacion }}</p>
-                </div>
-            </div>
-            {% empty %}
-            <div class="col-12 col-md-12">
-                <div class="blur-container p-3 mb-3 shadow-lg">
-                    <div class="row align-items-center">
-                        <div class="col-12 d-flex justify-content-center gap-2 top-0 end-0 px-3 pt-2">
-                            <h2>No se encontraron citas pendientes</h2>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
+                <hr>
+                <p class="small text-muted text-center mb-0">📝 Creada el {{ cita.fecha_creacion }}</p>
             </div>
-            {% endfor %}
+        </div>
+        {% empty %}
     </div>
+    <div class="col-12 col-md-12">
+        <div class="blur-container p-3 mb-3 shadow-lg">
+            <div class="row align-items-center">
+                <div class="col-12 d-flex justify-content-center gap-2 top-0 end-0 px-3 pt-2">
+                    <h2>No se encontraron citas pendientes</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
 </div>
+</div>
+</div>
+
+
 {% endblock %}
 
 {% block scripts %}
 <script>
-const modalEliminar = document.getElementById('modal-eliminar-cita')
-const spanFecha = document.getElementById('eliminar-cita-fecha')
-const spanNombre = document.getElementById('eliminar-cita-cliente')
-const spanTelefono = document.getElementById('eliminar-cita-cliente-telefono')
-const inputCitaID = document.getElementById('eliminar-cita-id')
-
-const botonesEliminar = document.querySelectorAll('button[id^="eliminar-cita-"]');
-if (botonesEliminar) {
-    botonesEliminar.forEach(boton => {
-        boton.addEventListener('click', evt => {
-            if (modalEliminar) {
-                console.log(boton.dataset)
-                spanFecha.innerHTML = boton.dataset.fecha
-                spanNombre.innerHTML = boton.dataset.cliente
-                spanTelefono.innerHTML = boton.dataset.clienteTelefono
-                inputCitaID.value = boton.dataset.idCita
-                modalEliminar.showModal()
-            }
+    const modalEliminar = document.getElementById('modal-eliminar-cita')
+    const spanFecha = document.getElementById('eliminar-cita-fecha')
+    const spanNombre = document.getElementById('eliminar-cita-cliente')
+    const spanTelefono = document.getElementById('eliminar-cita-cliente-telefono')
+    const inputCitaID = document.getElementById('eliminar-cita-id')
+    const botonesEliminar = document.querySelectorAll('button[id^="eliminar-cita-"]');
+    if (botonesEliminar) {
+        botonesEliminar.forEach(boton => {
+            boton.addEventListener('click', evt => {
+                if (modalEliminar) {
+                    console.log(boton.dataset)
+                    spanFecha.innerHTML = boton.dataset.fecha
+                    spanNombre.innerHTML = boton.dataset.cliente
+                    spanTelefono.innerHTML = boton.dataset.clienteTelefono
+                    inputCitaID.value = boton.dataset.idCita
+                    modalEliminar.showModal()
+                }
+            })
         })
-    })
-}
-
+    }
 </script>
 {% endblock %}

@@ -1,40 +1,46 @@
-{% extends 'components/base.html' %}
+{% extends "components/base.html" %}
 
 {% block title %}Mi perfil{% endblock %}
 
 {% block body %}
-<div class="row d-flex justify-content-center">
-    <div class="col-sm-10 col-md-6">
-        <div class=" m-3 blur-container">
-            <div class="card-header">
-                <h2 class="loginBox">Mis datos personales</h2>
-            </div>
-            <div class="card-body mb-3">
-                <div class="inputGroup">
-                    <label for="form-label input">Nombre completo</label>
-                    <p class="input form-control">{{user.get_full_name}}</p>
-                </div>
-                <div class="row">
-                    <div class="col-sm-12 col-md-6">
-                        <div class="inputGroup">
-                            <label for="form-label input">Teléfono</label>
-                            <p class="input form-control">{{user.telefono}}</p>
-                        </div>
-                    </div>
-                    <div class="col-sm-12 col-md-6">
-                        <div class="inputGroup">
-                            <label for="form-label input">Correo electrónico</label>
-                            <p class="input form-control">{{user.email}}</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="card-footer">
-                <a href="{% url 'auth_editar_usuario' %}" class="btn btn-primary">
-                    Editar mis datos
-                </a>
-            </div>
+<!-- Fondo degradado tipo inicio -->
+<div class="min-h-screen pt-28 pb-16 bg-gradient-to-r from-pink-400 via-purple-500 to-blue-500 flex items-center justify-center px-4">
+
+  <!-- Contenedor transparente -->
+  <div class="w-full max-w-3xl bg-white/60 backdrop-blur-md rounded-2xl shadow-2xl p-8 text-gray-800">
+
+    <h2 class="text-3xl font-bold text-center text-pink-700 mb-6">Mis datos personales</h2>
+
+    <div class="space-y-6">
+      <!-- Nombre completo -->
+      <div>
+        <label class="block text-sm font-semibold mb-1">Nombre completo</label>
+        <p class="bg-pink-100 text-pink-700 px-4 py-2 rounded-md font-medium shadow-sm">{{ user.get_full_name }}</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Teléfono -->
+        <div>
+          <label class="block text-sm font-semibold mb-1">Teléfono</label>
+          <p class="bg-pink-100 text-pink-700 px-4 py-2 rounded-md font-medium shadow-sm">{{ user.telefono }}</p>
         </div>
+
+        <!-- Email -->
+        <div>
+          <label class="block text-sm font-semibold mb-1">Correo electrónico</label>
+          <p class="bg-pink-100 text-pink-700 px-4 py-2 rounded-md font-medium shadow-sm">{{ user.email }}</p>
+        </div>
+      </div>
     </div>
+
+    <!-- Botón editar -->
+    <div class="mt-8 text-center">
+      <a href="{% url 'auth_editar_usuario' %}"
+         class="inline-block bg-pink-600 hover:bg-pink-700 text-white font-semibold py-2 px-6 rounded-full shadow-lg transition">
+        Editar mis datos
+      </a>
+    </div>
+
+  </div>
 </div>
 {% endblock %}

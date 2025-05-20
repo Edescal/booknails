@@ -24,7 +24,7 @@ def registro(request : HttpRequest):
     if request.method == 'POST':
         form = forms.RegistroForm(request.POST)
         if form.is_valid():
-            apellidos = f'{form.cleaned_data['apellidos']}'
+            apellidos = f"{form.cleaned_data['apellidos']}"
             usuario = models.Usuario(
                 username = form.cleaned_data['usuario'],
                 email = form.cleaned_data['email'],

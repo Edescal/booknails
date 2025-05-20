@@ -1,109 +1,102 @@
-{% extends "base.html" %}
+{% extends "components/base.html" %}
 {% load static %}
 
 {% block title %}Agendar una cita{% endblock %}
 
 {% block body %}
-<div class="container">
-    <div class="row d-flex justify-content-center">
-        <div class="col-xxl-8 col-xl-8 col-lg-10 col-md-10 col-sm-12">
-            <div class="card p-3 my-3">
-                <h3 class="text-center my-4">Agenda una nueva cita</h3>
-                <form action="{% url 'agendar_cita' %}" method="post" novalidate>
-                    {% csrf_token %}
+<div class="min-h-screen pt-24 pb-12 px-3 bg-gradient-to-r from-pink-400 via-purple-500 to-blue-500">
+    <div class="flex justify-center">
+        <div class="w-full max-w-5xl bg-white/70 backdrop-blur-md rounded-2xl shadow-lg p-6">
+            <h3 class="text-2xl text-center font-bold text-pink-800 mb-2">Agendar una nueva cita</h3>
+            <form action="{% url 'agendar_cita' %}" method="post" novalidate>
+                {% csrf_token %}
 
-                    <div class="card rouded-1 p-3">
-                        <p class="card-text text-center">Estos datos serán compartidos para registrar tu cita:</p>
-                        <div class="table-responsive small">
-                            <table class="table table-bordered small">
-                                <tr>
-                                    <td class="table-active">Nombre</td>
-                                    <td>{{ form.cliente.get_full_name }}</td>
-                                </tr>
-                                <tr>
-                                    <td class="table-active">Teléfono</td>
-                                    <td>{{ form.cliente.telefono }}</td>
-                                </tr>
-                                <tr>
-                                    <td class="table-active">Correo</td>
-                                    <td>{{ form.cliente.email }}</td>
-                                </tr>
-                            </table>
+                {% if messages %}
+                    {% for message in messages %}
+                    <div class="toast align-items-center text-bg-{{ message.tags }} border-0 w-100 my-2" role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="false">
+                        <div class="d-flex">
+                            <div class="toast-body">
+                                <small>{{ message }}</small>
+                            </div>
+                            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close" tabindex="-1"></button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% endif %}
 
-                            {% if messages %}
-                            {% for message in messages %}
-                                <div class="toast align-items-center text-bg-{{ message.tags }} border-0 w-100 my-2" role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="false">
-                                    <div class="d-flex">
-                                        <div class="toast-body">
-                                            <small>{{ message }}</small>
-                                        </div>
-                                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close" tabindex="-1"></button>
-                                    </div>
-                                </div>
-                            {% endfor %}
-                            {% endif %}
-
-
+                <!-- Sección Cita -->
+                <div class="row d-flex justify-content-center mb-3">
+                    <p class="text-center text-gray-700 font-medium mb-3">Estos datos serán compartidos para registrar tu cita:</p>
+                    <div class="col-12">
+                    <div class="bg-white rounded-xl p-4">
+                    <table class="w-full text-sm text-left text-gray-700">
+                        <tbody>
+                            <tr class="bg-pink-100">
+                                <th class="py-2 px-4 font-semibold">Nombre:</th>
+                                <td class="py-2 px-4">{{ form.cliente.get_full_name }}</td>
+                            </tr>
+                            <tr class="bg-pink-100">
+                                <th class="py-2 px-4 font-semibold bg-pink-100">Teléfono:</th>
+                                <td class="py-2 px-4">{{ form.cliente.telefono }}</td>
+                            </tr>
+                            <tr class="bg-pink-100">
+                                <th class="py-2 px-4 font-semibold">Correo:</th>
+                                <td class="py-2 px-4">{{ form.cliente.email }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    </div>
+                    </div>
+                    <!-- Calendario (no tocado) -->
+                    <div class="col-sm-12 col-md-6 mt-3">
+                        <div class="bg-white rounded-lg p-4 mb-4 shadow-md">
+                            <h5 class="text-lg text-center font-semibold text-pink-600 mb-4">Selecciona una fecha</h5>
+                            <div id="datepicker" data-date="12/03/2012"></div>
                         </div>
                     </div>
 
-                    <div class="row d-flex justify-content-center mb-3">
-                        <div class="col-sm-12 col-md-12 col-lg-6 d-flex mt-3">
-                            <div class="card rounded-1 flex-fill">
-                                <div id="datepicker" data-date="12/03/2012"></div>
+                    <!-- Formulario de la cita -->
+                    <div class="col-sm-12 col-md-6 mt-3">
+                        <div class="bg-white rounded-xl p-4 shadow-md">
+                            <h5 class="text-lg text-center font-semibold text-pink-600 mb-4">Datos de la cita</h5>
+
+                            <div class="form-floating mb-3">
+                                {{ form.fecha_cita }}
+                                <label for="fecha_cita" class="text-pink-700">{{ form.fecha_cita.label }} </label>
                             </div>
-                        </div>
-                        <div class="col-sm-12 col-md-12 col-lg-6 d-flex mt-3">
-                            <div class="card rounded-1 p-3 flex-fill">
-                                <h4 class="card-title text-center my-3">Datos de tu cita</h4>
-                                <div class="input-group mb-3">
-                                    <span class="input-group-text">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30"
-                                            fill="currentColor" class="bi bi-key" viewBox="0 0 16 16">
-                                            <path
-                                                d="M11 6.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5z" />
-                                            <path
-                                                d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5M1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4z" />
-                                        </svg>
-                                    </span>
-                                    <div class="form-floating">
-                                        {{ form.fecha_cita }}
-                                        <label for="fecha_cita" class="form-label">{{ form.fecha_cita.label }}</label>
-                                    </div>
-                                </div>
-                                <div class="form-floating mb-3">
-                                    {{ form.horario }}
-                                    <label for="horario" class="form-label">{{ form.horario.label }}</label>
-                                </div>
 
-                                <div class="form-floating mb-3">
-                                    {{ form.categoria }}
-                                    <label for="categoria" class="form-label">{{ form.categoria.label }}</label>
-                                </div>
+                            <div class="form-floating mb-3">
+                                {{ form.horario }}
+                                <label for="horario" class="text-pink-700">{{ form.horario.label }}</label>
+                            </div>
 
-                                <div class="form-control mb-3">
-                                    <label for="servicios" class="form-label small text-muted d-flex">{{ form.servicios.label }}</label>
-                                    {{ form.servicios }}
-                                </div>
+                            <div class="form-floating mb-3">
+                                {{ form.categoria }}
+                                <label for="categoria" class="text-pink-700">{{ form.categoria.label }}</label>
+                            </div>
+
+                            <div class="form-control mb-3">
+                                <label for="servicios" class="form-label small">{{ form.servicios.label }}</label>
+                                {{ form.servicios }}
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    
-
-                    <input class="btn btn-primary w-100" type="submit" name="submit" id="submit">
-                </form>
-            </div>
+                <!-- Botón -->
+                <div class="text-center">
+                    <input class="bg-pink-600 hover:bg-pink-700 text-white font-semibold text-sm px-6 py-2 rounded-full shadow transition-all w-full sm:w-1/2"
+                        type="submit" value="Registrar cita">
+                </div>
+            </form>
         </div>
     </div>
 </div>
 {% endblock %}
 
 {% block scripts %}
-<!-- Bootstrap datepicker CSS -->
+<!-- Bootstrap Datepicker CSS y JS -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css" />
-<!-- Bootstrap datepicker JS-->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
-{# CARGAR EL JAVASCRIPT PARA EL CALENDARIO #}
 <script defer src="{% static 'js/calendario.js' %}"></script>
 {% endblock %}

@@ -1,96 +1,41 @@
-{% extends "base.html" %}
+{% extends "components/base.html" %}
 {% load static %}
 {% block title %}Nails by Marin{% endblock %}
 
 {% block body %}
-<div class="container-fluid py-3" style="background-color: #f79dfd;">
-	<div class="row d-flex justify-content-center">
-    	<div class="col-6 col-sm-6 col-md-4 col-lg-2">
-			<img src="{% static 'img/logo.png' %}" alt="Logo" class="img-fluid">
-		</div>
-	</div>
-	<div class="row d-flex justify-content-center mt-3 py-3" style="background-color: #935edd;">
-		<div class="col-12">
-			<div class="indexBTNdiv" style="margin-bottom: 1rem; margin-top: 1rem;">
-				{% if not user.is_authenticated %}
-				<div>
-					<a class="navLink" href="{% url 'auth_login' %}">Iniciar Sesión</a>
-				</div>
-				<div>
-					<a class="navLink" href="{% url 'auth_registro' %}">Registrarse</a>
-				</div>
-				{% else %}
-				<div>
-					<a class="navLink" href="{% url 'auth_logout' %}">Cerrar sesión</a>
-				</div>
-				{% endif %}
-				{% if user.is_superuser %}
-				<div>
-					<a class="navLink" href="{% url 'agendar_super' %}">Agendar una cita</a>
-				</div>
-				<div>
-					<a class="navLink" href="{% url 'registro_y_cita' %}">Registrar cita & clienta</a>
-				</div>
-				{% elif user.is_authenticated and not user.is_superuser %}
-				<div>
-					<a class="navLink" href="{% url 'agendar_cita' %}">Agendar una cita</a>
-				</div>
-				{% endif %}
-			</div>
-			<div class="col-12 text-center text-white">
-				<p class="card-text fs-5 Poppins">
-					El mejor cuidado para tus uñas con atención profesional y personalizada.
-				</p>
-				{% if user.is_authenticated %}
-				<div class="indexBTNdiv" style="margin-bottom: 1rem; margin-top: 1rem;">
-					<div>
-						<a class="navLink" href="{% url 'auth_perfil' %}">Ver mi perfil</a>
-					</div>
-				</div>
-				{% if user.is_superuser %}
-				<div class="indexBTNdiv" style="margin-bottom: 1rem; margin-top: 1rem;">
-					<div>
-						<a class="navLink" href="{% url 'ver_agenda' %}">Ver mi agenda</a>
-					</div>
-				</div>
-				<div class="indexBTNdiv" style="margin-bottom: 1rem; margin-top: 1rem;">
-					<div>
-						<a class="navLink" href="{% url 'bloquear_fechas_get' %}">Bloquear fechas</a>
-					</div>
-				</div>
-				{% else %}
-				<div class="indexBTNdiv" style="margin-bottom: 1rem; margin-top: 1rem;">
-					<div>
-						<a class="navLink" href="{% url 'ver_mis_citas' %}">Ver mis citas</a>
-					</div>
-				</div>
-				{% endif %}
-				{% endif %}
-			</div>
-		</div>
+<div class="min-h-screen pt-28 pb-16 px-4 bg-gradient-to-r from-pink-400 via-purple-500 to-blue-500 text-white text-center">
+    <!-- Logo redondo -->
+	<img src="{% static 'img/uña4.jpeg' %}" alt="Logo"
+	class="rounded-full shadow-2xl w-72 h-72 object-cover border-4 border-pink-200 mb-6 mx-auto">
 
+    <!-- Título -->
+    <h1 class="text-5xl font-bold mb-3 drop-shadow-md">Nails by Marin</h1>
+    <p class="text-lg mb-8 drop-shadow-sm">Bienvenidos a nuestra página de citas para el cuidado de tus uñas.</p>
+
+    <!-- Botones -->
+    {% if not user.is_authenticated %}
+    <div class="flex flex-col sm:flex-row gap-4 justify-center mb-10">
+        <a href="{% url 'auth_login' %}" class="bg-blue-500 hover:bg-blue-600 text-white px-8 py-3 rounded-full shadow-md transition">Iniciar sesión</a>
+        <a href="{% url 'auth_registro' %}" class="bg-emerald-500 hover:bg-emerald-600 text-white px-8 py-3 rounded-full shadow-md transition">Registrarse</a>    
 	</div>
-	<div class="row d-flex justify-content-center py-3 column-gap-lg-5" style="background-color: #935edd;">
-		<div class="col-2 text-center text-white">
-			<img src="{% static 'img/uña1.jpeg' %}" alt="Logo" class="h-100 img-fluid img-thumbnail shadow-lg">
-		</div>
-		<div class="col-2 text-center text-white">
-			<img src="{% static 'img/uña2.jpeg' %}" alt="Logo" class="h-100 img-fluid img-thumbnail shadow-lg">
-		</div>
-		<div class="col-2 text-center text-white">
-			<img src="{% static 'img/uña3.jpeg' %}" alt="Logo" class="h-100 img-fluid img-thumbnail shadow-lg">
-		</div>
-	</div>
-	<div class="row d-flex justify-content-center my-3">
-		<div class="col-4">
-			<img src="{% static 'img/precios.jpeg' %}" alt="Logo" class="img-fluid img-thumbnail shadow-lg">
-		</div>
-	</div>
+    {% else %}
+    <p class="text-white mb-10">Ya estás autenticado. Usa el menú de navegación para acceder a las opciones.</p>
+    {% endif %}
+
+    <!-- Galería de imágenes -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mb-12">
+        <img src="{% static 'img/uña1.jpeg' %}" alt="Uña 1"
+             class="w-full h-80 object-cover rounded-xl shadow-xl border-4 border-white hover:scale-105 transition">
+        <img src="{% static 'img/uña2.jpeg' %}" alt="Uña 2"
+             class="w-full h-80 object-cover rounded-xl shadow-xl border-4 border-white hover:scale-105 transition">
+        <img src="{% static 'img/uña3.jpeg' %}" alt="Uña 3"
+             class="w-full h-80 object-cover rounded-xl shadow-xl border-4 border-white hover:scale-105 transition">
+    </div>
+
+    <!-- Imagen de precios -->
+    <div class="w-full max-w-2xl mx-auto">
+        <img src="{% static 'img/precios.jpeg' %}" alt="Precios"
+             class="w-full object-cover rounded-2xl shadow-2xl border-4 border-white">
+    </div>
 </div>
-
-
-<script>
-
-
-</script>
 {% endblock %}
