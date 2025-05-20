@@ -74,6 +74,7 @@ MODAL PARA ELIMINAR UNA CITA
 {% comment %}
 PARTE SUPERIOR DE TÍTULO
 {% endcomment %}
+<div class="min-h-screen pt-24 pb-12 px-3 bg-gradient-to-r from-pink-400 via-purple-500 to-blue-500">
 <div class="row d-flex justify-content-center p-2">
     <div class="col-sm-10 col-md-8">
         <div class="blur-container p-3 justify-content-center">
@@ -81,7 +82,7 @@ PARTE SUPERIOR DE TÍTULO
                 
                 <div class="col-sm-10 col-md-8 text-center">
     
-                    <h2 class="fs-3">Mis citas agendadas</h2>
+                    <h2 class="fs-3  text-black">Mis citas agendadas</h2>
 
                     <p>En esta sección podrás visualizar todas las citas que haz agendado.</p>
                     {% if messages %}
@@ -128,7 +129,7 @@ CITAS PENDIENTES Y PASADAS
                 <div class="blur-container p-3 mb-3 shadow-lg">
                     <div class="row align-items-center">
                         <div class="col-12 d-flex justify-content-center gap-2 top-0 end-0 px-3 pt-2">
-                            <h2>Tus citas pendientes</h2>
+<h2 class="text-3xl font-extrabold text-pink-200 drop-shadow">Mis citas agendadas</h2>
                         </div>
                     </div>
                 </div>
@@ -296,7 +297,7 @@ CITAS PENDIENTES Y PASADAS
             {% endfor %}
         </div>
     </div>
-
+</div>
 </div>
 
 

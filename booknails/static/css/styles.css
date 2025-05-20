@@ -303,3 +303,72 @@ dialog .card {
         font-size: 0.9rem;
     }
 }
+
+/**********************************CALENDARIO MIERDERO************************************/
+.datepicker .datepicker-switch, .datepicker .next, .datepicker .prev, .datepicker .dow, .datepicker .today, .datepicker-days .day, span.month {
+    background-color: white; /* Cambia el fondo del encabezado */
+    color: #b34e84;
+    border: 1px solid #c2c2c2; /* Cambia el color del texto */
+}
+.calendar{
+    border-color: #c78fae;
+}
+span.month.focused{
+    background-color: white !important;
+    color: #784eb3;
+}
+
+.datepicker-inline {
+    background-color: #dbdbdb; /* Cambia a tu color deseado */
+    border: 2px solid #c2c2c2;
+}
+
+.datepicker-days .day:hover, .datepicker-switch:hover, .datepicker .next:hover, .datepicker .prev:hover, .datepicker .today:hover, span.month:hover {
+    background-color: #971c60 !important; /* Gris más oscuro al pasar el ratón */
+    color: #f0a8ce;
+}   
+
+.datepicker-days .day:active, .datepicker .next:active, .datepicker .prev:active {
+    transform: scale(0.9); /* Reduce ligeramente el tamaño al hacer clic */
+    transition: transform 0.1s ease; /* Suaviza la animación */
+}
+
+.datepicker-switch:active, .datepicker .today:active, span.month:active {
+    transform: scale(0.95); /* Reduce ligeramente el tamaño al hacer clic */
+    transition: transform 0.1s ease; /* Suaviza la animación */
+}
+
+.custom-table tr,
+.custom-table td {
+    background-color: #1D1C23 !important;
+}
+
+.datepicker-days th.next, .datepicker-days th.prev {
+    width: 14.2%;
+}
+
+.datepicker-months th.prev, .datepicker-months th.next {
+    width: 25%;
+}
+
+.table th, .table td {
+            padding: 0.2rem; /* Espaciado interno */
+        }
+
+.table th {
+    text-align: center; /* Centrar contenido si es apropiado */
+}
+td.today{
+    background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#971c60), to(#d9559e)) !important;
+    background-image: linear-gradient(to bottom, #c96c75, #784eb3);
+    color: white !important;
+    border-radius: 10px !important;
+}
+
+/* Día seleccionado (active), sin depender de .datepicker     #926cc9 #784eb3 */
+td.active.day {
+    background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#c82b81), to(#e84fa3)) !important;
+    background-image: linear-gradient(to bottom, #926cc9, #784eb3);
+    color: #fff !important;
+    border-radius: 10px !important;
+}

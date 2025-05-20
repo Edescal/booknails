@@ -65,7 +65,7 @@ def agendar_cita(request : HttpRequest):
             if cita:
                 messages.success(
                     request=request, 
-                    message=f'Se agendó una cita para el {cita.fecha_cita.strftime('%Y/%m/%d con horario de %I:%M %p.')}'
+                    message=f"Se agendó una cita para el {cita.fecha_cita.strftime('%Y/%m/%d con horario de %I:%M %p.')}"
                 )
                 notificacion = services.Notificacion(cliente)
                 if notificacion.enviar_confirmacion(cita):
@@ -86,6 +86,98 @@ def agendar_cita(request : HttpRequest):
     return render(request, 'cita.html', { 
         'form':form,
         'fechas_bloqueadas':fechas_bloqueadas,
+    })
+
+"""
+CREAR CITA COMO SUPERUSUARIO
+"""
+
+def agendar_super(request: HttpRequest):
+    if request.method == 'POST':
+        form_cita = forms.CitasDueñaForm(request.POST)
+        if form_cita.is_valid():
+            cliente = form_cita.cleaned_data['cliente']
+            form_cita.cliente = cliente
+            cita = form_cita.to_cita()
+            if cita:
+                messages.success(
+                    request=request, 
+                    message=f"Se agendó una cita para el {cita.fecha_cita.strftime('%Y/%m/%d con horario de %I:%M %p.')}"
+                )
+                notificacion = services.Notificacion(cliente)
+                if notificacion.enviar_confirmacion(cita):
+                    messages.success(
+                        request=request, 
+                        message=f'Se envió un correo de confirmación a {cliente.email}'
+                    )
+                else:
+                    print(f'No se pudo enviar un email de confirmación a {cliente.email}.')
+                return redirect('agendar_super')
+        else:
+            form_cita.show_errors(request)
+    elif request.method == 'GET':
+        form_cita = forms.CitasDueñaForm()
+
+    fechas_bloqueadas = None
+    form_cita.fields['servicios'].queryset = models.Servicio.objects.none()
+    return render(request, 'agendar_super.html', {
+        'form_cita': form_cita,
+        'fechas_bloqueadas':fechas_bloqueadas,
+    })
+
+"""
+REGISTRAR CUENTA Y CITA A LA MISMA VEZ (SUPER USUARIO)
+"""
+
+def registro_y_cita(request: HttpRequest):
+    if request.method == 'POST':
+        form_registro = forms.RegistroForm(request.POST)
+        form_cita = forms.CitasForm(None, request.POST)
+
+        if form_registro.is_valid() and form_cita.is_valid():
+            nuevo_cliente = models.Usuario(
+                username=form_registro.cleaned_data['usuario'],
+                email=form_registro.cleaned_data['email'],
+                telefono=form_registro.cleaned_data['telefono'],
+                nombre=form_registro.cleaned_data['nombre'],
+                apellidos=form_registro.cleaned_data['apellidos']
+            )
+            nuevo_cliente.set_password(form_registro.cleaned_data['password'])
+            nuevo_cliente.save()
+
+            # Agendar cita para ella
+            form_cita.cliente = nuevo_cliente
+            cita = form_cita.to_cita()
+
+            if cita:
+                messages.success(
+                    request=request,
+                    message=f'Se registró a {nuevo_cliente.nombre} y se agendó su cita para el {cita.fecha_cita.strftime("%Y/%m/%d")} con horario de {cita.fecha_cita.strftime("%I:%M %p")}.'
+                )
+
+                notificacion = services.Notificacion(nuevo_cliente)
+                if notificacion.enviar_confirmacion(cita):
+                    messages.success(request, f'Se envió confirmación a {nuevo_cliente.email}')
+                else:
+                    print(f'No se pudo enviar un email a {nuevo_cliente.email}')
+
+                return redirect('registro_y_cita')
+            else:
+                form_cita.add_error(None, "No se pudo agendar la cita. Revisa los datos.")
+        else:
+            form_registro.show_errors(request)
+            form_cita.show_errors(request)
+    elif request.method == 'GET':
+        form_registro = forms.RegistroForm()
+        form_cita = forms.CitasForm(None)
+
+    fechas_bloqueadas = None
+    form_cita.fields['servicios'].queryset = models.Servicio.objects.none()
+
+    return render(request, 'registro_y_cita.html', {
+        'form_registro': form_registro,
+        'form_cita': form_cita,
+        'fechas_bloqueadas': fechas_bloqueadas,
     })
 
 """
@@ -128,7 +220,7 @@ def eliminar_cita(request : HttpRequest):
     # comprobar que es un objeto de cita válido
     if cita is not None:
         mensaje_log = f'Se eliminó la cita de: {cita.cliente.get_full_name()}'\
-                    f'para el {cita.fecha_cita.strftime('día %Y/%m/%d, hora %I:%M %p')}'
+                    f"para el {cita.fecha_cita.strftime('día %Y/%m/%d, hora %I:%M %p')}"
         messages.error(request, mensaje_log)
         print(mensaje_log)
         cita.delete()
@@ -358,5 +450,5 @@ def redirigir_bloquear_fechas(request:HttpRequest):
     else:
         url = base_url
 
-    print(F'REDIRIGIR A: {url} PP: {request.POST.get('mes')}')
+    print(F"REDIRIGIR A: {url} PP: {request.POST.get('mes')}")
     return redirect(url)

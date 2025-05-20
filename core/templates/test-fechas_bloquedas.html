@@ -1,15 +1,8 @@
 {% extends "components/base.html" %}
 
-{% block title %}Calendario{% endblock %}
+{% block title %}Fechas Bloqueadas{% endblock %}
 
 {% block outbody %}
-<style>
-    .form-check-input:checked {
-        background-color: #784eb3;
-        border-color: #784eb3;
-        color: white !important;
-    }
-</style>
 
 
 {% comment %}
@@ -154,109 +147,108 @@ MODAL PARA ELIMINAR UNA FECHA BLOQUEADA
 </dialog>
 {% endblock %}
 
-
+<br>
+<br>
 {% block body %}
-<div class="container-fluid py-4">
-    <div class="row justify-content-center">
-        <div class="col-12 col-md-8">
-            <div class="card shadow-lg border-0 rounded-4">
-                <div class="card-header bg-dark text-white rounded-top-4">
-                    <h4 class="mb-0">Fechas bloqueadas</h4>
+<div class="min-h-screen pt-24 pb-12 px-3 bg-gradient-to-r from-pink-400 via-purple-500 to-blue-500">
+    <div class="flex justify-center">
+        <div class="w-full max-w-4xl">
+            <div class="bg-white/70 backdrop-blur-md shadow-xl rounded-2xl overflow-hidden">
+                <div class="bg-gray-900 text-white px-6 py-4 rounded-t-2xl">
+                    <h4 class="text-2xl text-center font-bold text-pink-800">Fechas bloqueadas</h4>
                 </div>
-                <div class="card-body p-4">
+                <div class="p-6 bg-white/70 rounded-b-2xl">
+                    <!-- el resto de tu lógica sin cambios -->
 
-                    <div class="row justify-content-center mb-3">
-                        <div class="col-12 col-md-12">
-                            <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 py-2 px-3">
-                                
-                                <!-- Filtros: Mes, Año y Botón Buscar -->
-                                <div class="d-flex flex-wrap align-items-center gap-2">
-                                    <label for="selector-mes" class="mb-0 me-2">Filtrar:</label>
-                    
-                                    <select id="selector-mes" class="form-select form-select-sm" style="width: auto; min-width: 130px;">
-                                        {% for mes in meses_disponibles %}
-                                            <option value="{{ mes.1 }}" {% if mes.1 == hoy.month %}selected{% endif %}>
-                                                {{ mes.0 }}
-                                            </option>
-                                        {% endfor %}
-                                    </select>
-                    
-                                    <select id="selector-año" class="form-select form-select-sm" style="width: auto; min-width: 100px;">
-                                        {% for año in años_disponibles %}
-                                            <option value="{{ año }}" {% if año == hoy.year %}selected{% endif %}>
-                                                {{ año }}
-                                            </option>
-                                        {% endfor %}
-                                    </select>
-                    
-                                    <!-- Botón Buscar -->
-                                    <button id="btn-buscar-fechas" class="btn btn-primary btn-sm d-flex align-items-center gap-2">
-                                        <i class="bi bi-search"></i>
-                                        Buscar
-                                    </button>
-                                </div>
-                    
-                                <!-- Botón Nueva Fecha -->
-                                <div class="d-flex justify-content-end gap-3">
-                                    <button class="btn btn-success btn-sm d-flex align-items-center gap-2" id="btn-nueva-fecha">
-                                        <i class="bi bi-plus-circle-fill"></i>
-                                        Nueva fecha
-                                    </button>
-                                    <button class="btn btn-success btn-sm d-flex align-items-center gap-2" id="btn-nuevo-mes">
-                                        <i class="bi bi-plus-circle-fill"></i>
-                                        Bloquear mes
-                                    </button>
-                                </div>
-                                
-                    
-                            </div>
+
+                    <!-- Filtros -->
+                   <div class="flex flex-col lg:flex-row justify-between items-center gap-6 mb-6">
+    <div class="flex flex-wrap items-center gap-3 bg-white/60 backdrop-blur-sm px-4 py-3 rounded-xl shadow-sm">
+        <label for="selector-mes" class="text-sm font-semibold text-pink-800">Filtrar:</label>
+
+
+                            <select id="selector-mes" class="border border-gray-300 rounded-md px-3 py-1 text-sm min-w-[130px]">
+                                {% for mes in meses_disponibles %}
+                                <option value="{{ mes.1 }}" {% if mes.1 == hoy.month %}selected{% endif %}>
+                                    {{ mes.0 }}
+                                </option>
+                                {% endfor %}
+                            </select>
+
+                            <select id="selector-año" class="border border-gray-300 rounded-md px-3 py-1 text-sm min-w-[100px]">
+                                {% for año in años_disponibles %}
+                                <option value="{{ año }}" {% if año == hoy.year %}selected{% endif %}>
+                                    {{ año }}
+                                </option>
+                                {% endfor %}
+                            </select>
+
+                            <button id="btn-buscar-fechas"
+                                class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-3 py-1.5 rounded-md flex items-center gap-2 transition">
+                                <i class="bi bi-search"></i>
+                                Buscar
+                            </button>
+                        </div>
+
+                        <div class="flex gap-3">
+                            <button id="btn-nueva-fecha"
+                                class="bg-green-600 hover:bg-green-700 text-white text-sm font-medium px-3 py-1.5 rounded-md flex items-center gap-2 transition">
+                                <i class="bi bi-plus-circle-fill"></i>
+                                Nueva fecha
+                            </button>
+                            <button id="btn-nuevo-mes"
+                                class="bg-green-600 hover:bg-green-700 text-white text-sm font-medium px-3 py-1.5 rounded-md flex items-center gap-2 transition">
+                                <i class="bi bi-plus-circle-fill"></i>
+                                Bloquear mes
+                            </button>
                         </div>
                     </div>
-                    
-                    
-                    <div class="list-group">
+
+                    <!-- Lista de fechas -->
+                    <div class="divide-y divide-gray-200">
                         {% for fecha in fechas_bloqueadas %}
-                        <div class="list-group-item d-flex justify-content-between align-items-center flex-wrap py-3">
-                            <!-- Parte izquierda: Información -->
-                            <div class="d-flex flex-column">
-                                <!-- Fecha bloqueada -->
-                                <div class="fw-bold fs-5 mb-1">📆 {{ fecha.fecha }}</div>
-                                
-                                <!-- Horarios bloqueados -->
-                                <div class="d-flex flex-wrap gap-1 mb-1">
+                        <div class="flex justify-between items-start flex-wrap py-4">
+                            <!-- Información de la fecha -->
+                            <div class="flex flex-col gap-1">
+                                <div class="font-semibold text-lg">📆 {{ fecha.fecha }}</div>
+
+                                <div class="flex flex-wrap gap-2">
                                     {% if fecha.horas_bloqueadas.count == 4 or fecha.horas_bloqueadas.count == 0 %}
-                                    <span class="badge bg-danger">🕗 Día completo</span>
+                                    <span class="bg-red-600 text-white text-xs px-2 py-1 rounded">🕗 Día completo</span>
                                     {% else %}
                                         {% for hora in fecha.horas_bloqueadas.all %}
-                                        <span class="badge bg-primary">🕗 {{ hora.hora|time:"H:i" }}</span>
+                                        <span class="bg-blue-600 text-white text-xs px-2 py-1 rounded">🕗 {{ hora.hora|time:"H:i" }}</span>
                                         {% empty %}
-                                        <span class="badge bg-secondary">🕗 Sin horario</span>
+                                        <span class="bg-gray-500 text-white text-xs px-2 py-1 rounded">🕗 Sin horario</span>
                                         {% endfor %}
                                     {% endif %}
                                 </div>
-                                
-                                <!-- Motivo -->
-                                <div class="text-muted small">{{ fecha.motivo|default:"—" }}</div>
+
+                                <div class="text-gray-500 text-sm">{{ fecha.motivo|default:"—" }}</div>
                             </div>
 
-                            <!-- Parte derecha: Botones -->
-                            <div class="d-flex gap-2 my-3">
-                                <button type="button" id="eliminar-{{fecha.id}}" class="btn btn-lg btn-outline-danger"
+                            <!-- Botones -->
+                            <div class="flex gap-2 mt-3 lg:mt-0">
+                                <button type="button" id="eliminar-{{fecha.id}}"
+                                    class="border border-red-600 text-red-600 hover:bg-red-600 hover:text-white p-2 rounded-lg transition"
                                     data-alt="{{ fecha.fecha }}" data-fecha='{{fecha.fecha|date:"Y-m-d" }}'>
                                     <i class="bi bi-trash3-fill"></i>
                                 </button>
-                                <button type="button" id="fecha-{{fecha.id}}" class="btn btn-lg btn-outline-primary"
+                                <button type="button" id="fecha-{{fecha.id}}"
+                                    class="border border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white p-2 rounded-lg transition"
                                     data-id="{{fecha.id}}" data-fecha='{{fecha.fecha|date:"Y-m-d" }}'
                                     data-horarios='{{fecha.json | safe}}' data-motivo="{{fecha.motivo}}">
                                     <i class="bi bi-pencil-fill"></i>
                                 </button>
                             </div>
-
                         </div>
                         {% empty %}
-                        <div class="text-center text-muted py-3">No hay fechas bloqueadas registradas.</div>
+                        <div class="text-center text-gray-500 py-4">
+                            No hay fechas bloqueadas registradas.
+                        </div>
                         {% endfor %}
                     </div>
+
                 </div>
             </div>
         </div>
@@ -266,6 +258,7 @@ MODAL PARA ELIMINAR UNA FECHA BLOQUEADA
 
 
 <script>
+    
     const buscador = document.getElementById('btn-buscar-fechas')
     buscador.addEventListener('click', evt => {
         const mes = document.getElementById('selector-mes').value

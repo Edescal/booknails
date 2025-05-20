@@ -1,14 +1,14 @@
 {% extends "components/base.html" %}
 {% load static %}
 
-{% block title %}Agendar una cita{% endblock %}
+{% block title %}Registrar Clienta y Cita{% endblock %}
 
 {% block body %}
 <div class="min-h-screen pt-24 pb-12 px-3 bg-gradient-to-r from-pink-400 via-purple-500 to-blue-500">
     <div class="flex justify-center">
         <div class="w-full max-w-5xl bg-white/70 backdrop-blur-md rounded-2xl shadow-lg p-6">
-            <h3 class="text-2xl text-center font-bold text-pink-800 mb-2">Agendar una nueva cita</h3>
-            <form action="{% url 'agendar_cita' %}" method="post" novalidate>
+            <h3 class="text-2xl text-center font-bold text-pink-800 mb-6">Registrar clienta y agendar cita</h3>
+            <form action="{% url 'registro_y_cita' %}" method="post" novalidate>
                 {% csrf_token %}
 
                 {% if messages %}
@@ -24,33 +24,26 @@
                     {% endfor %}
                 {% endif %}
 
+                <!-- Sección Registro -->
+                <div class="bg-white rounded-xl p-4 shadow-md mb-6">
+                    <h4 class="text-xl font-semibold text-center text-purple-700 mb-4">Datos de la nueva clienta</h4>
+                    <div class="row g-3">
+                        {% for field in form_registro %}
+                        <div class="col-md-6">
+                            <label class="text-sm font-semibold text-pink-700">{{ field.label }}</label>
+                            {{ field }}
+                            {% include "macro_form_error.html" with field=field.name %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
                 <!-- Sección Cita -->
                 <div class="row d-flex justify-content-center mb-3">
-                    <p class="text-center text-gray-700 font-medium mb-3">Estos datos serán compartidos para registrar tu cita:</p>
-                    <div class="col-12">
-                    <div class="bg-white rounded-xl p-4">
-                    <table class="w-full text-sm text-left text-gray-700">
-                        <tbody>
-                            <tr class="bg-pink-100">
-                                <th class="py-2 px-4 font-semibold">Nombre:</th>
-                                <td class="py-2 px-4">{{ form.cliente.get_full_name }}</td>
-                            </tr>
-                            <tr class="bg-pink-100">
-                                <th class="py-2 px-4 font-semibold bg-pink-100">Teléfono:</th>
-                                <td class="py-2 px-4">{{ form.cliente.telefono }}</td>
-                            </tr>
-                            <tr class="bg-pink-100">
-                                <th class="py-2 px-4 font-semibold">Correo:</th>
-                                <td class="py-2 px-4">{{ form.cliente.email }}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    </div>
-                    </div>
                     <!-- Calendario (no tocado) -->
                     <div class="col-sm-12 col-md-6 mt-3">
-                        <div class="bg-white rounded-lg p-4 mb-4 shadow-md">
-                            <h5 class="text-lg text-center font-semibold text-pink-600 mb-4">Selecciona una fecha</h5>
+                        <div class="card rounded-1 p-3">
+                            <h5 class="text-lg text-center font-semibold text-purple-700 mb-4 mt-1.5">Selecciona una fecha</h5>
                             <div id="datepicker" data-date="12/03/2012"></div>
                         </div>
                     </div>
@@ -58,26 +51,26 @@
                     <!-- Formulario de la cita -->
                     <div class="col-sm-12 col-md-6 mt-3">
                         <div class="bg-white rounded-xl p-4 shadow-md">
-                            <h5 class="text-lg text-center font-semibold text-pink-600 mb-4">Datos de la cita</h5>
+                            <h5 class="text-lg text-center font-semibold text-purple-700 mb-4">Datos de la cita</h5>
 
                             <div class="form-floating mb-3">
-                                {{ form.fecha_cita }}
-                                <label for="fecha_cita" class="text-pink-700">{{ form.fecha_cita.label }} </label>
+                                {{ form_cita.fecha_cita }}
+                                <label for="fecha_cita" class="text-pink-700">{{ form_cita.fecha_cita.label }} </label>
                             </div>
 
                             <div class="form-floating mb-3">
-                                {{ form.horario }}
-                                <label for="horario" class="text-pink-700">{{ form.horario.label }}</label>
+                                {{ form_cita.horario }}
+                                <label for="horario" class="text-pink-700">{{ form_cita.horario.label }}</label>
                             </div>
 
                             <div class="form-floating mb-3">
-                                {{ form.categoria }}
-                                <label for="categoria" class="text-pink-700">{{ form.categoria.label }}</label>
+                                {{ form_cita.categoria }}
+                                <label for="categoria" class="text-pink-700">{{ form_cita.categoria.label }}</label>
                             </div>
 
                             <div class="form-control mb-3">
-                                <label for="servicios" class="form-label small">{{ form.servicios.label }}</label>
-                                {{ form.servicios }}
+                                <label for="servicios" class="form-label small">{{ form_cita.servicios.label }}</label>
+                                {{ form_cita.servicios }}
                             </div>
                         </div>
                     </div>
@@ -86,7 +79,7 @@
                 <!-- Botón -->
                 <div class="text-center">
                     <input class="bg-pink-600 hover:bg-pink-700 text-white font-semibold text-sm px-6 py-2 rounded-full shadow transition-all w-full sm:w-1/2"
-                        type="submit" value="Registrar cita">
+                        type="submit" value="Registrar y agendar cita">
                 </div>
             </form>
         </div>
