@@ -10,6 +10,6 @@ urlpatterns = [
      path('editar-datos/', views.editar_usuario, name='auth_editar_usuario'),
 
      path('success/', views.success, name='auth_success_view'),
-     path("__reload__/", include("django_browser_reload.urls")),
+     # path("__reload__/", include("django_browser_reload.urls")),
 ] 
 
