@@ -15,8 +15,8 @@ def crear_admin():
     if new_instance:
         user.is_superuser = True
         user.username = 'admin'
-        user.nombre = 'Eduardo'
-        user.apellidos = 'Escalante Pacheco'
+        user.nombre = 'Katty Caridad'
+        user.apellidos = 'Magariño Marín'
         user.email = 'eduardo1582000@gmail.com'
         user.fecha_creacion = datetime.datetime.now()
         user.telefono = '9993914295'
