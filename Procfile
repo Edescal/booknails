@@ -1,1 +1,1 @@
-web: gunicorn booknails.wsgi
+web: gunicorn booknails.wsgi:application
