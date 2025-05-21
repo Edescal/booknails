@@ -23,11 +23,52 @@ def crear_admin():
         user.set_password('password')
         user.save()
 
+def crear_servicios():
+    servicios = [
+        (2, 'Acrílicas Tip', 330.00, 'M'),
+        (3, 'Acrílicas Escultura', 350.00, 'M'),
+        (4, 'Acrigel Top', 300.00, 'M'),
+        (5, 'Soft Gel', 300.00, 'M'),
+        (6, 'Nivelación con Rubber', 280.00, 'M'),
+        (7, 'Kapping híbrido', 330.00, 'M'),
+        (8, 'Gel semipermanente', 150.00, 'M'),
+        (9, 'Manicura combinada', 250.00, 'M'),
+        (10, 'Gel de construcción', 280.00, 'M'),
+        (14, 'Acrílicas Tip', 360.00, 'F'),
+        (15, 'Acrílicas Escultura', 380.00, 'F'),
+        (16, 'Acrigel Tip', 340.00, 'F'),
+        (17, 'Soft Gel', 340.00, 'F'),
+        (18, 'Nivelación con Rubber', 330.00, 'F'),
+        (19, 'Gel de construcción', 330.00, 'F'),
+        (20, 'Kapping híbrido', 350.00, 'F'),
+        (21, 'Pedicura tradicional', 300.00, 'P'),
+        (22, 'Terapia con biogelly', 500.00, 'P'),
+        (23, 'Pedicula spa', 600.00, 'P'),
+        (24, 'Acripie', 300.00, 'P'),
+        (25, 'Gel semipermanente', 130.00, 'P'),
+        (26, 'Externo', 100.00, 'R'),
+        (27, 'Salón', 80.00, 'R'),
+    ]
+    for id_, nombre, precio, categoria in servicios:
+        servicio, creado = models.Servicio.objects.update_or_create(
+            id=id_,
+            defaults={
+                'nombre': nombre,
+                'precio': precio,
+                'categoria': categoria
+            }
+        )
+        print(f"{'Creado' if creado else 'Actualizado'}: {servicio}")
+
 
 def index(request : WSGIRequest):
     if models.Usuario.objects.count() == 0:
         print('No hay usuarios activos')
         crear_admin()
+        try:
+            crear_servicios()
+        except:
+            print('WHAT')
     return render(request, 'index.html')
 
 
