@@ -13,12 +13,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-32yx!$o!cyuvo*wz#ofn3^u*_(2&&uyjpe4iq1!i36vb9!m3=r'
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-32yx!$o!cyuvo*wz#ofn3^u*_(2&&uyjpe4iq1!i36vb9!m3=r')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
 
-ALLOWED_HOSTS = ['.onrender.com']
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS').split(' ')
+# ['127.0.0.1', '192.168.0.14']
 
 # Custom model
 AUTH_USER_MODEL = 'core.Usuario'
@@ -139,13 +140,29 @@ WSGI_APPLICATION = 'booknails.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+# postgresql://booknails_user:SDgulDgRr2XJ8e91RTXgJnaoCLfosyFO@dpg-d0mh55je5dus738h22ag-a.oregon-postgres.render.com/booknails
+
 DATABASES = {
-    'default': dj_database_url.config(
-        default=os.environ.get('DATABASE_URL', 'postgresql://booknails_user:SDgulDgRr2XJ8e91RTXgJnaoCLfosyFO@dpg-d0mh55je5dus738h22ag-a/booknails'),
-        conn_max_age=600,
-        ssl_require=True
-    )
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    },
+    'alt': {
+        'ENGINE': 'django.db.backends.mysql',  # Usar el backend de MySQL
+        'NAME': 'booknails',  # Nombre de la base de datos
+        'USER': 'root',                  # Usuario de MariaDB
+        'PASSWORD': 'admin123',           # Contraseña de MariaDB
+        'HOST': 'localhost',                   # Host de la base de datos
+        'PORT': '3306',                        # Puerto de MariaDB (por defecto es 3306)
+        'OPTIONS': {
+            # 'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",  # Modo SQL estricto
+            'init_command': "SET default_storage_engine=INNODB;"  # Modo SQL estricto
+        },
+    }
 }
+
+database_url = os.environ.get('DATABASE_URL')
+DATABASES['default'] = dj_database_url.parse(database_url)
 
 
 # Password validation
