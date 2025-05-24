@@ -8,19 +8,16 @@
         <div class="loginBox bg-white/80 backdrop-blur-md rounded-xl shadow-lg p-6">
             <form action="{% url 'auth_registro' %}" method="post" novalidate>
                 <h2 class="loginT text-3xl font-extrabold text-pink-700 text-center mb-6">Registrar Cuenta</h2>
+                                    
+                {% include "macro_form_error.html" %}
                 {% csrf_token %}
                 <div class="form-container">
                     {% for field in form %}
                     <div class="inputGroup">
                         {{ field.label }}
                         {{ field }}
-                        {% include "macro_form_error.html" with field=field.name %}
                     </div>
                     {% endfor %}
-                </div>
-
-                <div class="mb-3">
-                    {{ mensaje }}
                 </div>
 
                 <input class="loginBTN" type="submit" name="submit" id="submit" value="Enviar" style="width: 30%;">

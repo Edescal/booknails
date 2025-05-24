@@ -1,16 +1,35 @@
 {% if messages %}
 {% for message in messages %}
-{% if field in message.tags %}
-<div class="invalid-feedback ">
-    <div class="toast align-items-center text-bg-danger border-0 w-100" role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="false">
-        <div class="d-flex">
-          <div class="toast-body">
-            <small>{{ message }}</small>
-          </div>
-          <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close" tabindex="-1"></button>
-        </div>
-    </div>
+
+{% if 'error' in message.tags %}
+<div class="flex items-center bg-red-500 text-white rounded shadow w-full my-2 p-2 border-0" role="alert"
+	aria-live="assertive" aria-atomic="true" data-bs-autohide="false">
+	<div class="flex flex-grow">
+		<div class="flex-grow">
+			<small>{{ message }}</small>
+		</div>
+		<button type="button" class="text-white ml-4 hover:text-gray-300 focus:outline-none" aria-label="Close"
+			tabindex="-1" onclick="this.parentElement.parentElement.remove()">
+			✕
+		</button>
+	</div>
 </div>
 {% endif %}
+
+{% if 'success' in message.tags %}
+<div class="flex items-center bg-green-500 text-white rounded shadow w-full my-2 p-2 border-0" role="alert"
+	aria-live="assertive" aria-atomic="true" data-bs-autohide="false">
+	<div class="flex flex-grow">
+		<div class="flex-grow">
+			<small>{{ message }}</small>
+		</div>
+		<button type="button" class="text-white ml-4 hover:text-gray-300 focus:outline-none" aria-label="Close"
+			tabindex="-1" onclick="this.parentElement.parentElement.remove()">
+			✕
+		</button>
+	</div>
+</div>
+{% endif %}
+
 {% endfor %}
 {% endif %}

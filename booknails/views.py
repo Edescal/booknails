@@ -4,8 +4,9 @@ from django.urls import reverse
 from django.http import HttpResponse
 from django.template.loader import render_to_string
 from django.conf import settings
-import datetime, logging
 from core import services, models
+import datetime, logging, requests
+
 
 
 def crear_admin():
@@ -69,6 +70,19 @@ def index(request : WSGIRequest):
             crear_servicios()
         except:
             print('WHAT')
+
+    
+    serv = models.Servicio.objects.filter(id=2).first()
+    if serv:
+        print(serv)
+
+    horario, is_new = models.HorarioServicio.objects.get_or_create(
+        servicio = serv,
+        hora = models.Horario.MEDIODIA[0],
+    )
+    print(f'Nuevo: {is_new}\tPrint: {horario}')
+
+    
     return render(request, 'index.html')
 
 

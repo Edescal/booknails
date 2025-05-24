@@ -11,19 +11,6 @@
             <form action="{% url 'agendar_cita' %}" method="post" novalidate>
                 {% csrf_token %}
 
-                {% if messages %}
-                    {% for message in messages %}
-                    <div class="toast align-items-center text-bg-{{ message.tags }} border-0 w-100 my-2" role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="false">
-                        <div class="d-flex">
-                            <div class="toast-body">
-                                <small>{{ message }}</small>
-                            </div>
-                            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close" tabindex="-1"></button>
-                        </div>
-                    </div>
-                    {% endfor %}
-                {% endif %}
-
                 <!-- Sección Cita -->
                 <div class="row d-flex justify-content-center mb-3">
                     <p class="text-center text-gray-700 font-medium mb-3">Estos datos serán compartidos para registrar tu cita:</p>
@@ -59,6 +46,8 @@
                     <div class="col-sm-12 col-md-6 mt-3">
                         <div class="bg-white rounded-xl p-4 shadow-md">
                             <h5 class="text-lg text-center font-semibold text-pink-600 mb-4">Datos de la cita</h5>
+
+                            {% include "macro_form_error.html" %}
 
                             <div class="form-floating mb-3">
                                 {{ form.fecha_cita }}

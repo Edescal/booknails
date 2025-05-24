@@ -31,6 +31,7 @@ psycopg2-binary==2.9.10
 pycparser==2.22
 Pygments==2.19.1
 python-dateutil==2.9.0.post0
+python-dotenv==1.1.0
 python-slugify==8.0.4
 pytz==2025.1
 PyYAML==6.0.2

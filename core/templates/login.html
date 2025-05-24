@@ -18,32 +18,19 @@
         <div class="loginBox bg-white/80 backdrop-blur-md rounded-xl shadow-lg p-6">
             <form action="{% url 'auth_login' %}" method="post" novalidate class="space-y-6">
                 <h2 class="text-4xl font-extrabold text-center text-emerald-600 mb-6">Iniciar sesión</h2>
+                {% include "macro_form_error.html" %}
                 {% csrf_token %}
                         <div>
-                            {% if form.credential.errors %}
-                            <div class="advertencia" id="advertencia">{{ 'Usuario no encontrado' }}</div>
-                            <script>
-                                document.getElementById("advertencia").style.display = "block";
-                            </script>
-                            {% endif %}
                             <div class="inputGroup">
                                 {{ form.credential.label }}
                                 {{ form.credential }}
-                                {% include "macro_form_error.html" with field='credencial' %}
                             </div>
                         </div>
                         
                         <div>
-                            {% if form.password.errors %}
-                            <div class="advertencia" id="advertencia">{{ 'Error de Contraseña' }}</div>
-                            <script>
-                                document.getElementById("advertencia").style.display = "block";
-                            </script>
-                            {% endif %}
                             <div class="inputGroup">
                                 {{ form.password.label }}
                                 {{ form.password }}
-                                {% include "macro_form_error.html" with field='credencial' %}
                             </div>
                         </div>
                         <center>

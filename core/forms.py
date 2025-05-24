@@ -74,14 +74,16 @@ class RegistroForm(FormBase):
     password = forms.CharField(
         label='',
         max_length=256, 
+        required=False,
         widget=forms.PasswordInput(attrs={
             'class': "inputLabel",
             'placeholder': 'Contraseña'
         }),
     )
-    confirmar_password = forms.CharField( 
+    confirmar_pass = forms.CharField( 
         max_length=255, 
         label='',
+        required=False,
         widget=forms.PasswordInput(attrs={
             'class': "inputLabel",
             'placeholder': 'Confirmar Contraseña'
@@ -109,9 +111,21 @@ class RegistroForm(FormBase):
             raise ValidationError('Este teléfono ya está registrado')
         return telefono
 
-    def clean_confirmar_password(self):
-        confirmation = self.cleaned_data.get('confirmar_password')
+    def clean_password(self):
+        password = self.cleaned_data.get('password', None)
+        if not password:
+            raise ValidationError('El campo de la contraseña es obligatorio.')
+        return password
+
+    def clean_confirmar_pass(self):
         password = self.cleaned_data.get('password')
+        if not password:
+            return None
+        
+        confirmation = self.cleaned_data.get('confirmar_pass', None)
+        if not confirmation:
+            raise ValidationError('El campo de confirmar contraseña es obligatorio.')
+
         if password != confirmation:
             raise ValidationError('Las contraseñas no coinciden. Vuelve a intentarlo.')
         return confirmation
@@ -163,7 +177,7 @@ class LoginForm(FormBase):
         query = Q(username__icontains=credential) | Q(email__icontains=credential)
         user = models.Usuario.objects.filter(query).first()
         if user == None:
-            raise ValidationError('No se encontró ningún usuario')
+            raise ValidationError('No se encontró una cuenta con ese nombre de usuario o email.')
         return credential
 
     def clean_password(self):
@@ -173,9 +187,9 @@ class LoginForm(FormBase):
             query = Q(username__icontains=credential) | Q(email__icontains=credential)
             user = models.Usuario.objects.filter(query).first()
             if not user:            
-                raise ValidationError('No se encontró ningún usuario')  
+                raise ValidationError('No se encontró una cuenta con ese nombre de usuario o email.')  
             if not user.check_password(password):
-                raise ValidationError('Contraseña equivocada')
+                raise ValidationError('Contraseña equivocada.')
         return password
 
     def get_user(self):
@@ -193,7 +207,7 @@ class CitasForm(FormBase):
     fecha_cita = forms.DateField(
         label='Selecciona el día: ',
         input_formats=['%Y-%m-%d', '%d-%m-%Y'],
-        required=True,
+        required=False,
         widget=forms.DateInput(format="%Y-%m-%d", attrs={
             'class': "form-control form-control-sm shadow-sm",
             'placeholder': 'Introduce tu contraseña',
@@ -212,7 +226,7 @@ class CitasForm(FormBase):
     servicios = forms.ModelMultipleChoiceField(
         label='Servicios',
         queryset= models.Servicio.objects.all(),
-        required=True,
+        required=False,
         widget=forms.CheckboxSelectMultiple
     )
     horario = forms.ChoiceField(
@@ -229,6 +243,9 @@ class CitasForm(FormBase):
 
     def clean_fecha_cita(self):
         fecha = self.cleaned_data.get('fecha_cita')
+        if not fecha:
+            raise ValidationError('No se seleccionó una fecha para la cita.')
+
         fecha_hoy = datetime.datetime.now().date()
         if fecha < fecha_hoy:
             raise ValidationError('No se permite agendar citas para fechas pasadas.')
@@ -249,6 +266,9 @@ class CitasForm(FormBase):
     
     def clean_servicios(self):
         servicios = self.cleaned_data.get('servicios')
+        if not servicios:
+            raise ValidationError('Elige al menos un servicio para tu cita.')
+
         for servicio in servicios:
             print(servicio)
         return servicios

@@ -65,7 +65,11 @@ class FechaBloqueadaSerializer(serializers.ModelSerializer):
         return obj.dia_entero_bloqueado
 
 class HoraBloqueadasSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = models.HoraBloqueada
+        fields = '__all__'
+
+class HoraServicioSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.HorarioServicio
         fields = '__all__'

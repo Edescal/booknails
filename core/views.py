@@ -103,7 +103,9 @@ def editar_usuario(request : WSGIRequest):
     if request.method == 'POST':
         form = forms.EditarUsuarioForm(request.POST, instance=usuario)
         if form.is_valid():
+            # esto actualiza el modelo
             form.save()
+
             # Cambiar la contraseña solo si se ingresó una nueva
             nueva_contraseña = form.cleaned_data['password']
             if nueva_contraseña:
@@ -112,12 +114,12 @@ def editar_usuario(request : WSGIRequest):
                     usuario.save()  # Guardamos el usuario con la nueva contraseña
                 else:
                     messages.error(request, 'Las contraseñas no coinciden.')
-                    return redirect('editar_usuario')
+                    return redirect('auth_editar_usuario')
 
             # Guardamos los cambios (si la contraseña no fue modificada, sólo los datos)
             usuario.save()
             messages.success(request, 'Tus datos han sido actualizados correctamente.')
-            return redirect('home')  # Redirigir al perfil o la página que desees
+            return redirect('auth_editar_usuario')  # Redirigir al perfil o la página que desees
     else:
         # Cargar los datos actuales del usuario para precargar el formulario
         form = forms.EditarUsuarioForm(instance=usuario)

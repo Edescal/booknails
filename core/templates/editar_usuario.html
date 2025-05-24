@@ -13,18 +13,42 @@
 {% endblock %}
 
 {% block body %}
+<dialog id="modal-confirmar-accion" tabindex="-1" closedby="any">
+    <div class="modal-content">
+        <div class="card rounded rounded-3 overflow-hidden">
+            <form class="card-header d-flex justify-content-between align-items-center text-white bg-gradient-to-r from-pink-400 via-purple-500 to-blue-500">
+                <h3 class="text-center my-3">Bloquear mes</h3>
+                <button class="btn-close btn-lg btn-close-white" formmethod="dialog"></button>
+            </form>
+            <div class="card-body">
+                <form action="" method="post" novalidate>
+                    
+                    <h4>Estás a punto de cambiar tus datos personales. ¿Estás segura?</h4>
+
+                    <div class="my-3 text-end">
+                        <input type="submit" value="Cancelar" class="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400" formmethod="dialog">
+                        <input type="button" value="Confirmar" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700" id="modal-confirmar">
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</dialog>
+
+
 <div class="min-h-screen pt-20 pb-10 px-3 bg-gradient-to-r from-pink-400 via-purple-500 to-blue-500">
     <div class="max-w-3xl mx-auto">
         <div class="bg-white/80 backdrop-blur-lg rounded-2xl shadow-2xl p-8">
-            <form action="{% url 'auth_editar_usuario' %}" method="post" novalidate class="space-y-4">
+            <form action="{% url 'auth_editar_usuario' %}" method="post" novalidate class="space-y-4" id="form-editar">
                 <h2 class="text-center text-3xl font-extrabold text-pink-600 mb-6">Editar datos personales</h2>
+                {% include "macro_form_error.html" %}
+
                 {% csrf_token %}
                     <div class="form-container"> <!-- Contenedor para los campos -->
                         {% for field in form %}
                         <div class="inputGroup"> <!-- Cada campo se envuelve en un div -->
                             {{ field.label }}
                             {{ field }}
-                            {% include "macro_form_error.html" with field=field.name %}
                         </div>
                         {% endfor %}
                     </div>
@@ -33,10 +57,35 @@
                     </div>
                     
                     <div>
-                        <input class="loginBTN" style="width: 25%;" type="submit" name="submit" id="submit" value="Enviar">
+                        <input class="loginBTN" style="width: 25%;" type="button" name="submit-editar" id="submit-editar" value="Enviar">
                     </div>
             </form>
         </div>
     </div>
 </div>
+
+<script>
+const form = document.getElementById('form-editar')
+const modal = document.getElementById('modal-confirmar-accion')
+
+const modalSubmit = document.getElementById('modal-confirmar')
+if (modalSubmit) {
+    modalSubmit.addEventListener('click', evt => {
+        evt.preventDefault();
+        if (form) {
+            console.log(form)
+            form.submit()
+        }
+    })
+}
+
+const botonSubmit = document.getElementById('submit-editar')
+if (botonSubmit) {
+    botonSubmit.addEventListener('click', evt => {
+        if (modal) {
+            modal.showModal()
+        }
+    })
+}
+</script>
 {% endblock %}

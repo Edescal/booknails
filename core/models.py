@@ -59,7 +59,7 @@ class Servicio(models.Model):
                 f"categoria={self.get_categoria_display()}')")
 
 
-class Horario:
+class Horario(models.Model):
     MAÑANA = time(9, 0), '9:00 AM'
     MEDIODIA = time(12, 0), '12:00 PM'
     TARDE = time(16, 0), '4:00 PM'
@@ -67,6 +67,25 @@ class Horario:
     
     choices = [MAÑANA, MEDIODIA, TARDE, NOCHE]
     values = [val[0] for val in choices]
+
+    #--------------------------------------------------------#
+    # hora = models.TimeField(unique=True)
+    # display_name = models.CharField(null=False, max_length=20)
+
+    # class Meta:
+    #     db_table = 'horarios'
+
+
+class HorarioServicio(models.Model):
+    servicio = models.ForeignKey(Servicio, on_delete=models.CASCADE, related_name='horario_disponible')
+    hora = models.TimeField(choices=Horario.choices)
+
+    class Meta:
+        db_table = 'horarios_servicio'
+
+    def __str__(self) -> str:
+        return f'[{self.id}] horario: {self.hora} para [{self.servicio.id}] {self.servicio.nombre}'
+
 
 class Cita(models.Model):
     id = models.AutoField(primary_key=True, blank=True)

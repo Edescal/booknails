@@ -1,7 +1,7 @@
 """
 Django settings for booknails project.
 """
-
+from dotenv import load_dotenv
 from pathlib import Path
 import dj_database_url
 import os
@@ -9,19 +9,15 @@ import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
+load_dotenv(dotenv_path=f'{BASE_DIR}\\.env')
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-32yx!$o!cyuvo*wz#ofn3^u*_(2&&uyjpe4iq1!i36vb9!m3=r')
 
-# SECURITY WARNING: don't run with debug turned on in production!
+SECRET_KEY = os.environ.get('SECRET_KEY')
 DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
-
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS').split(' ')
-# ['127.0.0.1', '192.168.0.14']
 
-# Custom model
+print(ALLOWED_HOSTS)
+
 AUTH_USER_MODEL = 'core.Usuario'
 
 AUTHENTICATION_BACKENDS = [
@@ -29,8 +25,6 @@ AUTHENTICATION_BACKENDS = [
     'core.authentication_backends.UsuarioBackend',
 ]
 
-# SESSION_ENGINE = "django.contrib.sessions.backends.signed_cookies"
-# SESSION_ENGINE = "django.contrib.sessions.backends.db"  # Usa base de datos para sesiones
 SESSION_COOKIE_SECURE = False  # Debe ser False en desarrollo
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # No cerrar sesión al cerrar el navegador
 SESSION_ENGINE = "django.contrib.sessions.backends.db"  # Usar base de datos para sesiones
@@ -39,9 +33,7 @@ SESSION_SAVE_EVERY_REQUEST = True  # Forzar que Django guarde la sesión en cada
 
 X_FRAME_OPTIONS = 'SAMEORIGIN'
 
-
 TOKEN_SALT='a9z834xz'
-# Application definition
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -93,7 +85,6 @@ EMAIL_HOST_USER = "eduardo1582000@gmail.com"
 EMAIL_HOST_PASSWORD = "jzff xmsn ebrc hwnu"  # Usa una contraseña de aplicación en Gmail
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
-
 TAILWIND_APP_NAME = 'theme'
 
 INTERNAL_IPS = [
@@ -110,8 +101,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    # "django_browser_reload.middleware.BrowserReloadMiddleware",
-        'whitenoise.middleware.WhiteNoiseMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
 ROOT_URLCONF = 'booknails.urls'
@@ -144,11 +134,11 @@ WSGI_APPLICATION = 'booknails.wsgi.application'
 # postgresql://booknails_user:SDgulDgRr2XJ8e91RTXgJnaoCLfosyFO@dpg-d0mh55je5dus738h22ag-a.oregon-postgres.render.com/booknails
 
 DATABASES = {
-    'default': {
+    'alt': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
     },
-    'alt': {
+    'default': {
         'ENGINE': 'django.db.backends.mysql',  # Usar el backend de MySQL
         'NAME': 'booknails',  # Nombre de la base de datos
         'USER': 'root',                  # Usuario de MariaDB
@@ -164,6 +154,7 @@ DATABASES = {
 
 database_url = os.environ.get('DATABASE_URL')
 DATABASES['default'] = dj_database_url.parse(database_url)
+print(DATABASES['default'])
 
 
 # Password validation

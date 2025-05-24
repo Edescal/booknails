@@ -134,3 +134,25 @@ def horarios_disponibles(fecha: datetime.date):
     return horarios
 
 
+# Compara los horarios de un servicio con los horarios disponibles de un día
+@api_view(['GET'])
+def horario__disponible_servicio(request, id_servicio, año, mes, dia):
+    # Se obtienen los horarios disponibles asociados al servicio
+    servicio = models.Servicio.objects.filter(id=id_servicio).first()
+    horarios_servicio = servicio.horario_disponible.all()
+
+    # Se obtienen los horarios ocupados de una fecha
+    horarios_citas = models.Cita.objects.filter(
+        fecha_cita__date = date(año, mes, dia) # filtra por la fecha dd/mm/yyyy
+    ).values_list(          # obtiene una lista de las horas ocupadas
+        'fecha_cita__time', # selecciona solo la hora (datetime.time)
+        flat=True,
+    )
+
+    # se devuelven los horarios de servicio que NO han sido ocupados por alguna cita
+    horarios_libres = [horario for horario in horarios_servicio if horario.hora not in horarios_citas]
+    
+    # Se devuelve
+    serializer = serializers.HoraServicioSerializer(horarios_libres, many=True)
+    return Response(serializer.data)
+

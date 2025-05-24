@@ -13,6 +13,8 @@ urlpatterns = [
      path('mes-bloqueado/<int:año>/<int:mes>', views.api_mes_completamente_bloqueado, name='API_bool_mes_bloqueado'),
      
      path('horarios/<int:year>/<int:mes>/<int:dia>', views.api_get_horarios, name='API_get_horarios'),
+
+     path('horarios_servicio_disponibles/<int:id_servicio>/<int:año>/<int:mes>/<int:dia>', views.horario__disponible_servicio, name='API_horarios_servicio'),
 ]
 
 
