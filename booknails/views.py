@@ -70,18 +70,6 @@ def index(request : WSGIRequest):
             crear_servicios()
         except:
             print('WHAT')
-
-    
-    serv = models.Servicio.objects.filter(id=2).first()
-    if serv:
-        print(serv)
-
-    horario, is_new = models.HorarioServicio.objects.get_or_create(
-        servicio = serv,
-        hora = models.Horario.MEDIODIA[0],
-    )
-    print(f'Nuevo: {is_new}\tPrint: {horario}')
-
     
     return render(request, 'index.html')
 
