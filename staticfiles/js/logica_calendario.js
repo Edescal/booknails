@@ -20,7 +20,7 @@ const picker = $('#datepicker').datepicker({
     language: 'es',
     toggleActive:true,
     format: 'yyyy-mm-dd',
-    startDate: new Date(),
+    startDate: new Date(Date.now() + 86400000),
     endDate: new Date(new Date().getFullYear(), new Date().getMonth() + 3, 0),
     datesDisabled: api_fechas_bloqueadas(new Date().getFullYear(), new Date().getMonth() + 1),
 });
@@ -118,7 +118,6 @@ if (inputBotonFecha) {
 if (inputLimpiarFecha) {
     inputLimpiarFecha.addEventListener('click', evt => {
         resetearHorarioServicios()
-        agregarOpcionVacia('Sin asignar')
         inputFecha.value = ''
         inputHorario.value = 'NA'
         picker.datepicker('clearDates')  
@@ -164,6 +163,7 @@ function resetearHorarioServicios() {
 
     borrarHorarios()
     borrarServicios()
+    agregarOpcionVacia('Sin asignar')
 }
 
 function agregarOpcionVacia(mensaje) {
