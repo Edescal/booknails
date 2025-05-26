@@ -39,6 +39,62 @@ def crear_categorias():
         )
         print(f"{'Creado' if nuevo else 'Actualizado'}: {categoria}")
 
+    categoria = models.Categorias.objects.filter(letra='P').first()
+    models.HorarioServicio.objects.get_or_create(
+        categoria=categoria,
+        hora = models.Horario.MAÑANA[0],
+    )
+    models.HorarioServicio.objects.get_or_create(
+        categoria=categoria,
+        hora = models.Horario.MEDIODIA[0],
+    )
+
+    categoria = models.Categorias.objects.filter(letra='M').first()
+    models.HorarioServicio.objects.get_or_create(
+        categoria=categoria,
+        hora = models.Horario.MAÑANA[0],
+    )
+    models.HorarioServicio.objects.get_or_create(
+        categoria=categoria,
+        hora = models.Horario.MEDIODIA[0],
+    )
+
+    categoria = models.Categorias.objects.filter(letra='R').first()
+    models.HorarioServicio.objects.get_or_create(
+        categoria=categoria,
+        hora = models.Horario.MAÑANA[0],
+    )
+    models.HorarioServicio.objects.get_or_create(
+        categoria=categoria,
+        hora = models.Horario.MEDIODIA[0],
+    )
+    models.HorarioServicio.objects.get_or_create(
+        categoria=categoria,
+        hora = models.Horario.TARDE[0],
+    )
+    models.HorarioServicio.objects.get_or_create(
+        categoria=categoria,
+        hora = models.Horario.NOCHE[0],
+    )
+
+    categoria = models.Categorias.objects.filter(letra='F').first()
+    models.HorarioServicio.objects.get_or_create(
+        categoria=categoria,
+        hora = models.Horario.MAÑANA[0],
+    )
+    models.HorarioServicio.objects.get_or_create(
+        categoria=categoria,
+        hora = models.Horario.MEDIODIA[0],
+    )
+    models.HorarioServicio.objects.get_or_create(
+        categoria=categoria,
+        hora = models.Horario.TARDE[0],
+    )
+    models.HorarioServicio.objects.get_or_create(
+        categoria=categoria,
+        hora = models.Horario.NOCHE[0],
+    )
+
 def crear_servicios():
     servicios = [
         (2, 'Acrílicas Tip', 330.00, 'M'),
@@ -78,34 +134,13 @@ def crear_servicios():
 
 
 def index(request : WSGIRequest):
-    # crear_categorias()
-    # categoria = models.Categorias.objects.filter(letra='R').first()
-    # print(categoria)
-
-    # models.HorarioServicio.objects.get_or_create(
-    #     categoria=categoria,
-    #     hora = models.Horario.MAÑANA[0],
-    # )
-    # models.HorarioServicio.objects.get_or_create(
-    #     categoria=categoria,
-    #     hora = models.Horario.MEDIODIA[0],
-    # )
-    # models.HorarioServicio.objects.get_or_create(
-    #     categoria=categoria,
-    #     hora = models.Horario.TARDE[0],
-    # )
-    # models.HorarioServicio.objects.get_or_create(
-    #     categoria=categoria,
-    #     hora = models.Horario.NOCHE[0],
-    # )
+    crear_categorias()
+    crear_servicios()
 
     if models.Usuario.objects.count() == 0:
         print('No hay usuarios activos')
         crear_admin()
-        try:
-            crear_servicios()
-        except:
-            print('WHAT')
+        
     
     return render(request, 'index.html')
 
