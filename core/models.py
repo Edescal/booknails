@@ -23,7 +23,10 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
     def get_full_name(self) -> str:
         return f'{self.nombre} {self.apellidos}'
 
-    def __str__(self) -> str:
+    def __str__(self):
+        return self.get_full_name()
+
+    def __repr__(self) -> str:
         return (f"Usuario(\n\tid={self.id},\n\tusername='{self.username}',\n\temail='{self.email}',\n\t"
                 f"telefono='{self.telefono}',\n\tnombre='{self.get_full_name()}',\n\t"
                 f"fecha_creacion='{self.fecha_creacion}'\n)")
@@ -39,10 +42,10 @@ class Servicio(models.Model):
     id = models.AutoField(primary_key=True, blank=True)
     nombre = models.CharField(max_length=64, null=False)
     precio = models.DecimalField(null=True, decimal_places=2, max_digits=6)
-    categoria = models.CharField(null=True, max_length=2, choices=Categorias.choices, default=Categorias.MANOS)
+    categoria = models.CharField(null=True, max_length=2, choices=Categorias.choices, default=Categorias.NA)
+    habilitado = models.BooleanField(default=True)
 
     class Meta:
-        """Clase especial que usa Django para asociar a la BD"""
         db_table = 'servicios'
 
     def get_categoria(self):
@@ -59,17 +62,28 @@ class Servicio(models.Model):
                 f"categoria={self.get_categoria_display()}')")
 
 
-class Horario(models.Model):
+class Categorias(models.Model):
+    letra = models.CharField(max_length=2, null=False, unique=True)
+    display_name = models.CharField(max_length=50, blank=True, null=False)
+
+    class Meta:
+        db_table = 'categorias'
+    
+    def __str__(self):
+        return self.display_name
+
+class Horario():
+    NA = None, 'Sin asignar'
     MAÑANA = time(9, 0), '9:00 AM'
     MEDIODIA = time(12, 0), '12:00 PM'
     TARDE = time(16, 0), '4:00 PM'
     NOCHE = time(19, 0), '7:00 PM'
     
-    choices = [MAÑANA, MEDIODIA, TARDE, NOCHE]
+    choices = [NA, MAÑANA, MEDIODIA, TARDE, NOCHE]
     values = [val[0] for val in choices]
 
     #--------------------------------------------------------#
-    # hora = models.TimeField(unique=True)
+    # hora = models.TimeField(unique=True, null=True)
     # display_name = models.CharField(null=False, max_length=20)
 
     # class Meta:
@@ -77,14 +91,14 @@ class Horario(models.Model):
 
 
 class HorarioServicio(models.Model):
-    servicio = models.ForeignKey(Servicio, on_delete=models.CASCADE, related_name='horario_disponible')
+    categoria = models.ForeignKey(Categorias, on_delete=models.CASCADE, related_name='horarios_disponibles', null=True)
     hora = models.TimeField(choices=Horario.choices)
 
     class Meta:
         db_table = 'horarios_servicio'
 
     def __str__(self) -> str:
-        return f'[{self.id}] horario: {self.hora} para [{self.servicio.id}] {self.servicio.nombre}'
+        return f'[{self.id}] horario: {self.hora} para [{self.categoria.display_name}]'
 
 
 class Cita(models.Model):

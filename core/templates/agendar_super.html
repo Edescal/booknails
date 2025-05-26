@@ -4,83 +4,147 @@
 {% block title %}Agendar Cita{% endblock %}
 
 {% block body %}
+<dialog id="modal-fecha" tabindex="-1" closedby="any">
+    <div class="modal-content">
+        <div class="card rounded rounded-3 overflow-hidden">
+            <form class="card-header d-flex justify-content-between align-items-center text-white bg-gradient-to-r from-pink-400 via-purple-500 to-blue-500">
+                <h3 class="text-center text-lg font-semibold my-2 text-white">Selecciona una fecha</h3>
+                <button class="btn-close btn-lg btn-close-white" formmethod="dialog"></button>
+            </form>
+            <div class="card-body">
+                <form action="" method="post" novalidate>
+                    <div id="datepicker" data-date="12/03/2012"></div>
+                    
+                    <div class="my-3 text-end">
+                        <input type="submit" value="Cancelar" class="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400" formmethod="dialog">
+                        <input type="button" value="Confirmar" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700" id="modal-confirmar">
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</dialog>
+
 <div class="min-h-screen pt-24 pb-12 px-3 bg-gradient-to-r from-pink-400 via-purple-500 to-blue-500">
     <div class="flex justify-center">
-        <div class="w-full max-w-5xl bg-white/70 backdrop-blur-md rounded-2xl shadow-lg p-6">
-            <h3 class="text-2xl text-center font-bold text-pink-800 mb-2">Agendar cita a una clienta</h3>
+        <div class="w-full max-w-xl bg-white/70 backdrop-blur-md rounded-2xl shadow-lg p-6">
+            <h3 class="text-2xl text-center font-bold text-pink-800 mb-4">Agendar una nueva cita</h3>
             <form action="{% url 'agendar_super' %}" method="post" novalidate>
                 {% csrf_token %}
 
-                {% if messages %}
-                    {% for message in messages %}
-                    <div class="toast align-items-center text-bg-{{ message.tags }} border-0 w-100 my-2" role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="false">
-                        <div class="d-flex">
-                            <div class="toast-body">
-                                <small>{{ message }}</small>
-                            </div>
-                            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close" tabindex="-1"></button>
-                        </div>
-                    </div>
-                    {% endfor %}
-                {% endif %}
+                {% include "macro_form_error.html" %}
 
-                <!-- Sección Cita -->
-                <div class="row d-flex justify-content-center mb-3">
-                    <!-- Calendario (no tocado) -->
-                    <div class="col-sm-12 col-md-6 mt-3">
-                        <div class="bg-white rounded-lg p-4 mb-4 shadow-md">
-                            <h5 class="text-lg text-center font-semibold text-purple-700 mb-4">Selecciona una fecha</h5>
-                            <div id="datepicker" data-date="12/03/2012"></div>
+                <div class="row d-flex justify-content-center mb-3">                    
+                    <!-- Información del usuario -->
+                    <div class="col-sm-12 col-md-12 mt-3">
+                        <div class="bg-white rounded-xl p-4 shadow-md">
+                            <h2 class="text-center text-lg font-semibold text-pink-600 mb-3">
+                                Información del Cliente
+                            </h2>
+
+                            <div class="space-y-4 text-sm text-gray-800">
+                                <div class="form-floating mb-3">
+                                    <select name="cliente" id="{{ form_cliente.cliente.id_for_label }}" class="form-control form-control-sm shadow-sm">
+                                        <option value="">Selecciona una clienta</option>
+                                        {% for usu in form_cliente.fields.cliente.queryset %}
+                                            <option 
+                                            value="{{ usu.id }}"
+                                            data-nombre="{{ usu.get_full_name }}"
+                                            data-email="{{ usu.email }}"
+                                            data-telefono="{{ usu.telefono }}"
+                                            >
+                                            {{ usu.get_full_name }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                    <label for="cliente_cita" class="text-pink-700">{{ form_cliente.cliente.label }}</label>
+                                </div>
+                                <div class="flex items-start">
+                                    <span class="font-semibold w-24">👤 Nombre:</span>
+                                    <span class="flex-1 text-end" id="nombre-template"></span>
+                                </div>
+                                <div class="flex items-start">
+                                    <span class="font-semibold w-24">📞 Teléfono:</span>
+                                    <span class="flex-1 text-end" id="telefono-template"></span>
+                                </div>
+                                <div class="flex items-start">
+                                    <span class="font-semibold w-24">📧 Correo:</span>
+                                    <span class="flex-1 text-end break-all" id="email-template"></span>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
                     <!-- Formulario de la cita -->
-                    <div class="col-sm-12 col-md-6 mt-3">
+                    <div class="col-sm-12 col-md-12 mt-3">
                         <div class="bg-white rounded-xl p-4 shadow-md">
-                            <h5 class="text-lg text-center font-semibold text-purple-700 mb-4">Datos de la cita</h5>
+                            <h5 class="text-lg text-center font-semibold text-pink-600 mb-2">Datos de la cita</h5>
 
-                            <div class="form-floating mb-3">
-                                {{ form_cita.cliente }}
-                                <label for="cliente_cita" class="text-pink-700">{{ form_cita.cliente.label }}</label>
+                            <p class="text-start ms-3 my-2">Elige una fecha en el calendario</p>
+                            <div class="form-floating mb-3 position-relative">
+                                {{ form.fecha_cita }}
+
+                                <!-- Botón Azul -->
+                                <button type="button" id="abrir-datepicker" class="btn btn-sm btn-primary position-absolute top-50 translate-middle-y" style="right: 3rem;">
+                                    <i class="bi bi-pencil-square"></i>
+                                </button>
+                                <!-- Botón Rojo -->
+                                <button type="button" id="resetear-fecha" class="btn btn-sm btn-danger position-absolute top-50 translate-middle-y" style="right: 0.75rem;">
+                                    <i class="bi bi-x-circle"></i>
+                                </button>
+                                <label for="fecha_cita" class="text-pink-700">{{ form.fecha_cita.label }}</label>
                             </div>
 
+                            <p class="text-start ms-3 mb-2">Elige el tipo de servicio</p>
                             <div class="form-floating mb-3">
-                                {{ form_cita.fecha_cita }}
-                                <label for="fecha_cita" class="text-pink-700">{{ form_cita.fecha_cita.label }} </label>
+                                {{ form.categoria }}
+                                <label for="categoria" class="text-pink-700">{{ form.categoria.label }}</label>
                             </div>
 
+                            <p class="text-start ms-3 mb-2">Elige el horario</p>
                             <div class="form-floating mb-3">
-                                {{ form_cita.horario }}
-                                <label for="horario" class="text-pink-700">{{ form_cita.horario.label }}</label>
+                                {{ form.horario }}
+                                <label for="horario" class="text-pink-700">{{ form.horario.label }}</label>
                             </div>
 
-                            <div class="form-floating mb-3">
-                                {{ form_cita.categoria }}
-                                <label for="categoria" class="text-pink-700">{{ form_cita.categoria.label }}</label>
+                            <div class="form-control mb-2 shadow-sm">
+                                <label for="servicios" class="form-label small">{{ form.servicios.label }}</label>
+                                {{ form.servicios }}
                             </div>
 
-                            <div class="form-control mb-3">
-                                <label for="servicios" class="form-label small">{{ form_cita.servicios.label }}</label>
-                                {{ form_cita.servicios }}
+                            <div class="text-center mt-4">
+                                <input class="bg-pink-600 hover:bg-pink-700 text-white font-semibold text-sm px-6 py-2 rounded-full shadow transition-all w-full sm:w-1/2"
+                                    type="submit" value="Registrar cita">
                             </div>
                         </div>
                     </div>
                 </div>
-
-                <!-- Botón -->
-                <div class="text-center">
-                    <input class="bg-pink-600 hover:bg-pink-700 text-white font-semibold text-sm px-6 py-2 rounded-full shadow transition-all w-full sm:w-1/2"
-                        type="submit" value="Registrar cita">
-                </div>
+                
             </form>
         </div>
     </div>
 </div>
+
 {% endblock %}
 
 {% block scripts %}
 <!-- Bootstrap Datepicker CSS y JS -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
-<script defer src="{% static 'js/calendario.js' %}"></script>
+<script defer src="{% static 'js/logica_calendario.js' %}"></script>
+
+<script>
+const listaClientes = document.getElementById("{{ form_cliente.cliente.id_for_label }}")
+const nombreTemplate = document.getElementById('nombre-template')
+const telefonoTemplate = document.getElementById('telefono-template')
+const emailTemplate = document.getElementById('email-template')
+if (listaClientes) {
+    listaClientes.addEventListener('change', evt => {
+        const selected = listaClientes.selectedOptions[0];
+        nombreTemplate.innerText = selected.dataset.nombre ? selected.dataset.nombre : ''
+        telefonoTemplate.innerText = selected.dataset.telefono ? selected.dataset.telefono : ''
+        emailTemplate.innerText = selected.dataset.email ? selected.dataset.email : ''
+    })
+}
+</script>
 {% endblock %}

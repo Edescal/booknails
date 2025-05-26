@@ -12,10 +12,13 @@ $.fn.datepicker.dates['es'] = {
 };
 
 const picker = $('#datepicker').datepicker({
-    language: 'es-419',
+    startView:0,
+    maxViewMode: 0,
+    minViewMode: 0,
+    language: 'es',
     todayHighlight: true,
-    changeMonth: false,
-    changeYear: false,
+    clearBtn: true,
+    todayBtn: true,
     format: 'yyyy-mm-dd',
     startDate: new Date(),
     endDate: new Date(new Date().getFullYear(), new Date().getMonth() + 3, 0),
@@ -38,11 +41,13 @@ picker.on('changeMonth', evt => {
 picker.on('changeDate', function (evt) {
     let data = picker.datepicker('getFormattedDate')
     console.log(`Cambiando fecha y horarios del dia: ${data}`)
-    let input = document.getElementById('id_fecha_cita')
-    if (input) {
-        input.setAttribute('value', data)
-        delHorarios()
-        getHorarios(evt.date.getFullYear(), evt.date.getMonth(), evt.date.getDate())
+    if (data !== '') {
+        let input = document.getElementById('id_fecha_cita')
+        if (input) {
+            input.setAttribute('value', data)
+            delHorarios()
+            getHorarios(evt.date.getFullYear(), evt.date.getMonth(), evt.date.getDate())
+        }
     }
 });
 /* Para modificar los estilos del calendario */

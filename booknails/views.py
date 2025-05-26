@@ -24,6 +24,21 @@ def crear_admin():
         user.set_password('password')
         user.save()
 
+def crear_categorias():
+    categorias = [
+        (1, 'M', 'Manos'),
+        (2, 'F', 'Full Set Francesas/Baby Boomer'),
+        (3, 'P', 'Pies'),
+        (4, 'R', 'Retiro'),
+    ]
+    for id, letra, display in categorias:
+        categoria, nuevo = models.Categorias.objects.update_or_create(
+            id = id,
+            letra = letra,
+            display_name = display
+        )
+        print(f"{'Creado' if nuevo else 'Actualizado'}: {categoria}")
+
 def crear_servicios():
     servicios = [
         (2, 'Acrílicas Tip', 330.00, 'M'),
@@ -63,6 +78,27 @@ def crear_servicios():
 
 
 def index(request : WSGIRequest):
+    # crear_categorias()
+    # categoria = models.Categorias.objects.filter(letra='R').first()
+    # print(categoria)
+
+    # models.HorarioServicio.objects.get_or_create(
+    #     categoria=categoria,
+    #     hora = models.Horario.MAÑANA[0],
+    # )
+    # models.HorarioServicio.objects.get_or_create(
+    #     categoria=categoria,
+    #     hora = models.Horario.MEDIODIA[0],
+    # )
+    # models.HorarioServicio.objects.get_or_create(
+    #     categoria=categoria,
+    #     hora = models.Horario.TARDE[0],
+    # )
+    # models.HorarioServicio.objects.get_or_create(
+    #     categoria=categoria,
+    #     hora = models.Horario.NOCHE[0],
+    # )
+
     if models.Usuario.objects.count() == 0:
         print('No hay usuarios activos')
         crear_admin()

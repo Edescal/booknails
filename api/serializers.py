@@ -6,6 +6,7 @@ al usar @api_view(['GET']) en views.py
 from rest_framework import serializers
 from rest_framework.response import Response
 from core import models, utils
+import datetime
 
 class CitaSerializer(serializers.ModelSerializer):
     # fecha en tiempo unix
@@ -70,6 +71,11 @@ class HoraBloqueadasSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class HoraServicioSerializer(serializers.ModelSerializer):
+    hora_string = serializers.SerializerMethodField()
+
     class Meta:
         model = models.HorarioServicio
         fields = '__all__'
+
+    def get_hora_string(self, obj : models.HorarioServicio):
+        return datetime.time.strftime(obj.hora, '%I:%M %p')

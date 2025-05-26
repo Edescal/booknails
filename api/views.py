@@ -49,10 +49,12 @@ def api_get_servicios_cat(request, categoria : str):
     if models.Servicio.objects.count() == 0:
         return Response({'error':'No se encontraron servicios disponibles.'})
     elif categoria.upper() in dict(models.Servicio.Categorias.choices):
+
         print(f'Sí se encuentra {categoria.upper()} en Categorias')
         servicios = models.Servicio.objects.filter(categoria=categoria.upper()).values()
         serializer = serializers.ServicioSerializer(servicios, many=True)
         return Response(serializer.data)
+    
     return Response({'error':'No se encontraron servicios disponibles.'})
 
 @api_view(['GET'])
@@ -136,10 +138,16 @@ def horarios_disponibles(fecha: datetime.date):
 
 # Compara los horarios de un servicio con los horarios disponibles de un día
 @api_view(['GET'])
-def horario__disponible_servicio(request, id_servicio, año, mes, dia):
+def horario__disponible_servicio(request, id_categoria, año, mes, dia):
     # Se obtienen los horarios disponibles asociados al servicio
-    servicio = models.Servicio.objects.filter(id=id_servicio).first()
-    horarios_servicio = servicio.horario_disponible.all()
+    categoria = models.Categorias.objects.filter(id=id_categoria).first()
+    if not categoria:
+        return Response(None)
+
+    print(f'Categoría consultada: {categoria}')
+    print(f'Horarios asociados:')
+    for horario in categoria.horarios_disponibles.all():
+        print(horario.hora)
 
     # Se obtienen los horarios ocupados de una fecha
     horarios_citas = models.Cita.objects.filter(
@@ -149,10 +157,23 @@ def horario__disponible_servicio(request, id_servicio, año, mes, dia):
         flat=True,
     )
 
+    print(f'Horarios de las citas del día {date(año, mes, dia)}')
+    for horario in horarios_citas:
+        print(horario)
+
     # se devuelven los horarios de servicio que NO han sido ocupados por alguna cita
-    horarios_libres = [horario for horario in horarios_servicio if horario.hora not in horarios_citas]
+    horarios_libres = [horario for horario in categoria.horarios_disponibles.all() if horario.hora not in horarios_citas]
+    print(horarios_libres)
     
-    # Se devuelve
+    # Se devuelve en json los horarios disponibles del servicio
     serializer = serializers.HoraServicioSerializer(horarios_libres, many=True)
     return Response(serializer.data)
 
+@api_view(['GET'])
+def api_lista_servicios(request, categoria):
+    tipo = models.Categorias.objects.filter(id=categoria).first()
+    if tipo:
+        servicios = models.Servicio.objects.filter(categoria=tipo.letra)
+        serializer = serializers.ServicioSerializer(servicios, many=True)
+        return Response(serializer.data)
+    return Response('pene')

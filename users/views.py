@@ -57,29 +57,32 @@ CREAR CITA
 """
 @login_required
 def agendar_cita(request : HttpRequest):
-    cliente = request.user
+    # el superusuario no puede agendar citas propias
+    if request.user.is_superuser:
+        return redirect('agendar_super')
+
     if request.method == 'POST':
-        form = forms.CitasForm(cliente, request.POST)
+        form = forms.CitasForm(request.POST)
         if form.is_valid():
-            cita = form.to_cita()
+            cita = form.to_cita(request.user)
             if cita:
                 messages.success(
                     request=request, 
                     message=f"Se agendó una cita para el {cita.fecha_cita.strftime('%Y/%m/%d con horario de %I:%M %p.')}"
                 )
-                notificacion = services.Notificacion(cliente)
+                notificacion = services.Notificacion(request.user)
                 if notificacion.enviar_confirmacion(cita):
                     messages.success(
                         request=request, 
-                        message=f'Se envió un correo de confirmación a {cliente.email}'
+                        message=f'Se envió un correo de confirmación a {request.user.email}'
                     )
                 else:
-                    print(f'No se pudo enviar un email de confirmación a {cliente.email}.')
+                    print(f'No se pudo enviar un email de confirmación a {request.user.email}.')
                 return redirect('agendar_cita')
         else:
             form.show_errors(request)
     elif request.method == 'GET':
-        form : forms.CitasForm = forms.CitasForm(cliente=cliente)
+        form : forms.CitasForm = forms.CitasForm()
 
     fechas_bloqueadas = None
     form.fields['servicios'].queryset = models.Servicio.objects.none()
@@ -91,45 +94,52 @@ def agendar_cita(request : HttpRequest):
 """
 CREAR CITA COMO SUPERUSUARIO
 """
-
+@login_required
 def agendar_super(request: HttpRequest):
+    if not request.user.is_superuser:
+        return redirect('home')
+
     if request.method == 'POST':
-        form_cita = forms.CitasDueñaForm(request.POST)
-        if form_cita.is_valid():
-            cliente = form_cita.cleaned_data['cliente']
-            form_cita.cliente = cliente
-            cita = form_cita.to_cita()
-            if cita:
+        form = forms.CitasForm(request.POST)
+        form_cliente = forms.ElegirUsuarioForm(request.POST)
+        if form_cliente.is_valid() and form.is_valid():
+            cliente = form_cliente.cleaned_data['cliente']
+            cita_generada = form.to_cita(cliente)
+            if cita_generada:
                 messages.success(
                     request=request, 
-                    message=f"Se agendó una cita para el {cita.fecha_cita.strftime('%Y/%m/%d con horario de %I:%M %p.')}"
+                    message=f"Se agendó una cita para el {cita_generada.fecha_cita.strftime('%Y/%m/%d con horario de %I:%M %p.')}"
                 )
                 notificacion = services.Notificacion(cliente)
-                if notificacion.enviar_confirmacion(cita):
+                if notificacion.enviar_confirmacion(cita_generada):
                     messages.success(
                         request=request, 
                         message=f'Se envió un correo de confirmación a {cliente.email}'
                     )
                 else:
                     print(f'No se pudo enviar un email de confirmación a {cliente.email}.')
+
                 return redirect('agendar_super')
         else:
-            form_cita.show_errors(request)
+            form.show_errors(request)
+            form_cliente.show_errors(request)
     elif request.method == 'GET':
-        form_cita = forms.CitasDueñaForm()
+        form = forms.CitasForm()
+        form_cliente = forms.ElegirUsuarioForm()    
 
-    fechas_bloqueadas = None
-    form_cita.fields['servicios'].queryset = models.Servicio.objects.none()
     return render(request, 'agendar_super.html', {
-        'form_cita': form_cita,
-        'fechas_bloqueadas':fechas_bloqueadas,
+        'form':form,
+        'form_cliente': form_cliente,
     })
 
 """
 REGISTRAR CUENTA Y CITA A LA MISMA VEZ (SUPER USUARIO)
 """
-
+@login_required
 def registro_y_cita(request: HttpRequest):
+    if not request.user.is_superuser:
+        return redirect('home')
+    
     if request.method == 'POST':
         form_registro = forms.RegistroForm(request.POST)
         form_cita = forms.CitasForm(None, request.POST)
@@ -171,13 +181,11 @@ def registro_y_cita(request: HttpRequest):
         form_registro = forms.RegistroForm()
         form_cita = forms.CitasForm(None)
 
-    fechas_bloqueadas = None
     form_cita.fields['servicios'].queryset = models.Servicio.objects.none()
 
     return render(request, 'registro_y_cita.html', {
         'form_registro': form_registro,
         'form_cita': form_cita,
-        'fechas_bloqueadas': fechas_bloqueadas,
     })
 
 """

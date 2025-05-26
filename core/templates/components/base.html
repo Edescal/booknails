@@ -13,7 +13,6 @@
 
     <!-- Ícono del navegador -->
     <link rel="icon" href="{% static 'img/favicon.ico' %}" type="image/x-icon">
-    <link rel="stylesheet" href="{% static '/css/styles.css' %}?v={{ timestamp }}">
     <!-- CSS personalizado -->
     <link rel="stylesheet" href="{% static '/css/custom.css' %}">
 
@@ -33,7 +32,8 @@
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
 
     <!-- Google Fonts: Poppins -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;300;400;500;600;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;300;400;500;600;700;900&display=swap"
+        rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
@@ -46,40 +46,76 @@
 <body class="body font-[Poppins] bg-gray-100 text-gray-800">
     {% load template_tags %}
 
-<nav class="fixed top-0 left-0 w-full z-50 bg-pink-200/60 backdrop-blur-lg border-b border-pink-300 shadow-md">
-  <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+    <nav class="fixed top-0 left-0 w-full z-50 bg-pink-200/60 backdrop-blur-lg border-b border-pink-300 shadow-md">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+            <!-- Logo -->
+            <a href="/" class="text-pink-700 text-2xl font-extrabold tracking-wide">BookNails</a>
 
-    <!-- Logo o título -->
-    <a href="/" class="text-pink-700 text-2xl font-extrabold tracking-wide">BookNails</a>
+            <!-- Botón hamburguesa (solo móvil) -->
+            <button id="menu-btn" class="md:hidden text-pink-700 focus:outline-none text-3xl">
+                ☰
+            </button>
 
-    <!-- Links -->
-    <div class="hidden md:flex items-center space-x-6">
-      {% if user.is_authenticated %}
-      <a href="{% url 'auth_perfil' %}" class="text-pink-900 hover:text-pink-600 font-medium">Mi perfil</a>
-      {% endif %}
-      
-      {% if user.is_superuser %}
-        <a href="{% url 'ver_agenda' %}" class="text-pink-900 hover:text-pink-600 font-medium">Agenda</a>
-        <a href="{% url 'bloquear_fechas_get' %}" class="text-pink-900 hover:text-pink-600 font-medium">Bloquear fechas</a>
-        <a href="{% url 'agendar_super' %}" class="text-pink-900 hover:text-pink-600 font-medium">Agendar cita</a>
-        <a href="{% url 'registro_y_cita' %}" class="text-pink-900 hover:text-pink-600 font-medium">Registrar clienta</a>
-      {% elif user.is_authenticated and not user.is_superuser %}
-        <a href="{% url 'ver_mis_citas' %}" class="text-pink-900 hover:text-pink-600 font-medium">Mis citas</a>
-        <a href="{% url 'auth_editar_usuario' %}" class="text-pink-900 hover:text-pink-600 font-medium">Editar datos</a>
-        <a href="{% url 'agendar_cita' %}" class="text-pink-900 hover:text-pink-600 font-medium">Agendar cita</a>
-      {% endif %}
-      {% if user.is_authenticated %}
-      <a href="{% url 'auth_logout' %}" class="text-red-500 hover:text-red-700 font-semibold">Cerrar sesión</a>
-      {% endif %}
-      {% if request.resolver_match.url_name != 'home' %}
-        <a href="/" class="text-pink-800 hover:text-pink-600"></a>
-      {% endif %}
-    </div>
-  </div>
-</nav>
+            <!-- Menú escritorio (horizontal, visible solo md+) -->
+            <div class="hidden md:flex space-x-6 items-center">
+                {% if user.is_authenticated %}
+                <a href="{% url 'auth_perfil' %}" class="text-pink-900 hover:text-pink-600 font-medium">Mi perfil</a>
+                {% endif %}
+
+                {% if user.is_superuser %}
+                <a href="{% url 'ver_agenda' %}" class="text-pink-900 hover:text-pink-600 font-medium">Agenda</a>
+                <a href="{% url 'bloquear_fechas_get' %}" class="text-pink-900 hover:text-pink-600 font-medium">Bloquear
+                    fechas</a>
+                <a href="{% url 'agendar_super' %}" class="text-pink-900 hover:text-pink-600 font-medium">Agendar
+                    cita</a>
+                <a href="{% url 'registro_y_cita' %}" class="text-pink-900 hover:text-pink-600 font-medium">Registrar
+                    clienta</a>
+                {% elif user.is_authenticated %}
+                <a href="{% url 'ver_mis_citas' %}" class="text-pink-900 hover:text-pink-600 font-medium">Mis citas</a>
+                <a href="{% url 'auth_editar_usuario' %}" class="text-pink-900 hover:text-pink-600 font-medium">Editar
+                    datos</a>
+                <a href="{% url 'agendar_cita' %}" class="text-pink-900 hover:text-pink-600 font-medium">Agendar
+                    cita</a>
+                {% endif %}
+
+                {% if user.is_authenticated %}
+                <a href="{% url 'auth_logout' %}" class="text-red-500 hover:text-red-700 font-semibold">Cerrar
+                    sesión</a>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Menú desplegable SOLO EN MÓVIL -->
+        <div id="menu-items" class="hidden flex-col bg-pink-100 md:hidden space-y-2 px-4 py-4">
+            {% if user.is_authenticated %}
+            <a href="{% url 'auth_perfil' %}" class="text-pink-900 hover:text-pink-600 font-medium block">Mi perfil</a>
+            {% endif %}
+
+            {% if user.is_superuser %}
+            <a href="{% url 'ver_agenda' %}" class="text-pink-900 hover:text-pink-600 font-medium block">Agenda</a>
+            <a href="{% url 'bloquear_fechas_get' %}"
+                class="text-pink-900 hover:text-pink-600 font-medium block">Bloquear fechas</a>
+            <a href="{% url 'agendar_super' %}" class="text-pink-900 hover:text-pink-600 font-medium block">Agendar
+                cita</a>
+            <a href="{% url 'registro_y_cita' %}" class="text-pink-900 hover:text-pink-600 font-medium block">Registrar
+                clienta</a>
+            {% elif user.is_authenticated %}
+            <a href="{% url 'ver_mis_citas' %}" class="text-pink-900 hover:text-pink-600 font-medium block">Mis
+                citas</a>
+            <a href="{% url 'auth_editar_usuario' %}" class="text-pink-900 hover:text-pink-600 font-medium block">Editar
+                datos</a>
+            <a href="{% url 'agendar_cita' %}" class="text-pink-900 hover:text-pink-600 font-medium block">Agendar
+                cita</a>
+            {% endif %}
+
+            {% if user.is_authenticated %}
+            <a href="{% url 'auth_logout' %}" class="text-red-500 hover:text-red-700 font-semibold block">Cerrar
+                sesión</a>
+            {% endif %}
+        </div>
+    </nav>
     {% block outbody %}{% endblock %}
-
-    <div >
+    <div>
         {% block body %}{% endblock %}
     </div>
 
@@ -106,9 +142,6 @@
         </div>
     </footer>
 
-</body>
-</html>
-
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
         integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
         crossorigin="anonymous"></script>
@@ -122,8 +155,17 @@
             const toast = bootstrap.Toast.getOrCreateInstance(element).show()
         })
     </script>
+    <script>
+        const btn = document.getElementById('menu-btn');
+        const menu = document.getElementById('menu-items');
+
+        btn.addEventListener('click', () => {
+            menu.classList.toggle('hidden');
+        });
+    </script>
     {% block scripts %}
 
     {% endblock %}
 </body>
+
 </html>

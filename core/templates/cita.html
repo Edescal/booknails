@@ -4,79 +4,107 @@
 {% block title %}Agendar una cita{% endblock %}
 
 {% block body %}
+<dialog id="modal-fecha" tabindex="-1" closedby="any">
+    <div class="modal-content">
+        <div class="card rounded rounded-3 overflow-hidden">
+            <form class="card-header d-flex justify-content-between align-items-center text-white bg-gradient-to-r from-pink-400 via-purple-500 to-blue-500">
+                <h3 class="text-center text-lg font-semibold my-2 text-white">Selecciona una fecha</h3>
+                <button class="btn-close btn-lg btn-close-white" formmethod="dialog"></button>
+            </form>
+            <div class="card-body">
+                <form action="" method="post" novalidate>
+                    <div id="datepicker" data-date="12/03/2012"></div>
+                    
+                    <div class="my-3 text-end">
+                        <input type="submit" value="Cancelar" class="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400" formmethod="dialog">
+                        <input type="button" value="Confirmar" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700" id="modal-confirmar">
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</dialog>
+
+
 <div class="min-h-screen pt-24 pb-12 px-3 bg-gradient-to-r from-pink-400 via-purple-500 to-blue-500">
     <div class="flex justify-center">
-        <div class="w-full max-w-5xl bg-white/70 backdrop-blur-md rounded-2xl shadow-lg p-6">
+        <div class="w-full max-w-xl bg-white/70 backdrop-blur-md rounded-2xl shadow-lg p-6">
             <h3 class="text-2xl text-center font-bold text-pink-800 mb-2">Agendar una nueva cita</h3>
             <form action="{% url 'agendar_cita' %}" method="post" novalidate>
                 {% csrf_token %}
 
-                <!-- Sección Cita -->
-                <div class="row d-flex justify-content-center mb-3">
-                    <p class="text-center text-gray-700 font-medium mb-3">Estos datos serán compartidos para registrar tu cita:</p>
-                    <div class="col-12">
-                    <div class="bg-white rounded-xl p-4">
-                    <table class="w-full text-sm text-left text-gray-700">
-                        <tbody>
-                            <tr class="bg-pink-100">
-                                <th class="py-2 px-4 font-semibold">Nombre:</th>
-                                <td class="py-2 px-4">{{ form.cliente.get_full_name }}</td>
-                            </tr>
-                            <tr class="bg-pink-100">
-                                <th class="py-2 px-4 font-semibold bg-pink-100">Teléfono:</th>
-                                <td class="py-2 px-4">{{ form.cliente.telefono }}</td>
-                            </tr>
-                            <tr class="bg-pink-100">
-                                <th class="py-2 px-4 font-semibold">Correo:</th>
-                                <td class="py-2 px-4">{{ form.cliente.email }}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    </div>
-                    </div>
-                    <!-- Calendario (no tocado) -->
-                    <div class="col-sm-12 col-md-6 mt-3">
-                        <div class="bg-white rounded-lg p-4 mb-4 shadow-md">
-                            <h5 class="text-lg text-center font-semibold text-pink-600 mb-4">Selecciona una fecha</h5>
-                            <div id="datepicker" data-date="12/03/2012"></div>
+                <div class="row d-flex justify-content-center mb-3">                    
+                    <!-- Información del usuario -->
+                    <div class="col-sm-12 col-md-12 mt-3">
+                        <div class="bg-white rounded-xl p-4 shadow-md">
+                            <h2 class="text-center text-lg font-semibold text-pink-600 mb-4">
+                                Información del Cliente
+                            </h2>
+
+                            <div class="space-y-4 text-sm text-gray-800">
+                                <div class="flex items-start">
+                                    <span class="font-semibold w-24">👤 Nombre:</span>
+                                    <span class="flex-1 text-end">{{ user.get_full_name }}</span>
+                                </div>
+                                <div class="flex items-start">
+                                    <span class="font-semibold w-24">📞 Teléfono:</span>
+                                    <span class="flex-1 text-end">{{ user.telefono }}</span>
+                                </div>
+                                <div class="flex items-start">
+                                    <span class="font-semibold w-24">📧 Correo:</span>
+                                    <span class="flex-1 text-end break-all">{{ user.email }}</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
                     <!-- Formulario de la cita -->
-                    <div class="col-sm-12 col-md-6 mt-3">
+                    <div class="col-sm-12 col-md-12 mt-3">
                         <div class="bg-white rounded-xl p-4 shadow-md">
-                            <h5 class="text-lg text-center font-semibold text-pink-600 mb-4">Datos de la cita</h5>
+                            <h5 class="text-lg text-center font-semibold text-pink-600 mb-2">Datos de la cita</h5>
 
                             {% include "macro_form_error.html" %}
 
-                            <div class="form-floating mb-3">
+                            <p class="text-start ms-3 my-2">Elige una fecha en el calendario</p>
+                            <div class="form-floating mb-3 position-relative">
                                 {{ form.fecha_cita }}
-                                <label for="fecha_cita" class="text-pink-700">{{ form.fecha_cita.label }} </label>
+
+                                <!-- Botón Azul -->
+                                <button type="button" id="abrir-datepicker" class="btn btn-sm btn-primary position-absolute top-50 translate-middle-y" style="right: 3rem;">
+                                    <i class="bi bi-pencil-square"></i>
+                                </button>
+                                <!-- Botón Rojo -->
+                                <button type="button" id="resetear-fecha" class="btn btn-sm btn-danger position-absolute top-50 translate-middle-y" style="right: 0.75rem;">
+                                    <i class="bi bi-x-circle"></i>
+                                </button>
+                                <label for="fecha_cita" class="text-pink-700">{{ form.fecha_cita.label }}</label>
                             </div>
 
-                            <div class="form-floating mb-3">
-                                {{ form.horario }}
-                                <label for="horario" class="text-pink-700">{{ form.horario.label }}</label>
-                            </div>
-
+                            <p class="text-start ms-3 mb-2">Elige el tipo de servicio</p>
                             <div class="form-floating mb-3">
                                 {{ form.categoria }}
                                 <label for="categoria" class="text-pink-700">{{ form.categoria.label }}</label>
                             </div>
 
-                            <div class="form-control mb-3">
+                            <p class="text-start ms-3 mb-2">Elige el horario</p>
+                            <div class="form-floating mb-3">
+                                {{ form.horario }}
+                                <label for="horario" class="text-pink-700">{{ form.horario.label }}</label>
+                            </div>
+
+                            <div class="form-control mb-2 shadow-sm">
                                 <label for="servicios" class="form-label small">{{ form.servicios.label }}</label>
                                 {{ form.servicios }}
+                            </div>
+
+                            <div class="text-center mt-4">
+                                <input class="bg-pink-600 hover:bg-pink-700 text-white font-semibold text-sm px-6 py-2 rounded-full shadow transition-all w-full sm:w-1/2"
+                                    type="submit" value="Registrar cita">
                             </div>
                         </div>
                     </div>
                 </div>
-
-                <!-- Botón -->
-                <div class="text-center">
-                    <input class="bg-pink-600 hover:bg-pink-700 text-white font-semibold text-sm px-6 py-2 rounded-full shadow transition-all w-full sm:w-1/2"
-                        type="submit" value="Registrar cita">
-                </div>
+                
             </form>
         </div>
     </div>
@@ -87,5 +115,5 @@
 <!-- Bootstrap Datepicker CSS y JS -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
-<script defer src="{% static 'js/calendario.js' %}"></script>
+<script defer src="{% static 'js/logica_calendario.js' %}"></script>
 {% endblock %}

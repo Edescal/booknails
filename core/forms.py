@@ -19,12 +19,15 @@ class FormBase(forms.Form):
                 field.widget.attrs.update({'class': field.widget.attrs.get('class', '') + ' invalid:border-pink-500 invalid:text-pink-600 focus:border-sky-500 focus:outline focus:outline-sky-500 focus:invalid:border-pink-500 focus:invalid:outline-pink-500 disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-500 disabled:shadow-none dark:disabled:border-gray-700 dark:disabled:bg-gray-800/20'})
                 
     def show_errors(self, request):
-        print('Errores del formulario')
-        for field, errors in self.errors.items():
-            for error in errors:
-                print(f'Error: {error}\tField: {field}')
-                if request:
-                    messages.error(request=request, message=error, extra_tags=field)
+        if not self.errors:
+            print('No hay errores en este formulario')
+        else:
+            print('Errores del formulario')
+            for field, errors in self.errors.items():
+                for error in errors:
+                    print(f'Error: {error}\tField: {field}')
+                    if request:
+                        messages.error(request=request, message=error, extra_tags=field)
         
 
 class RegistroForm(FormBase):
@@ -203,7 +206,6 @@ class LoginForm(FormBase):
 
 class CitasForm(FormBase):
     cita : models.Cita = None
-    cliente : models.Usuario = None
     fecha_cita = forms.DateField(
         label='Selecciona el día: ',
         input_formats=['%Y-%m-%d', '%d-%m-%Y'],
@@ -215,10 +217,11 @@ class CitasForm(FormBase):
             'readonly': True,
         }),
     )
-    categoria = forms.ChoiceField(
+    categoria = forms.ModelChoiceField(
         label='Categoría',
-        choices=models.Servicio.Categorias.choices,
-        required=True,
+        empty_label='Sin asignar',
+        queryset=models.Categorias.objects.all(),
+        required=False,
         widget=forms.Select(
             attrs={'class': "form-control form-control-sm shadow-sm",}
         )
@@ -241,6 +244,12 @@ class CitasForm(FormBase):
         )
     )
 
+    def clean_categoria(self):
+        categoria = self.cleaned_data['categoria']
+        if not categoria:
+            raise ValidationError('No se seleccionó una categoría de servicios.')
+        return categoria
+
     def clean_fecha_cita(self):
         fecha = self.cleaned_data.get('fecha_cita')
         if not fecha:
@@ -254,17 +263,24 @@ class CitasForm(FormBase):
     def clean_horario(self):
         fecha = self.cleaned_data.get('fecha_cita')
         horario = self.cleaned_data.get('horario')
-        if self.cliente:
-            duplicated = models.Cita.objects.filter(
-                cliente=self.cliente, 
-                fecha_cita__date=fecha,
-                fecha_cita__time=horario
-            ).exists()
-            if duplicated:
-                raise ValidationError('Ya hay una cita para ese mismo día y horario.')
+        if not horario:
+            raise ValidationError('No eligió un horario válido.')
+
+        duplicated = models.Cita.objects.filter(
+            fecha_cita__date=fecha,
+            fecha_cita__time=horario
+        ).exists()
+
+        if duplicated:
+            raise ValidationError('Ya hay una cita para ese mismo día y horario.')
+
         return horario
     
     def clean_servicios(self):
+        categoria = self.cleaned_data.get('categoria', None)
+        if not categoria:
+            return None
+
         servicios = self.cleaned_data.get('servicios')
         if not servicios:
             raise ValidationError('Elige al menos un servicio para tu cita.')
@@ -273,13 +289,16 @@ class CitasForm(FormBase):
             print(servicio)
         return servicios
     
-    def to_cita(self):
+    def to_cita(self, cliente : models.Usuario):
         try:
+            if not cliente:
+                raise IntegrityError('Cliente nulo')
+
             fulldate = f"{self.cleaned_data['fecha_cita']} {self.cleaned_data['horario']}"
             dateobj = datetime.datetime.strptime(fulldate, '%Y-%m-%d %H:%M:%S')
             cita = models.Cita()
             cita.fecha_cita = dateobj
-            cita.cliente = self.cliente
+            cita.cliente = cliente
             cita.fecha_creacion = datetime.datetime.now()
 
             cita.save()
@@ -290,8 +309,7 @@ class CitasForm(FormBase):
         except IntegrityError as e:
            return None
 
-    def __init__(self, cliente : models.Usuario, *args, **kwargs):
-        self.cliente = cliente
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
 class CitasDueñaForm(FormBase):
@@ -302,7 +320,6 @@ class CitasDueñaForm(FormBase):
         required=True,
         widget=forms.Select(attrs={'class': "form-control form-control-sm shadow-sm"})
     )
-
     fecha_cita = forms.DateField(
         label='Selecciona el día: ',
         input_formats=['%Y-%m-%d', '%d-%m-%Y'],
@@ -446,6 +463,22 @@ class ComprobanteForm(FormBase):
                 raise ValidationError('Tipos de archivo permitidos: [PDF, JPEG, JPG, PNG, WEBP]') 
             return file
         raise ValidationError('No se envió ningún archivo')
+
+
+class ElegirUsuarioForm(FormBase):
+    cliente = forms.ModelChoiceField(
+        queryset=models.Usuario.objects.exclude(is_superuser=True),
+        empty_label="Selecciona una clienta",
+        required=False,
+        widget=forms.Select(attrs={'class': "form-control form-control-sm shadow-sm"})
+    )
+
+    def clean_cliente(self):
+        usuario = self.cleaned_data.get('cliente', None)
+        if not usuario:
+            raise ValidationError('No elegiste un usuario válido.')
+        print(f'Elegir Usuario Form: {usuario!r}')
+        return usuario
 
 
 """
