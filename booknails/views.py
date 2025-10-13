@@ -7,7 +7,6 @@ from django.conf import settings
 import datetime, logging
 from core import services, models
 
-
 def crear_admin():
     user, new_instance = models.Usuario.objects.get_or_create(
         username = 'admin'
@@ -43,10 +42,6 @@ def menu(request : WSGIRequest):
         'usuario':request.user,
         'cita':cita
     }))
-    # if notificacion.enviar_confirmacion():
-    #     logging.info('Se envió un correo exitosamente')
-    # else:
-    #     logging.error('No se envió el correo')
 
     return render(request, 'index.html')
 

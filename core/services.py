@@ -6,13 +6,8 @@ from django.conf import settings
 from smtplib import SMTPRecipientsRefused, SMTPException
 from . import models
 from api import serializers
-
 from cryptography.fernet import Fernet
-
 import secrets, logging
-
-# key = Fernet.generate_key()
-# print(key)
 
 fernet = Fernet(b'LgSAckJzkYiTVkvdI5JuoUlRCIlw9b4JOa4HCOwuBHs=')
 

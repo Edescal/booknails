@@ -8,9 +8,7 @@ from rest_framework.response import Response
 from core import models, utils
 
 class CitaSerializer(serializers.ModelSerializer):
-    # fecha en tiempo unix
     unix_timestamp = serializers.SerializerMethodField()
-    # obtener el objeto del cliente
     cliente = serializers.SerializerMethodField()
     servicios = serializers.SerializerMethodField()
     precio = serializers.SerializerMethodField()
@@ -50,7 +48,6 @@ class ServicioSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class FechaBloqueadaSerializer(serializers.ModelSerializer):
-    # fecha en tiempo unix
     unix_timestamp = serializers.SerializerMethodField()
     dia_entero_bloqueado = serializers.SerializerMethodField()
     

@@ -1,51 +1,68 @@
-{% extends "base.html" %}
+{% extends "components/base.html" %}
 {% load static %}
+
 {% block title %}Cita agendada exitosamente{% endblock %}
-{% block nav %}
-<ul class="nav nav-pills" id="navIndex">
-    <li>
-    <a class="btnNav" href="{% url 'auth_index' %}">
-      Regresar a Inicio
-    </a>
-    </li>
-  </ul>
-{% endblock %}
+
+{# El block nav de este template es opcional; el base ya muestra la navbar #}
+{% block nav %}{% endblock %}
 
 {% block body %}
-    <div class="background" style="background: url('/static/img/fondo.png') no-repeat center center/cover;">
-        <div class="loginContainer" style="width: 26rem;">
-            <div class="loginBox">
+<div class="pt-24 pb-12 px-3">
+  <div class="w-full max-w-xl mx-auto bg-white/80 backdrop-blur rounded-2xl shadow-lg p-6">
 
-                <h2 class="loginT">AGENDASTE UNA CITA</h2>
-                
-                <div class="card mb-3">
-                    <div class="card-header">
-                        <h4>Datos:</h4>
-                    </div>
-                    <div class="card-body">
-                        <div>
-                            <p>Cita de: {{ cita.cliente.get_full_name }}</p>
-                    <small>
-                        Hora: {{ cita.fecha_cita }}
-                    </small>
-                        </div>
-                        <hr>
-                        Seleccionaste los siguientes servicios:
-                        {% for servicio in cita.servicios.all %}
-                        <div class="ms-4">
-                            <small class="text-start">{{forloop.counter}}.  {{servicio.nombre}} ${{servicio.precio}}</small>
-                        </div>
-                        {% endfor %}
-                    </div>
-                    <div class="card-footer">
-                        <small>
-                            Fecha de registro: {{ cita.fecha_creacion }}
-                        </small>
-                    </div>
-                </div>
-
-                <a class="text-center mt-2" href="{% url 'home' %}">Regresar al inicio</a>
-            </div>
-        </div>
+    <div class="flex items-center gap-3 mb-4">
+      <svg class="w-8 h-8 text-slate-900" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2" />
+      </svg>
+      <h2 class="text-2xl font-bold text-slate-800">¡Agendaste una cita!</h2>
     </div>
+    <p class="text-slate-600 mb-6">Tu cita se registró correctamente. Aquí tienes el resumen.</p>
+
+    <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
+      <div class="px-5 py-3 border-b border-slate-200">
+        <h4 class="text-lg font-semibold text-slate-800">Datos</h4>
+      </div>
+      <div class="px-5 py-4">
+        <div class="mb-3">
+          <p class="text-slate-900">
+            <span class="font-medium">Cita de:</span>
+            {{ cita.cliente.get_full_name }}
+          </p>
+          <small class="text-slate-600">
+            Hora: {{ cita.fecha_cita }}
+          </small>
+        </div>
+
+        <hr class="my-4 border-slate-200">
+
+        <p class="text-slate-800 mb-2">Seleccionaste los siguientes servicios:</p>
+        {% if cita.servicios.all %}
+          <ul class="list-decimal pl-5 space-y-1">
+            {% for servicio in cita.servicios.all %}
+              <li class="text-sm text-slate-700">
+                {{ servicio.nombre }} — ${{ servicio.precio }}
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p class="text-sm text-slate-500">Sin servicios seleccionados.</p>
+        {% endif %}
+      </div>
+      <div class="px-5 py-3 border-t border-slate-200 bg-slate-50/60">
+        <small class="text-slate-600">
+          Fecha de registro: {{ cita.fecha_creacion }}
+        </small>
+      </div>
+    </div>
+
+    <div class="text-center mt-6">
+      <a href="{% url 'home' %}"
+         class="inline-flex items-center justify-center rounded-full bg-slate-900 text-white px-5 py-2 font-medium hover:bg-slate-700 shadow">
+        Regresar al inicio
+      </a>
+    </div>
+
+  </div>
+</div>
 {% endblock %}
