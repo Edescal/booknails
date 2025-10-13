@@ -1,8 +1,15 @@
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.db import models
 from django.utils import timezone
+from django.utils.text import slugify
 from datetime import datetime, time
+from datetime import date as _date
 import time as time_module
+
+DIAS_SEMANA = [
+    (0, "Lunes"), (1, "Martes"), (2, "Miércoles"),
+    (3, "Jueves"), (4, "Viernes"), (5, "Sábado"), (6, "Domingo"),
+]
 
 class Usuario(AbstractBaseUser, PermissionsMixin):
     id = models.AutoField(primary_key=True, blank=True)
@@ -13,9 +20,8 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
     nombre = models.CharField(max_length=64)
     apellidos = models.CharField(max_length=64)
     fecha_creacion = models.DateTimeField(auto_now=True)
-
-    USERNAME_FIELD = 'username'  # Campo utilizado para el login
-    REQUIRED_FIELDS = ['email', 'password']  # Campos requeridos al crear un usuario
+    USERNAME_FIELD = 'username'
+    REQUIRED_FIELDS = ['email', 'password']
 
     class Meta:
         db_table = 'usuarios'
@@ -28,46 +34,65 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
                 f"telefono='{self.telefono}',\n\tnombre='{self.get_full_name()}',\n\t"
                 f"fecha_creacion='{self.fecha_creacion}'\n)")
 
-class Servicio(models.Model):
-    class Categorias(models.TextChoices):
-        NA = '?', 'Sin asignar' # por si acaso
-        MANOS = 'M', 'Manos'
-        FRAN_BABY_BOOMER = 'F', 'Full Set Francesas/Baby Boomer'
-        PIES = 'P', 'Pies'
-        RETIRO = 'R', 'Retiro'
+class Categoria(models.Model):
+    id = models.AutoField(primary_key=True)
+    nombre = models.CharField(max_length=64, unique=True)
+    activa = models.BooleanField(default=True)
 
-    id = models.AutoField(primary_key=True, blank=True)
-    nombre = models.CharField(max_length=64, null=False)
-    precio = models.DecimalField(null=True, decimal_places=2, max_digits=6)
-    categoria = models.CharField(null=True, max_length=2, choices=Categorias.choices, default=Categorias.MANOS)
+    def save(self, *args, **kwargs):
+        if self._state.adding:
+            self.activa = True
+        super().save(*args, **kwargs)
 
     class Meta:
-        """Clase especial que usa Django para asociar a la BD"""
-        db_table = 'servicios'
-
-    def get_categoria(self):
-        if self.categoria in self.Categorias.values:
-            index = self.Categorias.values.index(self.categoria)
-            return self.Categorias.choices[index][1]
-        return self.Categorias.choices[0][1]
-
+        db_table = 'categorias'
 
     def __str__(self):
-        return (f"Servicio(id={self.id}, "\
-                f"nombre='{self.nombre}', "\
-                f"precio='{self.precio}, "\
-                f"categoria={self.get_categoria_display()}')")
+        return self.nombre 
 
+class Servicio(models.Model):
+    id = models.AutoField(primary_key=True)
+    nombre = models.CharField(max_length=64)
+    precio = models.DecimalField(null=True, decimal_places=2, max_digits=8)
+    categoria = models.ForeignKey('Categoria', null=True, on_delete=models.SET_NULL,
+                                  db_column='categoria_id')
 
-class Horario:
-    MAÑANA = time(9, 0), '9:00 AM'
-    MEDIODIA = time(12, 0), '12:00 PM'
-    TARDE = time(16, 0), '4:00 PM'
-    NOCHE = time(19, 0), '7:00 PM'
+    class Meta:
+        db_table = 'servicios'
+
+    def __str__(self):
+        return self.nombre 
+
+class HorarioDisponible(models.Model):
+    class Dias(models.IntegerChoices):
+        LUNES = 1, "Lunes"
+        MARTES = 2, "Martes"
+        MIERCOLES = 3, "Miércoles"
+        JUEVES = 4, "Jueves"
+        VIERNES = 5, "Viernes"
+        SABADO = 6, "Sábado"
+        DOMINGO = 7, "Domingo"
+
+    id = models.AutoField(primary_key=True)
+    dia_semana = models.PositiveSmallIntegerField(choices=Dias.choices, default=Dias.LUNES)
+    hora = models.TimeField()
+    activa = models.BooleanField(default=True)
+
+    class Meta:
+        db_table = 'horarios_disponibles'
+        ordering = ['dia_semana', 'hora']
+        constraints = [
+            models.UniqueConstraint(fields=['dia_semana', 'hora'], name='uniq_dia_hora')
+        ]
+
+    def __str__(self):
+        return f"{self.get_dia_semana_display()} {self.hora.strftime('%I:%M %p').lstrip('0')}"
+
+    @classmethod
+    def as_choices(cls):
+        times = sorted(set(cls.objects.filter(activa=True).values_list('hora', flat=True)))
+        return [(t.strftime("%H:%M:%S"), t.strftime("%I:%M %p").lstrip("0")) for t in times]
     
-    choices = [MAÑANA, MEDIODIA, TARDE, NOCHE]
-    values = [val[0] for val in choices]
-
 class Cita(models.Model):
     id = models.AutoField(primary_key=True, blank=True)
     fecha_cita = models.DateTimeField(null=False, unique=True)
@@ -80,7 +105,6 @@ class Cita(models.Model):
         """Clase especial que usa Django para asociar a la BD"""
         db_table = 'citas'
 
-#region propiedades
     @property
     def fecha(self):
         return self.fecha_cita.date().isoformat()
@@ -93,7 +117,6 @@ class Cita(models.Model):
     def UNIX_timestamp(self):
         """ DATO ÚTIL PARA CASTEAR A FECHAS DE JAVASCRIPT """
         return int(time_module.mktime(self.fecha_cita.date().timetuple())) * 1000
-#endregion
 
     def fecha_vencida(self):
         return timezone.now() > self.fecha_cita
@@ -123,19 +146,42 @@ class Cita(models.Model):
 
 
     @staticmethod
-    def horarios_disponibles(dia:datetime.date):
-        citas = Cita.objects.filter(
-            fecha_cita__date = dia # filtra por la fecha dd/mm/yyyy
-        ).values_list(          # obtiene una lista de las horas ocupadas
-            'fecha_cita__time', # selecciona solo la hora (datetime.time)
-            flat=True
-        )
-        horarios = []
-        for  hora, string in Cita.Horario.values:
-            if hora not in citas: # si la hora no está en las citas ocupadas
-                horarios.append((hora, string))
-        return horarios
+    def horarios_disponibles(fecha: _date):
+        """
+        Devuelve lista de tuplas (value, label) -> ('HH:MM:SS', 'h:mm AM/PM')
+        filtradas por día de semana, quitando horas ocupadas y bloqueadas.
+        """
+        from .models import HorarioDisponible, HoraBloqueada 
 
+        dow = fecha.isoweekday()
+
+        base = list(
+            HorarioDisponible.objects
+            .filter(dia_semana=dow, activa=True)
+            .values_list('hora', flat=True)
+        )
+
+        ocupadas = set(
+            Cita.objects
+            .filter(fecha_cita__date=fecha)
+            .values_list('fecha_cita__time', flat=True)
+        )
+
+        bloqueadas = set(
+            HoraBloqueada.objects
+            .filter(fecha_bloqueada__fecha=fecha)
+            .values_list('hora', flat=True)
+        )
+
+        libres = []
+        for h in base:
+            if h in ocupadas or h in bloqueadas:
+                continue
+            value = h.strftime("%H:%M:%S")
+            label = h.strftime("%I:%M %p").lstrip("0")
+            libres.append((value, label))
+        return libres
+    
     def get_precio(self) -> float:
         if self.servicios:
             precio = 0
@@ -171,13 +217,17 @@ class FechaBloqueada(models.Model):
     def dia_entero_bloqueado(self) -> bool:
         if not hasattr(self, 'horas_bloqueadas'):
             return False
-        horarios = self.horas_bloqueadas.all()
-        todos_los_horarios = True
-        for horario in horarios:
-            if horario.hora not in Horario.values:
-                todos_los_horarios = False
-                break
-        return todos_los_horarios
+        horarios_bloq = self.horas_bloqueadas.all()
+
+        from .models import HorarioDisponible
+        dow = self.fecha.isoweekday()
+        activos = set(
+            HorarioDisponible.objects
+            .filter(activa=True, dia_semana=dow)
+            .values_list('hora', flat=True)
+        )
+        bloqueados = set(h.hora for h in horarios_bloq)
+        return len(activos) > 0 and activos.issubset(bloqueados)
 
     def __str__(self) -> str:
         return f'[{self.id}] Fecha bloqueada: {self.fecha.isoformat()}, motivo: {self.motivo}'
@@ -185,11 +235,10 @@ class FechaBloqueada(models.Model):
 
 class HoraBloqueada(models.Model):
     fecha_bloqueada = models.ForeignKey(FechaBloqueada, on_delete=models.CASCADE, related_name='horas_bloqueadas')
-    hora = models.TimeField(choices=Horario.choices)
+    hora = models.TimeField()
 
     class Meta:
         db_table = 'horas_bloqueadas'
         
     def __str__(self) -> str:
         return f'[{self.id}] Hora bloqueada: {self.hora} para [{self.fecha_bloqueada.id}]'
-    

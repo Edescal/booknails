@@ -6,25 +6,37 @@ from django.db.models import Q
 from django.db.utils import IntegrityError
 from django.utils.timezone import make_aware
 from . import models
-from .models import Usuario
+from .models import Usuario, Categoria, Servicio, HorarioDisponible
 import datetime
 
 class FormBase(forms.Form):
-    def __init__(self, *args, **kwargs):
-        # primero se instancia el objeto base
-        super().__init__(*args, **kwargs)
-        # luego, si hay errores, configurar las clases
-        for field_name, field in self.fields.items():
-            if self.errors.get(field_name):
-                field.widget.attrs.update({'class': field.widget.attrs.get('class', '') + ' invalid:border-pink-500 invalid:text-pink-600 focus:border-sky-500 focus:outline focus:outline-sky-500 focus:invalid:border-pink-500 focus:invalid:outline-pink-500 disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-500 disabled:shadow-none dark:disabled:border-gray-700 dark:disabled:bg-gray-800/20'})
-                
+    ERROR_CLASS = (
+        "invalid:border-pink-500 invalid:text-pink-600 "
+        "focus:border-sky-500 focus:outline focus:outline-sky-500 "
+        "focus:invalid:border-pink-500 focus:invalid:outline-pink-500 "
+        "disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-500 "
+        "disabled:shadow-none dark:disabled:border-gray-700 dark:disabled:bg-gray-800/20"
+    )
+
+    def full_clean(self):
+        super().full_clean()
+        if not self.errors:
+            return
+        for name in self.errors.keys():
+            if name in self.fields:
+                w = self.fields[name].widget
+                existing = w.attrs.get("class", "")
+                if self.ERROR_CLASS not in existing:
+                    w.attrs["class"] = f"{existing} {self.ERROR_CLASS}".strip()
+
     def show_errors(self, request):
-        print('Errores del formulario')
+        if not request:
+            return
         for field, errors in self.errors.items():
             for error in errors:
-                print(f'Error: {error}\tField: {field}')
-                if request:
-                    messages.error(request=request, message=error, extra_tags=field)
+                messages.error(request, error, extra_tags=field)
+        for error in self.non_field_errors():
+            messages.error(request, error, extra_tags="__all__")
         
 
 class RegistroForm(FormBase):
@@ -119,24 +131,24 @@ class RegistroForm(FormBase):
 class EditarUsuarioForm(forms.ModelForm):
     class Meta:
         model = Usuario
-        fields = ['nombre', 'apellidos', 'email', 'telefono']  # Campos que quieres permitir editar
+        fields = ['nombre', 'apellidos', 'email', 'telefono']
 
     password = forms.CharField(
-        label='Nueva Contraseña', 
+        label='Nueva Contraseña (Opcional)', 
         max_length=256, 
-        required=False,  # Solo lo pedimos si el usuario desea cambiar la contraseña
+        required=False,
         widget=forms.PasswordInput(attrs={
             'class': "inputLabel",
-            'placeholder': 'Introduce una nueva contraseña (opcional)'
+            'placeholder': 'Introduce una nueva contraseña.'
         }),
     )
     confirmar_password = forms.CharField(
-        label='Confirmar nueva contraseña',
+        label='Confirmar nueva contraseña (Opcional)',
         max_length=256,
-        required=False,  # Solo si se pidió una nueva contraseña
+        required=False, 
         widget=forms.PasswordInput(attrs={
             'class': "inputLabel",
-            'placeholder': 'Confirma la nueva contraseña (opcional)'
+            'placeholder': 'Confirma la nueva contraseña.'
         }),
     )
 
@@ -201,30 +213,26 @@ class CitasForm(FormBase):
             'readonly': True,
         }),
     )
-    categoria = forms.ChoiceField(
-        label='Categoría',
-        choices=models.Servicio.Categorias.choices,
+    categoria = forms.ModelChoiceField(
+        label='Categoría:',
+        queryset=Categoria.objects.filter(activa=True).order_by('nombre'),
         required=True,
-        widget=forms.Select(
-            attrs={'class': "form-control form-control-sm shadow-sm",}
-        )
+        empty_label='Selecciona una categoría',
+        widget=forms.Select(attrs={'class': "form-control form-control-sm shadow-sm"})
     )
+
     servicios = forms.ModelMultipleChoiceField(
-        label='Servicios',
-        queryset= models.Servicio.objects.all(),
+        label='Servicios:',
+        queryset=models.Servicio.objects.none(),
         required=True,
         widget=forms.CheckboxSelectMultiple
     )
+
     horario = forms.ChoiceField(
-        label= 'Horarios disponibles: ',
-        required=False,
-        choices=cita.hora if cita else models.Horario.choices,
-        widget=forms.Select(
-            attrs={
-                'class': "form-control form-control-sm shadow-sm",
-                # 'disabled':True,
-            }
-        )
+        label='Horarios disponibles: ',
+        required=True,
+        choices=[],
+        widget=forms.Select(attrs={'class': "form-control form-control-sm shadow-sm"})
     )
 
     def clean_fecha_cita(self):
@@ -237,14 +245,12 @@ class CitasForm(FormBase):
     def clean_horario(self):
         fecha = self.cleaned_data.get('fecha_cita')
         horario = self.cleaned_data.get('horario')
-        if self.cliente:
-            duplicated = models.Cita.objects.filter(
-                cliente=self.cliente, 
-                fecha_cita__date=fecha,
-                fecha_cita__time=horario
-            ).exists()
-            if duplicated:
-                raise ValidationError('Ya hay una cita para ese mismo día y horario.')
+        if not horario:
+            return horario
+        if fecha:
+            libres = dict(models.Cita.horarios_disponibles(fecha))
+            if horario not in libres:
+                raise ValidationError('Ese horario ya no está disponible para la fecha seleccionada.')
         return horario
     
     def clean_servicios(self):
@@ -265,24 +271,59 @@ class CitasForm(FormBase):
             cita.save()
             for serv in self.cleaned_data['servicios']:
                 cita.servicios.add(serv)
-
             return cita
         except IntegrityError as e:
            return None
 
-    def __init__(self, cliente : models.Usuario, *args, **kwargs):
+    def __init__(self, cliente: models.Usuario, *args, **kwargs):
         self.cliente = cliente
         super().__init__(*args, **kwargs)
+        self.fields['categoria'].queryset = Categoria.objects.filter(activa=True).order_by('nombre')
+        self.fields['servicios'].label_from_instance = lambda obj: f"{obj.nombre} - ${obj.precio} ({obj.categoria})"
+        self.fields['horario'].choices = [('', 'Selecciona un horario')]
 
-class CitasDueñaForm(FormBase):
+        cat_id = None
+        data = getattr(self, 'data', None)
+        if data and data.get('categoria'):
+            try:
+                cat_id = int(data.get('categoria'))
+            except (TypeError, ValueError):
+                cat_id = None
+        elif self.initial.get('categoria'):
+            try:
+                cat_id = int(self.initial['categoria'])
+            except (TypeError, ValueError):
+                if isinstance(self.initial['categoria'], models.Categoria):
+                    cat_id = self.initial['categoria'].id
+
+        if cat_id:
+            self.fields['servicios'].queryset = (
+                models.Servicio.objects.filter(categoria_id=cat_id).order_by('nombre')
+            )
+        else:
+            self.fields['servicios'].queryset = models.Servicio.objects.none()
+
+        fecha_str = (data or {}).get('fecha_cita') or self.initial.get('fecha_cita')
+        if fecha_str:
+            import datetime as _dt
+            try:
+                f = _dt.datetime.strptime(str(fecha_str), '%Y-%m-%d').date()
+                choices = models.Cita.horarios_disponibles(f)
+                self.fields['horario'].choices = choices or [('', 'Sin horarios disponibles')]
+                if data and data.get('horario'):
+                    self.fields['horario'].initial = data.get('horario')
+            except ValueError:
+                pass
+
+class CitasAdminForm(FormBase):
     cita: models.Cita = None
     cliente = forms.ModelChoiceField(
+        label='Cliente: ',
         queryset=models.Usuario.objects.all(),
-        empty_label="Selecciona una clienta",
+        empty_label="Selecciona un cliente",
         required=True,
         widget=forms.Select(attrs={'class': "form-control form-control-sm shadow-sm"})
     )
-
     fecha_cita = forms.DateField(
         label='Selecciona el día: ',
         input_formats=['%Y-%m-%d', '%d-%m-%Y'],
@@ -293,22 +334,23 @@ class CitasDueñaForm(FormBase):
             'readonly': True,
         }),
     )
-    categoria = forms.ChoiceField(
-        label='Categoría',
-        choices=models.Servicio.Categorias.choices,
+    categoria = forms.ModelChoiceField(
+        label='Categoría:',
+        queryset=Categoria.objects.filter(activa=True).order_by('nombre'),
         required=True,
-        widget=forms.Select(attrs={'class': "form-control form-control-sm shadow-sm"})
+        empty_label='Selecciona una categoría',
+        widget=forms.Select(attrs={'class': "form-control form-control-sm shadow-sm", 'id': 'id_categoria'})
     )
     servicios = forms.ModelMultipleChoiceField(
-        label='Servicios',
-        queryset=models.Servicio.objects.all(),
+        label='Servicios:',
+        queryset=models.Servicio.objects.none(),
         required=True,
         widget=forms.CheckboxSelectMultiple
     )
     horario = forms.ChoiceField(
         label='Horarios disponibles: ',
-        required=False,
-        choices=cita.hora if cita else models.Horario.choices,
+        required=True,
+        choices=[],
         widget=forms.Select(attrs={'class': "form-control form-control-sm shadow-sm"})
     )
 
@@ -318,11 +360,44 @@ class CitasDueñaForm(FormBase):
         self.fields['cliente'].queryset = Usuario.objects.exclude(id=1)
         self.fields['cliente'].label_from_instance = lambda obj: f"{obj.nombre} {obj.apellidos}"
         self.fields['servicios'].label_from_instance = lambda obj: f"{obj.nombre} - ${obj.precio} ({obj.categoria})"
+        self.fields['horario'].choices = [('', 'Selecciona un horario')]
+        cat_id = None
+        data = getattr(self, 'data', None)
+        if data and data.get('categoria'):
+            try:
+                cat_id = int(data.get('categoria'))
+            except (TypeError, ValueError):
+                cat_id = None
+        elif self.initial.get('categoria'):
+            try:
+                cat_id = int(self.initial['categoria'])
+            except (TypeError, ValueError):
+                if isinstance(self.initial['categoria'], models.Categoria):
+                    cat_id = self.initial['categoria'].id
+
+        if cat_id:
+            self.fields['servicios'].queryset = (
+                models.Servicio.objects.filter(categoria_id=cat_id).order_by('nombre')
+            )
+        else:
+            self.fields['servicios'].queryset = models.Servicio.objects.none()
+
+        fecha_str = (data or {}).get('fecha_cita') or self.initial.get('fecha_cita')
+        if fecha_str:
+            import datetime as _dt
+            try:
+                f = _dt.datetime.strptime(str(fecha_str), '%Y-%m-%d').date()
+                choices = models.Cita.horarios_disponibles(f)
+                self.fields['horario'].choices = choices or [('', 'Sin horarios disponibles')]
+                if data and data.get('horario'):
+                    self.fields['horario'].initial = data.get('horario')
+            except ValueError:
+                pass
 
     def clean_cliente(self):
         cliente = self.cleaned_data.get('cliente')
         if cliente == "__new__":
-            return None  # para activar el formulario dinámico
+            return None
         return cliente
 
     def clean_fecha_cita(self):
@@ -332,18 +407,24 @@ class CitasDueñaForm(FormBase):
         return fecha
 
     def clean_horario(self):
+        h = self.cleaned_data.get('horario')
+        if not h:
+            raise ValidationError('Selecciona un horario.')
+
+        try:
+            t = datetime.datetime.strptime(h, '%H:%M:%S').time() if len(h) == 8 \
+                else datetime.datetime.strptime(h, '%H:%M').time()
+        except ValueError:
+            raise ValidationError('Formato de hora inválido.')
+
         fecha = self.cleaned_data.get('fecha_cita')
-        horario = self.cleaned_data.get('horario')
-        cliente = self.cleaned_data['cliente']
-        if cliente and fecha and horario:
-            duplicated = models.Cita.objects.filter(
-                cliente=cliente,
-                fecha_cita__date=fecha,
-                fecha_cita__time=horario
-            ).exists()
-            if duplicated:
-                raise ValidationError('Ya hay una cita para ese mismo día y horario.')
-        return horario
+        if fecha:
+            if models.Cita.objects.filter(fecha_cita__date=fecha,
+                                        fecha_cita__time=t).exists():
+                raise ValidationError('Ese horario ya está tomado.')
+
+        self.cleaned_data['horario'] = t.strftime('%H:%M:%S')
+        return self.cleaned_data['horario']
 
     def clean_servicios(self):
         servicios = self.cleaned_data.get('servicios')
@@ -353,14 +434,21 @@ class CitasDueñaForm(FormBase):
 
     def to_cita(self):
         try:
-            fulldate = f"{self.cleaned_data['fecha_cita']} {self.cleaned_data['horario']}"
-            dateobj = datetime.datetime.strptime(fulldate, '%Y-%m-%d %H:%M:%S')
+            fecha = self.cleaned_data['fecha_cita']  
+            hstr  = self.cleaned_data['horario']
+            try:
+                t = datetime.time.fromisoformat(hstr)
+            except ValueError:
+                t = datetime.datetime.strptime(hstr, '%H:%M').time()
+
+            dateobj = datetime.datetime.combine(fecha, t)
+
             cita = models.Cita()
             cita.fecha_cita = dateobj
-            cita.cliente = self.cleaned_data['cliente']
+            cita.cliente = getattr(self, 'cliente', None) or self.cleaned_data['cliente']
             cita.fecha_creacion = datetime.datetime.now()
-
             cita.save()
+
             for serv in self.cleaned_data['servicios']:
                 cita.servicios.add(serv)
 
@@ -427,7 +515,6 @@ class ComprobanteForm(FormBase):
             return file
         raise ValidationError('No se envió ningún archivo')
 
-
 """
 ESTOS FORMS SON PARA BLOQUEAR DIAS O RANGOS DE DÍAS
 """
@@ -460,14 +547,9 @@ class BloquearFechaForm(FormBase):
     horarios = forms.MultipleChoiceField(
         label='Bloquear horarios específicos',
         required=False,
-        choices=models.Horario.choices,
+        choices=(),  # <- vacío aquí
         widget=forms.CheckboxSelectMultiple(
-            attrs={
-                'class': 'form-check-input form-check-inline',
-                'placeholder': 'fecha que quieres bloquear',
-                'novalidate':True,
-                'autocomplete': 'off',
-            }
+            attrs={'class': 'form-check-input form-check-inline'}
         )
     )
     motivo = forms.CharField(
@@ -488,20 +570,15 @@ class BloquearFechaForm(FormBase):
     
     def clean_motivo(self):
         motivo : str = self.cleaned_data['motivo']
-        # reemplazar los saltos de línea y quitar espacios
         motivo = motivo.replace('\r', '').replace('\n', '').strip()
-        # validar longitud máxima
         if len(motivo) > 100:
             raise ValidationError(f'Asegúrese de que este valor tenga como máximo 100 caracteres (tiene {len(motivo)}).')
         return motivo
 
     def clean_fecha(self):
         fecha = self.cleaned_data['fecha']
-        # parsear string a fecha
         date = datetime.datetime.strptime(fecha, '%Y-%m-%d')
-        # si se parseó correctamente...
         if isinstance(date, datetime.date):
-            # buscar coincidencias en la BD
             fecha_bloqueada = models.FechaBloqueada.objects.filter(fecha = date).first()
             if not fecha_bloqueada:
                 print(f'Fecha: {date} <- La fecha está disponible')
@@ -512,31 +589,27 @@ class BloquearFechaForm(FormBase):
     
     def clean_horarios(self):
         horarios = self.cleaned_data['horarios']
+        if self.cleaned_data.get('todo_el_dia'):
+            self.lista_horarios = [datetime.datetime.strptime(v, '%H:%M:%S').time()
+                                for v, _ in self.fields['horarios'].choices]
+            return horarios
+
         if not horarios:
             return None
-        
-        # si se eligió todo el día, no hace falta hacer nada
-        if self.cleaned_data['todo_el_dia']:
-            self.lista_horarios = models.Horario.values
-            return horarios
-        
-        # si no se eligió todo el día, y tampoco se eligió un horario: error
-        if len(horarios) == 0:
-            raise ValidationError('Selecciona al menos un horario')
 
-        # por cada horario elegido...
+        self.lista_horarios = []
         for h in horarios:
-            # convertir a fecha (y quedarse con la hora datetime.time())
-            hora = datetime.datetime.strptime(h, '%H:%M:%S')
-            if isinstance(hora, datetime.datetime):
-                # ver si existe en los horarios preestablecidos
-                if hora.time() in models.Horario.values:
-                    # añadir la hora a la lista del formulario
-                    print(f'Validado: {h}')
-                    # asegurar que no se repite una misma hora
-                    if not hora.time() in self.lista_horarios:
-                        self.lista_horarios.append(hora.time())
+            try:
+                t = datetime.datetime.strptime(h, '%H:%M:%S').time()
+                self.lista_horarios.append(t)
+            except ValueError:
+                raise ValidationError('Formato de hora inválido')
         return horarios
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        from .models import HorarioDisponible
+        self.fields['horarios'].choices = HorarioDisponible.as_choices()
 
 
 class BloquearRangoForm(FormBase):
@@ -593,8 +666,37 @@ class BloquearRangoForm(FormBase):
         if fecha_inf > fecha_sup:
             raise ValidationError('La segunda fecha debe ser posterior a la primera.')
 
+"""
+FORMS PARA AGREGAR CATEGORÍAS Y SERVICIOS
+"""
 
+class CategoriaForm(forms.ModelForm):
+    class Meta:
+        model = Categoria
+        fields = ['nombre', 'activa']
+        widgets = {
+            'nombre': forms.TextInput(attrs={
+                'class': 'form-control', 'placeholder': 'Nombre de la categoría'
+            }),
+        }
 
+    def save(self, commit=True):
+        obj = super().save(commit=False)
+        obj.activa = True
+        if commit:
+            obj.save()
+        return obj
 
-
-
+class ServicioForm(forms.ModelForm):
+    class Meta:
+        model = Servicio
+        fields = ['nombre', 'precio', 'categoria']
+        widgets = {
+            'nombre': forms.TextInput(attrs={
+                'class': 'form-control', 'placeholder': 'Nombre del servicio'
+            }),
+            'precio': forms.NumberInput(attrs={
+                'class': 'form-control', 'step': '0.01', 'placeholder': '0.00'
+            }),
+            'categoria': forms.Select(attrs={'class': 'form-select'}),
+        }

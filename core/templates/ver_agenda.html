@@ -3,207 +3,255 @@
 {% block title %}Agenda de Citas{% endblock %}
 
 {% block outbody %}
-{% comment %}
-MODAL DE ELIMINAR CITA PARA LA DUEÑA
-{% endcomment %}
-<dialog id="modal-eliminar-cita" tabindex="-1" closedby="none">
-    <div class="card rounded rounded-3 overflow-hidden px-4 py-3">
-        <form class="modal-header d-flex justify-content-between align-items-center">
-            <h4 class="modal-title">Confirmar acción</h4>
-            <button class="btn-close btn-lg" formmethod="dialog"></button>
-        </form>
-        <hr>
-        <form action="{% url 'eliminar_cita' %}" method="post" enctype="multipart/form-data">
-            {% csrf_token %}
-            <div class="modal-body">
-                <p class="small">Estás a punto de eliminar la cita de
-                    <span id="eliminar-cita-cliente"></span>
-                    (<span id="eliminar-cita-cliente-telefono"></span>)
-                    con fecha del <span id="eliminar-cita-fecha"></span>.
-                </p>
-                <p class="text-center">¿Estás segura de proceder?</p>
-                <input type="hidden" name="cita_id" id="eliminar-cita-id">
-            </div>
-            <hr>
-            <div class="modal-footer">
-                <div class="text-end">
-                    <input type="submit" value="Cancelar" class="btn btn-secondary" formmethod="dialog">
-                    <input type="submit" value="Guardar" class="btn btn-danger">
-                </div>
-            </div>
-        </form>
-    </div>
+<dialog id="modal-eliminar-cita" class="backdrop:bg-black/30" role="dialog" aria-modal="true">
+  <div class="p-6 p-md-12">
+
+    <form id="form-eliminar-cita"
+          action="{% url 'eliminar_cita' %}"
+          method="post"
+          class="card rounded-3 overflow-hidden shadow-lg border border-slate-200 max-w-4xl w-100 mx-auto"
+          aria-labelledby="modal-eliminar-title"
+          aria-describedby="modal-eliminar-desc">
+      {% csrf_token %}
+      <div class="modal-header bg-slate-50 px-4 py-3">
+        <div class="d-flex align-items-center w-100 gap-2">
+          <i class="bi bi-exclamation-triangle-fill text-danger fs-5"></i>
+          <h4 id="modal-eliminar-title" class="modal-title text-slate-800 m-0">Eliminar cita</h4>
+          <button class="btn-close ms-auto" aria-label="Cerrar" formmethod="dialog"></button>
+        </div>
+      </div>
+      <div class="modal-body px-4 py-4">
+        <p id="modal-eliminar-desc" class="small text-slate-700 mb-3">
+          Esta acción es permanente. 
+        </p>
+        <p id="modal-eliminar-desc" class="small text-slate-700 mb-3">
+          Revisa los datos antes de continuar:
+        </p>
+        <div class="table-responsive mb-3">
+          <table class="table table-sm table-bordered align-middle mb-0" style="border-color: #e2e8f0;">
+            <tbody>
+              <tr>
+                <th scope="row" class="w-25 small text-slate-600 bg-slate-50" style="border-color:#e2e8f0;">Clienta</th>
+                <td class="text-slate-800" style="border-color:#e2e8f0;">
+                  <span id="eliminar-cita-cliente"></span>
+                </td>
+              </tr>
+              <tr>
+                <th scope="row" class="small text-slate-600 bg-slate-50" style="border-color:#e2e8f0;">Teléfono</th>
+                <td class="text-slate-800" style="border-color:#e2e8f0;">
+                  <span id="eliminar-cita-cliente-telefono"></span>
+                </td>
+              </tr>
+              <tr>
+                <th scope="row" class="small text-slate-600 bg-slate-50" style="border-color:#e2e8f0;">Fecha</th>
+                <td class="text-slate-800" style="border-color:#e2e8f0;">
+                  <span id="eliminar-cita-fecha"></span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="text-center text-slate-800 mb-0">¿Deseas continuar?</p>
+        <input type="hidden" name="cita_id" id="eliminar-cita-id">
+      </div>
+      <div class="modal-footer d-flex justify-content-center gap-3 px-4 py-3">
+        <button class="btn btn-outline-dark px-4" formmethod="dialog">Cancelar</button>
+        <button type="submit" class="btn btn-danger px-4">
+          <i class="bi bi-trash me-1"></i>Eliminar cita
+        </button>
+      </div>
+    </form>
+  </div>
 </dialog>
 {% endblock %}
 
 {% block body %}
-<div class="min-h-screen pt-24 pb-12 px-3 bg-gradient-to-r from-pink-400 via-purple-500 to-blue-500">
-    <div class="col-12">
-        <div class="card text-center p-3">
-            <h2 class="text-2xl text-center font-bold text-pink-800 mb-6 mt-2">
-                Mi agenda de citas
-            </h2>
-            <form action="{% url 'ver_agenda' %}" method="post" class="d-flex justify-content-center align-items-center gap-2">
-                {% csrf_token %}
-                <label for="selector-mes" class="mb-0 me-2">Filtrar por fecha:</label>
+<div class="min-h-screen pt-24 pb-12 px-3 bg-gradient-to-r from-gray-100 via-gray-200 to-gray-100">
+  <div class="col-12">
+    <div class="card text-center p-3 bg-white/80 backdrop-blur rounded-2xl shadow-lg border border-slate-200">
+      <h2 class="text-2xl font-bold text-slate-800 mb-4 mt-2">Mi agenda de citas</h2>
 
-                <select name="mes" id="selector-mes" class="form-select form-select-sm" style="width: auto; min-width: 130px;">
-                    <option value="1" {% if fecha_actual.month == 1 %}selected{% endif %}>Enero</option>
-                    <option value="2" {% if fecha_actual.month == 2 %}selected{% endif %}>Febrero</option>
-                    <option value="3" {% if fecha_actual.month == 3 %}selected{% endif %}>Marzo</option>
-                    <option value="4" {% if fecha_actual.month == 4 %}selected{% endif %}>Abril</option>
-                    <option value="5" {% if fecha_actual.month == 5 %}selected{% endif %}>Mayo</option>
-                    <option value="6" {% if fecha_actual.month == 6 %}selected{% endif %}>Junio</option>
-                    <option value="7" {% if fecha_actual.month == 7 %}selected{% endif %}>Julio</option>
-                    <option value="8" {% if fecha_actual.month == 8 %}selected{% endif %}>Agosto</option>
-                    <option value="9" {% if fecha_actual.month == 9 %}selected{% endif %}>Septiembre</option>
-                    <option value="10" {% if fecha_actual.month == 10 %}selected{% endif %}>Octubre</option>
-                    <option value="11" {% if fecha_actual.month == 11 %}selected{% endif %}>Noviembre</option>
-                    <option value="12" {% if fecha_actual.month == 12 %}selected{% endif %}>Diciembre</option>
-                </select>
+      <form action="{% url 'ver_agenda' %}" method="post" class="d-flex justify-content-center align-items-center gap-2">
+        {% csrf_token %}
+        <label for="selector-mes" class="mb-0 me-2 text-slate-800">Filtrar por fecha:</label>
 
-                <select name="año" id="selector-año" class="form-select form-select-sm" style="width: auto; min-width: 100px;">
-                    <option value="2025" {% if fecha_actual.year == 2025 %}selected{% endif %}>2025</option>
-                    <option value="2026" {% if fecha_actual.year == 2026 %}selected{% endif %}>2026</option>
-                    <option value="2027" {% if fecha_actual.year == 2027 %}selected{% endif %}>2027</option>
-                    <option value="2028" {% if fecha_actual.year == 2028 %}selected{% endif %}>2028</option>
-                    <option value="2029" {% if fecha_actual.year == 2029 %}selected{% endif %}>2029</option>
-                    <option value="2030" {% if fecha_actual.year == 2030 %}selected{% endif %}>2030</option>
-                </select>
+        <select name="mes" id="selector-mes" class="form-select form-select-sm" style="width:auto;min-width:130px;">
+          <option value="1"  {% if fecha_actual.month == 1  %}selected{% endif %}>Enero</option>
+          <option value="2"  {% if fecha_actual.month == 2  %}selected{% endif %}>Febrero</option>
+          <option value="3"  {% if fecha_actual.month == 3  %}selected{% endif %}>Marzo</option>
+          <option value="4"  {% if fecha_actual.month == 4  %}selected{% endif %}>Abril</option>
+          <option value="5"  {% if fecha_actual.month == 5  %}selected{% endif %}>Mayo</option>
+          <option value="6"  {% if fecha_actual.month == 6  %}selected{% endif %}>Junio</option>
+          <option value="7"  {% if fecha_actual.month == 7  %}selected{% endif %}>Julio</option>
+          <option value="8"  {% if fecha_actual.month == 8  %}selected{% endif %}>Agosto</option>
+          <option value="9"  {% if fecha_actual.month == 9  %}selected{% endif %}>Septiembre</option>
+          <option value="10" {% if fecha_actual.month == 10 %}selected{% endif %}>Octubre</option>
+          <option value="11" {% if fecha_actual.month == 11 %}selected{% endif %}>Noviembre</option>
+          <option value="12" {% if fecha_actual.month == 12 %}selected{% endif %}>Diciembre</option>
+        </select>
 
-                <button type="submit" id="btn-buscar-fechas"
-                    class="btn btn-primary btn-sm d-flex align-items-center gap-2">
-                    <i class="bi bi-search">
-                        Buscar
-                    </i>
-                </button>
-            </form>
+        <select name="año" id="selector-año" class="form-select form-select-sm" style="width:auto;min-width:100px;">
+          <option value="2025" {% if fecha_actual.year == 2025 %}selected{% endif %}>2025</option>
+          <option value="2026" {% if fecha_actual.year == 2026 %}selected{% endif %}>2026</option>
+          <option value="2027" {% if fecha_actual.year == 2027 %}selected{% endif %}>2027</option>
+          <option value="2028" {% if fecha_actual.year == 2028 %}selected{% endif %}>2028</option>
+          <option value="2029" {% if fecha_actual.year == 2029 %}selected{% endif %}>2029</option>
+          <option value="2030" {% if fecha_actual.year == 2030 %}selected{% endif %}>2030</option>
+        </select>
+
+        <button type="submit" id="btn-buscar-fechas" class="btn btn-dark btn-sm d-flex align-items-center gap-2">
+          <i class="bi bi-search"></i>
+          Buscar
+        </button>
+      </form>
+  {% if messages %}
+    {% for message in messages %}
+      <div class="toast align-items-center text-bg-{{ message.tags }} border-0 w-100 my-2" role="alert" aria-live="assertive"
+        aria-atomic="true" data-bs-autohide="false">
+        <div class="d-flex">
+          <div class="toast-body">
+            <small>{{ message }}</small>
+          </div>
+          <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"
+            tabindex="-1"></button>
         </div>
+      </div>
+      {% endfor %}
+    {% endif %}
     </div>
-    <br>
-    <div class="flex flex-wrap gap-4 justify-center">
-        {% for cita in citas %}
-        <div class="w-full sm:w-1/2 md:w-1/3 lg:w-1/4">
-            <div class="bg-white/70 backdrop-blur-md rounded-xl p-3 mb-3 shadow-lg">
+  </div>
 
-                <div class="row align-items-center">
-                    {% if cita.fecha_vencida %}
-                    <div class="badge bg-danger text-center">
-                        <span>Ya pasó la fecha de esta cita</span>
-                    </div>
-                    {% else %}
-                    <div class="badge bg-success text-center">
-                        <span>Faltan {{ cita.tiempo_restante_legible }}</span>
-                    </div>
-                    {% endif %}
-                    <div class="col-12 d-flex justify-content-center gap-2 top-0 end-0 px-3 pt-2">
-                        <h3>Datos de la cita</h3>
-                    </div>
-                    <p class="text-center mb-3">📆{{ cita.fecha_cita }}</p>
-                </div>
-                <div class="row align-items-center px-5">
-                    <button type="button" id="eliminar-cita-{{ cita.id }}" class="btn btn-sm btn-outline-danger"
-                        data-id-cita="{{ cita.id }}" data-fecha="{{ cita.fecha_cita }}"
-                        data-cliente="{{ cita.cliente.get_full_name }}" data-cliente-email="{{ cita.cliente.email }}"
-                        data-cliente-telefono="{{ cita.cliente.telefono }}">
-                        <i class="bi bi-trash3-fill"> Eliminar cita</i>
-                    </button>
-                </div>
-                <hr>
-                <div class="row align-items-baseline overflow-auto border border-3"
-                    style="min-height: 18rem; max-height: 18rem; background-color: rgb(230, 230, 230);">
-                    <div class="col-md-12 py-2">
-                        <div class="form-control mb-3">
-                            <p class="fw-semibold mb-0">Datos del cliente</p>
-                            <ul class="small list-unstyled ps-4">
-                                <li><strong>Nombre: </strong></li>
-                                <li>{{ cita.cliente.get_full_name }}</li>
-                                <li><strong>Correo: </strong></li>
-                                <li>{{ cita.cliente.email }}</li>
-                                <li><strong>Teléfono: </strong></li>
-                                <li>{{ cita.cliente.telefono }}</li>
-                            </ul>
-                        </div>
+  <br>  
 
-                        {% with categoria=cita.servicios.first.get_categoria %}
-                        <div class="form-control mb-3">
-                            <p class="form-label fw-semibold mb-1">Servicios solicitados:</p>
-                            <p class="form-label small fw-semibold mb-1">{{ categoria }}</p>
-                            <ul class="mb-3 small">
-                                {% for servicio in cita.servicios.all %}
-                                <li>{{ servicio.nombre }} - ${{ servicio.precio }}</li>
-                                {% empty %}
-                                <li class="text-muted">No hay servicios</li>
-                                {% endfor %}
-                            </ul>
-                            <p class="form-label fw-semibold mb-1">Costo total: ${{ cita.get_precio }} MXN</p>
-                        </div>
+  <div class="flex flex-wrap gap-4 justify-center">
+    {% for cita in citas %}
+      <div class="w-full sm:w-1/2 md:w-1/3 lg:w-1/4">
+        <div class="bg-white/80 backdrop-blur rounded-xl p-3 mb-3 shadow-lg border border-slate-200">
+          <div class="row align-items-center">
+            {% if cita.fecha_vencida %}
+              <div class="badge text-bg-danger text-center mb-2">
+                <span>Ya pasó la fecha de esta cita</span>
+              </div>
+            {% else %}
+              <div class="badge text-bg-success text-center mb-2">
+                <span>Faltan {{ cita.tiempo_restante_legible }}</span>
+              </div>
+            {% endif %}
+
+            <div class="col-12 d-flex justify-content-center gap-2 top-0 end-0 px-3 pt-2">
+              <h3 class="text-slate-800">Datos de la cita</h3>
+            </div>
+            <p class="text-center mb-3 text-slate-700">📆 {{ cita.fecha_cita }}</p>
+          </div>
+
+          <div class="row align-items-center px-5">
+            <button
+              type="button"
+              id="eliminar-cita-{{ cita.id }}"
+              class="btn btn-sm btn-outline-danger"
+              data-id-cita="{{ cita.id }}"
+              data-fecha="{{ cita.fecha_cita }}"
+              data-cliente="{{ cita.cliente.get_full_name }}"
+              data-cliente-email="{{ cita.cliente.email }}"
+              data-cliente-telefono="{{ cita.cliente.telefono }}">
+              <i class="bi bi-trash3-fill"></i> Eliminar cita
+            </button>
+          </div>
+
+          <hr>
+
+          <div class="row align-items-baseline overflow-auto border border-slate-300 rounded-md bg-slate-50"
+               style="min-height:18rem;max-height:18rem;">
+            <div class="col-md-12 py-2">
+              <div class="form-control mb-3 border border-slate-200">
+                <p class="fw-semibold mb-0 text-slate-800">Datos del cliente</p>
+                <ul class="small list-unstyled ps-4 text-slate-700">
+                  <li><strong>Nombre: </strong></li>
+                  <li>{{ cita.cliente.get_full_name }}</li>
+                  <li><strong>Correo: </strong></li>
+                  <li>{{ cita.cliente.email }}</li>
+                  <li><strong>Teléfono: </strong></li>
+                  <li>{{ cita.cliente.telefono }}</li>
+                </ul>
+              </div>
+
+              {% with categoria=cita.servicios.first.get_categoria %}
+              <div class="form-control mb-3 border border-slate-200">
+                <p class="form-label fw-semibold mb-1 text-slate-800">Servicios solicitados:</p>
+                <p class="form-label small fw-semibold mb-1 text-slate-700">{{ categoria }}</p>
+                <ul class="mb-3 small text-slate-700">
+                  {% for servicio in cita.servicios.all %}
+                    <li>{{ servicio.nombre }} - ${{ servicio.precio }}</li>
+                  {% empty %}
+                    <li class="text-muted">No hay servicios</li>
+                  {% endfor %}
+                </ul>
+                <p class="form-label fw-semibold mb-1 text-slate-800">Costo total: ${{ cita.get_precio }} MXN</p>
+              </div>
+              {% endwith %}
+
+              <div class="form-control text-center border border-slate-200">
+                <p class="form-label fw-semibold text-slate-800">Pago de anticipo:</p>
+                {% if cita.comprobante %}
+                  <div class="overflow-x-scroll">
+                    <a href="{{ cita.comprobante.url }}#toolbar=0&navpanes=0&scrollbar=0" target="_blank"
+                       class="badge bg-success text-start text-decoration-none">
+                      {% with fullpath=cita.comprobante.name %}
+                        {% with filename=fullpath|cut:"citas/comprobantes/" %}
+                          <span>{{ filename }}</span>
                         {% endwith %}
-
-                        <div class="form-control text-center">
-                            <p class="form-label fw-semibold">Pago de anticipo:</p>
-                            {% if cita.comprobante %}
-                            <div class="overflow-x-scroll">
-                                <a href="{{ cita.comprobante.url }}#toolbar=0&navpanes=0&scrollbar=0" target="_blank"
-                                    class="badge bg-success text-start text-decoration-none">
-                                    {% with fullpath=cita.comprobante.name %}
-                                    {% with filename=fullpath|cut:"citas/comprobantes/" %}
-                                    <span>{{ filename }}</span>
-                                    {% endwith %}
-                                    {% endwith %}
-                                </a>
-                            </div>
-                            {% with comprobante_url=cita.comprobante.url|lower %}
-                            {% if comprobante_url|slice:"-4:" == ".pdf" %}
-                            <a href="{{ cita.comprobante.url }}#toolbar=0&navpanes=0&scrollbar=0" target="_blank"
-                                class="btn btn-sm btn-outline-secondary mt-2">
-                                Ver PDF
-                            </a>
-                            {% elif ".jpg" in comprobante_url or ".jpeg" in comprobante_url or ".png" in comprobante_url or
-                            ".webp" in comprobante_url %}
-                            <div class="text-center">
-                                <a href="{{ cita.comprobante.url }}" target="_blank"
-                                    class="btn btn-sm btn-outline-secondary mt-2">
-                                    Ver imagen
-                                </a>
-                            </div>
-                            {% else %}
-                            <div class="alert alert-warning">
-                                Formato no soportado: <code>{{ cita.comprobante.name }}</code>
-                            </div>
-                            {% endif %}
-                            {% endwith %}
-                            {% else %}
-                            <div class="overflow-x-scroll">
-                                <div class="badge bg-danger text-start">
-                                    <span>No se ha subido ningún archivo</span>
-                                </div>
-                            </div>
-                            {% endif %}
-                        </div>
+                      {% endwith %}
+                    </a>
+                  </div>
+                  {% with comprobante_url=cita.comprobante.url|lower %}
+                    {% if comprobante_url|slice:"-4:" == ".pdf" %}
+                      <a href="{{ cita.comprobante.url }}#toolbar=0&navpanes=0&scrollbar=0"
+                         target="_blank" class="btn btn-sm btn-outline-secondary mt-2">
+                        Ver PDF
+                      </a>
+                    {% elif ".jpg" in comprobante_url or ".jpeg" in comprobante_url or ".png" in comprobante_url or ".webp" in comprobante_url %}
+                      <div class="text-center">
+                        <a href="{{ cita.comprobante.url }}" target="_blank" class="btn btn-sm btn-outline-secondary mt-2">
+                          Ver imagen
+                        </a>
+                      </div>
+                    {% else %}
+                      <div class="alert alert-warning">
+                        Formato no soportado: <code>{{ cita.comprobante.name }}</code>
+                      </div>
+                    {% endif %}
+                  {% endwith %}
+                {% else %}
+                  <div class="overflow-x-scroll">
+                    <div class="badge text-bg-danger text-start">
+                      <span>No se ha subido ningún archivo</span>
                     </div>
-                </div>
-                <hr>
-                <p class="small text-muted text-center mb-0">📝 Creada el {{ cita.fecha_creacion }}</p>
+                  </div>
+                {% endif %}
+              </div>
             </div>
-        </div>
-        {% empty %}
-    </div>
-    <div class="col-12 col-md-12">
-        <div class="blur-container p-3 mb-3 shadow-lg">
-            <div class="row align-items-center">
-                <div class="col-12 d-flex justify-content-center gap-2 top-0 end-0 px-3 pt-2">
-                    <h2>No se encontraron citas pendientes</h2>
-                </div>
-            </div>
-        </div>
-    </div>
-    {% endfor %}
-</div>
-</div>
-</div>
+          </div>
 
+          <hr>
+          <p class="small text-muted text-center mb-0">📝 Creada el {{ cita.fecha_creacion }}</p>
+        </div>
+      </div>
+    {% empty %}
+  </div>
 
+  <div class="col-12 col-md-12">
+    <div class="bg-white/80 backdrop-blur rounded-2xl p-3 mb-3 shadow-lg border border-slate-200">
+      <div class="row align-items-center">
+        <div class="col-12 d-flex justify-content-center gap-2 top-0 end-0 px-3 pt-2">
+          <h2 class="text-slate-800">No se encontraron citas pendientes</h2>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+</div>
+</div>
 {% endblock %}
 
 {% block scripts %}

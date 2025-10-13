@@ -1,0 +1,372 @@
+{% extends "components/base.html" %}
+
+{% block title %}Fechas Bloqueadas{% endblock %}
+
+{% block outbody %}
+{# ================= MODAL: BLOQUEAR MES ================= #}
+<dialog id="modal-mes-bloquear" tabindex="-1" closedby="any" class="backdrop:bg-black/30">
+  <div class="modal-content">
+    <div class="card rounded-3 overflow-hidden shadow-lg border border-slate-200">
+      <form class="card-header d-flex justify-content-between align-items-center bg-slate-50">
+        <h3 class="text-center my-3 text-slate-800">Bloquear mes</h3>
+        <button class="btn-close btn-lg" formmethod="dialog" aria-label="Cerrar"></button>
+      </form>
+      <div class="card-body">
+        <form action="" method="post" novalidate>
+          {% csrf_token %}
+          <input type="hidden" name="form_kind" value="rango">
+          <div class="input-group mb-3">
+            <span class="input-group-text"><i class="bi bi-calendar"></i></span>
+            <div class="form-floating">
+              {{ form_meses.fecha_inferior }}
+              <label for="id_fecha">{{ form_meses.fecha_inferior.label }}</label>
+            </div>
+            <div class="form-floating">
+              {{ form_meses.fecha_superior }}
+              <label for="id_fecha">{{ form_meses.fecha_superior.label }}</label>
+            </div>
+          </div>
+
+          <div class="form-control mb-3 pb-3 border border-slate-200">
+            <label class="form-check-label fs-6 fw-semibold text-slate-800" for="{{ form.motivo.id_for_label }}">
+              {{ form_meses.motivo.label }}
+            </label>
+            {{ form_meses.motivo }}
+          </div>
+
+          <div class="mb-3 text-end">
+            <input type="submit" value="Cancelar" class="btn btn-secondary" formmethod="dialog">
+            <input type="submit" value="Guardar" class="btn btn-dark">
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</dialog>
+
+{# =============== MODAL: BLOQUEAR FECHA ================= #}
+<dialog id="modal-bloquear" class="backdrop:bg-black/30">
+  <div class="modal-content">
+    <div class="card rounded-3 overflow-hidden shadow-lg border border-slate-200">
+      <div class="card-header d-flex justify-content-between align-items-center bg-slate-50">
+        <h3 class="text-center my-3 text-slate-800">Bloquear fecha</h3>
+        <form method="dialog"><button class="btn-close btn-lg" aria-label="Cerrar"></button></form>
+      </div>
+      <div class="card-body">
+        <form id="form-bloquear-dia" action="" method="post" novalidate>
+          {% csrf_token %}
+          <input type="hidden" name="form_kind" value="dia">
+          <div class="input-group mb-3">
+            <span class="input-group-text"><i class="bi bi-calendar"></i></span>
+            <div class="form-floating">
+              {{ form.fecha }}
+              <label for="id_fecha">{{ form.fecha.label }}</label>
+            </div>
+          </div>
+
+          <div class="form-control mb-3 border border-slate-200">
+            <div id="row-todo-dia" class="form-check form-switch fs-4">
+              {{ form.todo_el_dia }}
+              <label class="form-check-label fs-6 text-slate-800" for="{{ form.todo_el_dia.id_for_label }}">
+                {{ form.todo_el_dia.label }}
+              </label>
+            </div>
+
+            {% for checkbox in form.horarios %}
+              <div class="form-check form-switch fs-4">
+                {{ checkbox.tag }}
+                <label class="form-check-label fs-6 text-slate-800" for="{{ checkbox.id_for_label }}">
+                  {{ checkbox.choice_label }}
+                </label>
+              </div>
+            {% endfor %}
+          </div>
+
+          <div class="form-control mb-3 pb-3 border border-slate-200">
+            <label class="form-check-label fs-6 fw-semibold text-slate-800" for="{{ form.motivo.id_for_label }}">
+              {{ form.motivo.label }}
+            </label>
+            {{ form.motivo }}
+          </div>
+
+          <div class="mb-3 text-end">
+            <input type="submit" value="Cancelar" class="btn btn-secondary" formmethod="dialog">
+            <button type="submit" id="btn-dia-guardar" class="btn btn-dark" disabled>Guardar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</dialog>
+{# =============== MODAL: ELIMINAR FECHA ================= #}
+<dialog id="modal-eliminar" tabindex="-1" closedby="any" style="width:22rem;" class="backdrop:bg-black/30">
+  <div class="card rounded-3 overflow-hidden px-3 shadow-lg border border-slate-200">
+    <form class="modal-header d-flex justify-content-between align-items-center bg-slate-50">
+      <h3 class="text-center my-3 text-slate-800">Desbloquear fecha</h3>
+      <button class="btn-close btn-lg" formmethod="dialog" aria-label="Cerrar"></button>
+    </form>
+    <form action="{% url 'testeando_eliminar' %}" method="post">
+      {% csrf_token %}
+      <div class="modal-body">
+        <p class="text-center text-slate-700">¿Deseas desbloquear esta fecha?</p>
+        <p class="text-center font-medium text-slate-900" id="modal-fecha"></p>
+        <input type="hidden" name="fecha" id="fecha-eliminar">
+      </div>
+      <div class="modal-footer mb-3">
+        <div class="text-end">
+          <input type="submit" value="Cancelar" class="btn btn-secondary" formmethod="dialog">
+          <input type="submit" value="Confirmar" class="btn btn-danger">
+        </div>
+      </div>
+    </form>
+  </div>
+</dialog>
+{% endblock %}
+<br><br>
+{% block body %}
+<div class="min-h-screen pt-24 pb-12 px-3 bg-gradient-to-r from-gray-100 via-gray-200 to-gray-100">
+  <div class="flex justify-center">
+    <div class="w-full max-w-4xl">
+      <div class="bg-white/80 backdrop-blur shadow-xl rounded-2xl overflow-hidden border border-slate-200">
+        <div class="px-6 py-4 bg-slate-900 text-white">
+          <h4 class="text-2xl text-center font-bold">Fechas bloqueadas</h4>
+        </div>
+        <div class="p-6 bg-white/70">
+          {# ====== Filtros ====== #}
+          <div class="flex flex-col lg:flex-row justify-between items-center gap-6 mb-6">
+            <div class="flex flex-wrap items-center gap-3 bg-white/60 backdrop-blur-sm px-4 py-3 rounded-xl shadow-sm border border-slate-200">
+              <label for="selector-mes" class="text-sm font-semibold text-slate-800">Filtrar:</label>
+              <select id="selector-mes" class="border border-slate-300 rounded-md px-3 py-1 text-sm min-w-[130px]">
+                {% for mes in meses_disponibles %}
+                  <option value="{{ mes.1 }}" {% if mes.1 == hoy.month %}selected{% endif %}>
+                    {{ mes.0 }}
+                  </option>
+                {% endfor %}
+              </select>
+              <select id="selector-año" class="border border-slate-300 rounded-md px-3 py-1 text-sm min-w-[100px]">
+                {% for año in años_disponibles %}
+                  <option value="{{ año }}" {% if año == hoy.year %}selected{% endif %}>
+                    {{ año }}
+                  </option>
+                {% endfor %}
+              </select>
+              <button id="btn-buscar-fechas"
+                      class="btn btn-dark btn-sm px-3 py-1.5">
+                <i class="bi bi-search"></i> Buscar
+              </button>
+            </div>
+            <div class="flex gap-3">
+              <button id="btn-nueva-fecha" class="btn btn-outline-dark btn-sm px-3 py-1.5">
+                <i class="bi bi-plus-circle-fill"></i> Nueva fecha
+              </button>
+              <button id="btn-nuevo-mes" class="btn btn-dark btn-sm px-3 py-1.5">
+                <i class="bi bi-plus-circle-fill"></i> Bloquear mes
+              </button>
+            </div>
+          </div>
+          {% if messages %}
+            {% for message in messages %}
+              <div class="toast align-items-center bg-white border-0 w-100 my-2 shadow"
+                   role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="false">
+                <div class="d-flex">
+                  <div class="toast-body text-slate-800">
+                    <small>{{ message }}</small>
+                  </div>
+                  <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast"
+                          aria-label="Close" tabindex="-1"></button>
+                </div>
+              </div>
+            {% endfor %}
+          {% endif %}
+          {# ====== Lista de fechas ====== #}
+          <div class="divide-y divide-slate-200">
+            {% for fecha in fechas_bloqueadas %}
+              <div class="flex justify-between items-start flex-wrap py-4">
+                {# Info #}
+                <div class="flex flex-col gap-1">
+                  <div class="font-semibold text-lg text-slate-900">📆 {{ fecha.fecha }}</div>
+
+                  <div class="flex flex-wrap gap-2">
+                    {% if fecha.horas_bloqueadas.count == 4 or fecha.horas_bloqueadas.count == 0 %}
+                      <span class="bg-slate-900 text-white text-xs px-2 py-1 rounded">🕗 Día completo</span>
+                    {% else %}
+                      {% for hora in fecha.horas_bloqueadas.all %}
+                        <span class="bg-slate-700 text-white text-xs px-2 py-1 rounded">🕗 {{ hora.hora|time:"H:i" }}</span>
+                      {% empty %}
+                        <span class="bg-slate-300 text-slate-900 text-xs px-2 py-1 rounded">🕗 Sin horario</span>
+                      {% endfor %}
+                    {% endif %}
+                  </div>
+                  <div class="text-slate-500 text-sm">{{ fecha.motivo|default:"—" }}</div>
+                </div>
+                {# Botones #}
+                <div class="flex gap-2 mt-3 lg:mt-0">
+                  <button type="button" id="eliminar-{{fecha.id}}"
+                          class="btn btn-outline-danger"
+                          data-alt="{{ fecha.fecha }}" data-fecha='{{fecha.fecha|date:"Y-m-d" }}'>
+                    <i class="bi bi-trash3-fill"></i>
+                  </button>
+                  <button type="button" id="fecha-{{fecha.id}}"
+                          class="btn btn-outline-dark"
+                          data-id="{{fecha.id}}" data-fecha='{{fecha.fecha|date:"Y-m-d" }}'
+                          data-horarios='{{fecha.json | safe}}' data-motivo="{{fecha.motivo}}">
+                    <i class="bi bi-pencil-fill"></i>
+                  </button>
+                </div>
+              </div>
+            {% empty %}
+              <div class="text-center text-slate-500 py-4">
+                No hay fechas bloqueadas registradas.
+              </div>
+            {% endfor %}
+          </div>
+
+        </div> {# /p-6 #}
+      </div>   {# /card #}
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+
+<script>
+  const buscador = document.getElementById('btn-buscar-fechas');
+  buscador.addEventListener('click', () => {
+    const mes = document.getElementById('selector-mes').value;
+    const año = document.getElementById('selector-año').value;
+    const url = `${window.location.pathname}?mes=${mes}&año=${año}`;
+    window.location.href = url;
+  });
+
+  const modalEliminar   = document.getElementById('modal-eliminar');
+  const inputEliminar   = document.getElementById('fecha-eliminar');
+  const pFecha          = document.getElementById('modal-fecha');
+  const botonesEliminar = document.querySelectorAll('button[id^="eliminar-"]');
+  botonesEliminar.forEach(boton => {
+    boton.addEventListener('click', () => {
+      if (!modalEliminar || !inputEliminar) return;
+      inputEliminar.value = boton.dataset.fecha;
+      pFecha.textContent  = boton.dataset.alt || '';
+      modalEliminar.showModal();
+    });
+  });
+
+  const modalMes         = document.getElementById('modal-mes-bloquear');
+  const botonBloquearMes = document.getElementById('btn-nuevo-mes');
+  botonBloquearMes?.addEventListener('click', () => modalMes?.showModal());
+
+  const modal  = document.getElementById('modal-bloquear');
+  const boton  = document.getElementById('btn-nueva-fecha');
+
+  const inputFecha  = document.getElementById('id_fecha');
+  const inputFull   = document.getElementById('id_todo_el_dia');
+  const inputMotivo = document.getElementById('id_motivo');
+  const botones     = document.querySelectorAll('button[id^="fecha-"]');
+
+  const formDia    = document.getElementById('form-bloquear-dia');
+  const btnSaveDia = document.getElementById('btn-dia-guardar');
+  const rowTodoDia = document.getElementById('row-todo-dia');
+
+  async function fetchHorariosDeFecha(iso) {
+    if (!iso || !/^\d{4}-\d{2}-\d{2}$/.test(iso)) return [];
+    const [Y, M, D] = iso.split('-');
+    const res = await fetch(`/api/horarios/${parseInt(Y,10)}/${parseInt(M,10)}/${parseInt(D,10)}/`, {
+      headers: { 'Accept': 'application/json' }
+    });
+    if (!res.ok) return [];
+    const json = await res.json();
+    return (Array.isArray(json) ? json : (json && json.choices) || [])
+      .map(it => Array.isArray(it) ? it[0] : (it.value ?? it.hora ?? it.time ?? it['0']))
+      .filter(Boolean);
+  }
+
+  function updateSaveEnabled() {
+    const dateOk = !!(inputFecha && inputFecha.value);
+
+    const visibles = Array.from(document.querySelectorAll('input[name="horarios"]'))
+      .filter(ch => ch.closest('.form-check')?.style.display !== 'none');
+    const anyChecked = visibles.some(ch => ch.checked);
+
+    const todoDiaVisible = rowTodoDia && rowTodoDia.style.display !== 'none';
+    const allDayChecked  = !!(todoDiaVisible && inputFull && inputFull.checked);
+
+    const ok = dateOk && (allDayChecked || anyChecked);
+    if (btnSaveDia) btnSaveDia.disabled = !ok;
+  }
+
+  function aplicarFiltroHorarios(validList) {
+    const valid = new Set(validList.map(String));
+    const checks = document.querySelectorAll('input[name="horarios"]');
+
+    checks.forEach(ch => {
+      const row  = ch.closest('.form-check');
+      const show = valid.size > 0 && valid.has(String(ch.value));
+      if (!show) {
+        ch.checked  = false;
+        ch.disabled = false;
+        if (row) row.style.display = 'none';
+      } else {
+        if (row) row.style.display = '';
+      }
+    });
+
+    if (rowTodoDia) rowTodoDia.style.display = valid.size > 0 ? '' : 'none';
+    if (valid.size === 0 && inputFull) inputFull.checked = false;
+
+    if (inputFull?.checked) {
+      checks.forEach(ch => ch.disabled = true);
+    } else {
+      checks.forEach(ch => ch.disabled = false);
+    }
+
+    updateSaveEnabled();
+  }
+
+  async function onFechaChange() {
+    const iso = inputFecha?.value || '';
+    const lista = await fetchHorariosDeFecha(iso);
+    aplicarFiltroHorarios(lista);
+  }
+
+  inputFecha?.addEventListener('change', onFechaChange);
+
+  document.querySelectorAll('input[name="horarios"]').forEach(ch => {
+    ch.addEventListener('change', updateSaveEnabled);
+  });
+
+  inputFull?.addEventListener('change', () => {
+    const disabled = inputFull.checked;
+    document.querySelectorAll('input[name="horarios"]').forEach(ch => ch.disabled = disabled);
+    updateSaveEnabled();
+  });
+
+  if (boton && modal) {
+    boton.addEventListener('click', () => {
+      inputFecha.value  = '';
+      inputMotivo.value = '';
+      aplicarFiltroHorarios([]);
+      modal.showModal();
+    });
+  }
+
+  botones.forEach(b => {
+    b.addEventListener('click', async () => {
+      if (!modal) return;
+      inputFecha.value  = b.dataset.fecha  || '';
+      inputMotivo.value = b.dataset.motivo || '';
+      await onFechaChange();
+      updateSaveEnabled();
+      modal.showModal();
+    });
+  });
+
+  formDia?.addEventListener('submit', (e) => {
+    updateSaveEnabled();
+    if (btnSaveDia?.disabled) {
+      e.preventDefault();
+      alert('Selecciona una fecha y al menos un horario visible, o marca "Bloquear día completo".');
+    }
+  });
+</script>
+{% endblock %}

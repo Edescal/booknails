@@ -1,159 +1,162 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap');
 
-:root {
-    font-family: 'Poppins', sans-serif;
+:root{
+  --font-sans: 'Poppins', system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, 'Helvetica Neue', Arial;
+  --slate-50:#f8fafc; --slate-100:#f1f5f9; --slate-200:#e2e8f0; --slate-300:#cbd5e1;
+  --slate-400:#94a3b8; --slate-500:#64748b; --slate-600:#475569; --slate-700:#334155;
+  --slate-800:#1f2937; --slate-900:#0f172a;
+  --white:#ffffff; --black:#0b0f1a;
+  --success:#16a34a; --danger:#dc2626; --warning:#f59e0b;
+  --radius-lg:1rem; --radius-md:.75rem; --radius-sm:.5rem;
+  --shadow-sm:0 1px 2px rgba(2,6,23,.06), 0 1px 1px rgba(2,6,23,.06);
+  --shadow-md:0 8px 24px rgba(2,6,23,.08);
+  --shadow-lg:0 20px 40px rgba(2,6,23,.12);
+  --ring: 0 0 0 3px rgba(15,23,42,.15);
+  --transition:.2s cubic-bezier(.2,.7,.3,1);
 }
 
-.body {
-    font-family: 'Poppins', sans-serif;
-    background-color: #F79DFD;
+*{ box-sizing:border-box; }
+html, body{ height:100%; }
+
+/* ---------- Base ---------- */
+.body{
+  font-family: var(--font-sans);
+  background: linear-gradient(90deg, var(--slate-100), var(--slate-200), var(--slate-100));
+  color: var(--slate-800);
+  -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
 }
 
-.background {
-    background-image: url('../img/fondo.png');
-    background-size: cover;
-    /* Ajusta la imagen para cubrir todo el fondo */
-    background-position: center center;
-    /* Centra la imagen */
-    background-attachment: scroll;
-    margin: 2vh;
-    height: auto;
-    min-height: calc(76vh);
-    padding: 0%;
-    border-radius: 1rem;
-    box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.2);
+/* Scrollbar */
+body::-webkit-scrollbar { width: 10px; }
+body::-webkit-scrollbar-track { background: var(--slate-100); border-radius: 10px; }
+body::-webkit-scrollbar-thumb { background: var(--slate-300); border-radius: 10px; }
+body::-webkit-scrollbar-thumb:hover { background: var(--slate-400); }
+
+/* Animaciones sutiles */
+@keyframes fadeUp { from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);} }
+@keyframes softPop { from{transform:scale(.98); opacity:.9;} to{transform:scale(1); opacity:1;} }
+
+@media (prefers-reduced-motion: reduce){
+  *{ animation-duration:.001ms !important; animation-iteration-count:1 !important; transition-duration:.001ms !important; }
 }
 
-
-.main-footer {
-    height: 20vh;
-    min-height: 20vh;
-    background-color: #78249f;
+/* ---------- Hero ---------- */
+.background{
+  background-image:
+    linear-gradient( to bottom right, rgba(241,245,249,.85), rgba(226,232,240,.85) ),
+    url('../img/fondo.png');
+  background-size: cover;
+  background-position: center center;
+  background-attachment: scroll;
+  margin: 2vh;
+  min-height: 76vh;
+  padding: 0;
+  border-radius: var(--radius-lg);
+  border:1px solid var(--slate-200);
+  box-shadow: var(--shadow-md);
+  animation: softPop .25s ease-out both;
 }
 
+/* ---------- Footer ---------- */
+.main-footer{
+  min-height: 20vh;
+  background: var(--white);
+  border-top:1px solid var(--slate-200);
+  color: var(--slate-700);
+}
+.main-footer a{ color: var(--slate-600); transition: color var(--transition); }
+.main-footer a:hover{ color: var(--slate-900); }
 
-.blur-container {
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(8px);
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-    text-align: center;
+/* ---------- Contenedores blur/cards ---------- */
+.blur-container{
+  background: color-mix(in srgb, var(--white) 86%, transparent);
+  backdrop-filter: blur(6px);
+  padding: 20px;
+  border-radius: var(--radius-md);
+  border:1px solid var(--slate-200);
+  box-shadow: var(--shadow-md);
+  text-align: center;
+  animation: fadeUp .35s ease-out both;
+}
+.blur-container h2{ color: var(--slate-800) !important; }
+
+/* ---------- Formularios ---------- */
+.inputGroup{ color: var(--slate-700); }
+.input{
+  width:100%; padding:10px;
+  border:1px solid var(--slate-300);
+  outline:none;
+  border-radius: 15px !important;
+  display:block; font-size:14px;
+  color: var(--slate-900) !important;
+  background-color: var(--white);
+  transition: border-color var(--transition), box-shadow var(--transition), background var(--transition);
+}
+.input::placeholder{ color: var(--slate-400); }
+.input:focus{
+  border-color: var(--slate-600);
+  background: var(--slate-50);
+  box-shadow: var(--ring);
 }
 
-.blur-container h2 {
-    color: #784eb3 !important;
+/* ---------- Botón morado (ahora slate/dark) ---------- */
+.btn.btn-morado{
+  background-color: var(--slate-900);
+  border-color: var(--slate-900);
+  color: var(--white);
+  transition: background var(--transition), border-color var(--transition), box-shadow var(--transition), transform var(--transition);
+  box-shadow: var(--shadow-sm);
+  border-radius: 9999px;
+}
+.btn.btn-morado:hover{
+  background-color: var(--slate-700);
+  border-color: var(--slate-700);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+.btn.btn-morado:active{
+  transform: translateY(0);
+  box-shadow: var(--shadow-sm);
 }
 
-.inputGroup {
-    color: #784eb3;
+/* Titulares */
+.titulo{ color: var(--slate-800); }
+
+/* ---------- Modales <dialog> ---------- */
+dialog{
+  position: fixed; inset:0; margin:auto; border:none; padding:0; background:none; z-index: 60;
+  max-width: 100vh; max-height: 100vh;
+}
+dialog::backdrop{ background: rgba(2,6,23,.35); backdrop-filter: blur(2px); }
+dialog .card{
+  justify-self:center; width:100%; max-width: 500px;
+  background: var(--white);
+  border:1px solid var(--slate-200);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  animation: softPop .25s ease-out both;
 }
 
-.input {
-    width: 100%;
-    padding: 10px;
-    border: none;
-    outline: none;
-    border-radius: 15px !important;
-    display: block;
-    font-size: 14px;
-    color: #FF636E !important;
+/* IDs de tamaño conservados */
+#modal-bloquear { width: 26rem; }
+#modal-editar-cita { width: 30rem; }
+#modal-eliminar-cita { width: 24rem; }
+#modal-comprobante { width: 26rem; }
+
+/* Modal de confirmación dedicado */
+#modal-eliminar{
+  position: fixed; inset:0; margin:auto; border:none; background:none; z-index: 60;
 }
+#modal-eliminar::backdrop{ background: rgba(2,6,23,.35); }
 
-.btn.btn-morado {
-    background-color: #784eb3;
-    border-color: #784eb3;
-}
+/* ---------- Helpers/Utilidades ---------- */
+.shadow-soft{ box-shadow: var(--shadow-sm); }
+.shadow-float{ box-shadow: var(--shadow-md); }
+.rounded-xl{ border-radius: var(--radius-lg); }
 
-.titulo {
-    color: #784eb3;
-}
-
-
-dialog {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    border: none;
-    padding: 0;
-    margin: 0;
-    background: none;
-    z-index: 9999;
-    max-width: 100vh;
-    max-height: 100vh;
-}
-
-
-dialog::backdrop {
-    background: rgba(0, 0, 0, 0.5);
-}
-
-dialog .card {
-    justify-self: center;
-    width: 100%;
-    max-width: 500px;
-}
-
-
-#modal-bloquear {
-    width: 26rem;
-}
-
-#modal-editar-cita {
-    width: 30rem;
-}
-
-#modal-eliminar-cita {
-    width: 24rem;
-}
-
-#modal-comprobante {
-    width: 26rem;
-}
-
-
-
-#modal-eliminar {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    margin: 0;
-    padding: 0;
-    border: none;
-    z-index: 9999;
-    background: none;
-}
-
-#modal-eliminar::backdrop {
-    background: rgba(0, 0, 0, 0.5);
-}
-
-
-@media (max-width: 400px) {
-    #modal-bloquear {
-        width: 22rem;
-    }
-/*     
-    #modal-bloquear .card {
-        max-width: 22rem;
-    } */
-
-    #modal-editar-cita {
-        width: 25rem;
-    }
-/*     
-    #modal-editar-cita .card {
-        max-width: 25rem;
-    } */
-
-    #modal-eliminar-cita {
-        width: 20rem;
-    }
-
-    #modal-comprobante {
-        width: 20rem;
-    }
-    
+/* Estados de hover para tarjetas/listados */
+.card:hover{
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+  transition: transform var(--transition), box-shadow var(--transition);
 }

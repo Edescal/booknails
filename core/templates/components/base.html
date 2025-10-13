@@ -1,129 +1,73 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}{% endblock %}</title>
-    <link rel="icon" href="{% static 'img/logo.png' %}" type="image/x-icon">
-
-    <!-- Tailwind CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-
-    <!-- Ícono del navegador -->
-    <link rel="icon" href="{% static 'img/favicon.ico' %}" type="image/x-icon">
-    <link rel="stylesheet" href="{% static '/css/styles.css' %}?v={{ timestamp }}">
-    <!-- CSS personalizado -->
-    <link rel="stylesheet" href="{% static '/css/custom.css' %}">
-
-    <!-- jQuery y jQuery UI -->
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"
-        integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
-    <script src="https://code.jquery.com/ui/1.13.3/jquery-ui.js"></script>
-    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.3/themes/base/jquery-ui.css">
-
-    <!-- Bootstrap 5 -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
-        crossorigin="anonymous"></script>
-
-    <!-- Popper.js -->
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
-
-    <!-- Google Fonts: Poppins -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;300;400;500;600;700;900&display=swap" rel="stylesheet">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
-    <!-- Bootstrap Icons -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-
-    {% block links %}{% endblock %}
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}{% endblock %}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.3/themes/base/jquery-ui.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}?v={% now 'U' %}">
+  <link rel="stylesheet" href="{% static 'css/custom.css' %}?v={% now 'U' %}">
+  {% block links %}{% endblock %}
 </head>
 
-<body class="body font-[Poppins] bg-gray-100 text-gray-800">
-    {% load template_tags %}
+<body class="min-h-screen bg-gradient-to-r from-gray-100 via-gray-200 to-gray-100 text-gray-800" style="font-family:'Poppins',sans-serif;">
+  {% load template_tags %}
 
-<nav class="fixed top-0 left-0 w-full z-50 bg-pink-200/60 backdrop-blur-lg border-b border-pink-300 shadow-md">
-  <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+  <nav class="fixed top-0 left-0 w-full z-50 bg-white/70 backdrop-blur-lg border-b border-slate-200 shadow-md">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+      <a href="/" class="text-slate-900 text-2xl font-extrabold tracking-wide">Placeholder</a>
 
-    <!-- Logo o título -->
-    <a href="/" class="text-pink-700 text-2xl font-extrabold tracking-wide">BookNails</a>
+      <div class="hidden md:flex items-center space-x-6">
+        {% if user.is_authenticated %}
+          <a href="{% url 'auth_perfil' %}" class="text-slate-900 hover:text-slate-700 font-medium">Mi perfil</a>
+        {% endif %}
 
-    <!-- Links -->
-    <div class="hidden md:flex items-center space-x-6">
-      {% if user.is_authenticated %}
-      <a href="{% url 'auth_perfil' %}" class="text-pink-900 hover:text-pink-600 font-medium">Mi perfil</a>
-      {% endif %}
-      
-      {% if user.is_superuser %}
-        <a href="{% url 'ver_agenda' %}" class="text-pink-900 hover:text-pink-600 font-medium">Agenda</a>
-        <a href="{% url 'bloquear_fechas_get' %}" class="text-pink-900 hover:text-pink-600 font-medium">Bloquear fechas</a>
-        <a href="{% url 'agendar_super' %}" class="text-pink-900 hover:text-pink-600 font-medium">Agendar cita</a>
-        <a href="{% url 'registro_y_cita' %}" class="text-pink-900 hover:text-pink-600 font-medium">Registrar clienta</a>
-      {% elif user.is_authenticated and not user.is_superuser %}
-        <a href="{% url 'ver_mis_citas' %}" class="text-pink-900 hover:text-pink-600 font-medium">Mis citas</a>
-        <a href="{% url 'auth_editar_usuario' %}" class="text-pink-900 hover:text-pink-600 font-medium">Editar datos</a>
-        <a href="{% url 'agendar_cita' %}" class="text-pink-900 hover:text-pink-600 font-medium">Agendar cita</a>
-      {% endif %}
-      {% if user.is_authenticated %}
-      <a href="{% url 'auth_logout' %}" class="text-red-500 hover:text-red-700 font-semibold">Cerrar sesión</a>
-      {% endif %}
-      {% if request.resolver_match.url_name != 'home' %}
-        <a href="/" class="text-pink-800 hover:text-pink-600"></a>
-      {% endif %}
+        {% if user.is_superuser %}
+          <a href="{% url 'ver_agenda' %}" class="text-slate-900 hover:text-slate-700 font-medium">Agenda</a>
+          <a href="{% url 'bloquear_fechas_get' %}" class="text-slate-900 hover:text-slate-700 font-medium">Bloquear fechas</a>
+          <a href="{% url 'agendar_super' %}" class="text-slate-900 hover:text-slate-700 font-medium">Agendar cita</a>
+          <a href="{% url 'registro_y_cita' %}" class="text-slate-900 hover:text-slate-700 font-medium">Registrar cliente</a>
+        {% elif user.is_authenticated %}
+          <a href="{% url 'ver_mis_citas' %}" class="text-slate-900 hover:text-slate-700 font-medium">Mis citas</a>
+          <a href="{% url 'agendar_cita' %}" class="text-slate-900 hover:text-slate-700 font-medium">Agendar cita</a>
+        {% endif %}
+
+        {% if user.is_authenticated %}
+          <a href="{% url 'auth_logout' %}" class="text-red-600 hover:text-red-700 font-semibold">Cerrar sesión</a>
+        {% endif %}
+      </div>
     </div>
-  </div>
-</nav>
-    {% block outbody %}{% endblock %}
+  </nav>
 
-    <div >
-        {% block body %}{% endblock %}
-    </div>
+  {% block outbody %}{% endblock %}
+  {% block body %}{% endblock %}
 
-    <footer class="main-footer py-4 text-light bg-dark">
-        <div class="container">
-            <ul class="nav justify-content-center border-bottom border-secondary pb-3 mb-3">
-                <li class="nav-item">
-                    <a href="/" class="nav-link px-3 text-light fw-semibold">Página principal</a>
-                </li>
-                {% if user.is_authenticated %}
-                <li class="nav-item">
-                    <a href="{% url 'auth_logout' %}" class="nav-link px-3 text-light fw-semibold">Cerrar sesión</a>
-                </li>
-                {% else %}
-                <li class="nav-item">
-                    <a href="{% url 'auth_login' %}" class="nav-link px-3 text-light fw-semibold">Iniciar sesión</a>
-                </li>
-                <li class="nav-item">
-                    <a href="{% url 'auth_registro' %}" class="nav-link px-3 text-light fw-semibold">Registro</a>
-                </li>
-                {% endif %}
-            </ul>
-            <p class="text-center small mb-0">&copy; 2025 <strong>BookNails</strong>. Todos los derechos reservados.</p>
-        </div>
-    </footer>
+  <footer class="bg-white text-center text-sm py-4 mt-10 border-t border-slate-200">
+    <ul class="flex justify-center space-x-4 mb-2">
+      <li><a href="/" class="text-slate-600 hover:text-slate-800">Página principal</a></li>
+      {% if user.is_authenticated %}
+        <li><a href="{% url 'auth_logout' %}" class="text-slate-600 hover:text-slate-800">Cerrar sesión</a></li>
+      {% else %}
+        <li><a href="{% url 'auth_login' %}" class="text-slate-600 hover:text-slate-800">Iniciar sesión</a></li>
+        <li><a href="{% url 'auth_registro' %}" class="text-slate-600 hover:text-slate-800">Registro</a></li>
+      {% endif %}
+    </ul>
+    <p class="text-slate-500">&copy; 2025 Placeholder. Todos los derechos reservados.</p>
+  </footer>
 
-</body>
-</html>
+  <!-- Scripts al final -->
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="https://code.jquery.com/ui/1.13.3/jquery-ui.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+  <script>
+    const toasts = document.getElementsByClassName('toast');
+    Array.from(toasts).forEach(el => bootstrap.Toast.getOrCreateInstance(el).show());
+  </script>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
-        integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
-        crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
-        crossorigin="anonymous"></script>
-    <script>
-        const toasts = document.getElementsByClassName('toast')
-        const toastArray = Array.from(toasts)
-        toastArray.forEach(element => {
-            const toast = bootstrap.Toast.getOrCreateInstance(element).show()
-        })
-    </script>
-    {% block scripts %}
-
-    {% endblock %}
+  {% block scripts %}{% endblock %}
 </body>
 </html>

@@ -1,36 +1,49 @@
-{% extends "base.html" %}
+{% extends "components/base.html" %}
 
 {% block title %}Calendario{% endblock %}
 
 {% block body %}
-<div class="container- p-3">
-    <div class="row">
-        {% for cita in citas %}
-        <div class="col-3 my-2">
-            <div class="card">
-                <div class="card-header">
-                    <p>Cita de: {{ cita.cliente.get_full_name }}</p>
-                    <small>
-                        Hora: {{ cita.fecha_cita }}
-                    </small>
-                </div>
-                
-                <div class="card-body">
-                    {% for servicio in cita.servicios.all %}
-                    <div class="ms-4">
-                        <small class="text-start">{{forloop.counter}}.  {{servicio.nombre}} ${{servicio.precio}}</small>
-                    </div>
-                    {% endfor %}
-                </div>
+<div class="pt-24 pb-12 px-3">
+  <div class="max-w-7xl mx-auto">
+    <h2 class="text-2xl font-bold text-slate-800 mb-4">Calendario</h2>
 
-                <div class="card-footer">
-                    <small>
-                        Cita registrada el: {{ cita.fecha_creacion }}
-                    </small>
-                </div>
+    {% if citas %}
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        {% for cita in citas %}
+          <div class="bg-white/80 backdrop-blur rounded-2xl shadow-lg border border-slate-200 overflow-hidden">
+            <div class="px-5 py-3 border-b border-slate-200">
+              <p class="text-slate-900 font-semibold">Cita de: {{ cita.cliente.get_full_name }}</p>
+              <small class="text-slate-600">Hora: {{ cita.fecha_cita }}</small>
             </div>
-        </div>
+
+            <!-- Body -->
+            <div class="px-5 py-4">
+              <p class="text-slate-800 mb-2">Servicios:</p>
+              {% if cita.servicios.all %}
+                <ul class="text-sm text-slate-700 space-y-1">
+                  {% for servicio in cita.servicios.all %}
+                    <li class="flex items-start gap-2">
+                      <span class="min-w-[1.25rem] text-slate-500">{{ forloop.counter }}.</span>
+                      <span>{{ servicio.nombre }} — ${{ servicio.precio }}</span>
+                    </li>
+                  {% endfor %}
+                </ul>
+              {% else %}
+                <p class="text-sm text-slate-500">Sin servicios.</p>
+              {% endif %}
+            </div>
+
+            <div class="px-5 py-3 border-t border-slate-200 bg-slate-50/60">
+              <small class="text-slate-600">Cita registrada el: {{ cita.fecha_creacion }}</small>
+            </div>
+          </div>
         {% endfor %}
-    </div>
+      </div>
+    {% else %}
+      <div class="bg-white/80 backdrop-blur rounded-2xl shadow border border-slate-200 p-6">
+        <p class="text-slate-600">No hay citas para mostrar.</p>
+      </div>
+    {% endif %}
+  </div>
 </div>
 {% endblock %}

@@ -3,7 +3,6 @@ Django settings for booknails project.
 """
 
 from pathlib import Path
-import dj_database_url
 import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -16,11 +15,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-32yx!$o!cyuvo*wz#ofn3^u*_(2&&uyjpe4iq1!i36vb9!m3=r'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
-ALLOWED_HOSTS = ['booknails-production.up.railway.app', 'localhost', '127.0.0.1']
-
-CSRF_TRUSTED_ORIGINS = ['https://booknails-production.up.railway.app']
+ALLOWED_HOSTS = ['127.0.0.1', '192.168.0.14']
 
 # Custom model
 AUTH_USER_MODEL = 'core.Usuario'
@@ -112,7 +109,6 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     "django_browser_reload.middleware.BrowserReloadMiddleware",
-    'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
 ROOT_URLCONF = 'booknails.urls'
@@ -143,11 +139,22 @@ WSGI_APPLICATION = 'booknails.wsgi.application'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASES = {
-    'default': dj_database_url.config(
-        default=os.environ.get("DATABASE_URL"),
-        conn_max_age=600,
-        ssl_require=True,
-    )
+    'alt': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    },
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',  # Usar el backend de MySQL
+        'NAME': 'booknails',  # Nombre de la base de datos
+        'USER': 'root',                  # Usuario de MariaDB
+        'PASSWORD': '123',           # Contraseña de MariaDB
+        'HOST': 'localhost',                   # Host de la base de datos
+        'PORT': '3306',                        # Puerto de MariaDB (por defecto es 3306)
+        'OPTIONS': {
+            # 'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",  # Modo SQL estricto
+            'init_command': "SET default_storage_engine=INNODB;"  # Modo SQL estricto
+        },
+    }
 }
 
 
@@ -183,7 +190,7 @@ USE_TZ = False
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = '/static/'
+STATIC_URL = 'static/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
@@ -197,7 +204,5 @@ STATIC_ROOT  = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'booknails/static'), 
 ]
-
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
